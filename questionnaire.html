@@ -1,0 +1,2866 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Découvrez votre Ikigai en répondant à notre questionnaire intelligent. 15 questions pour révéler votre raison d'être professionnelle.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+    <title>Questionnaire Ikigai | AI-Ikigai</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <style>
+        /* =============================================
+   AI-IKIGAI - Questionnaire Styles
+   ============================================= */
+
+        :root {
+            --cyan: #00d4ff;
+            --blue: #4169e1;
+            --purple: #8b5cf6;
+            --magenta: #d946ef;
+            --pink: #ec4899;
+            --gradient-primary: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 25%, var(--purple) 50%, var(--magenta) 75%, var(--pink) 100%);
+            --gradient-text: linear-gradient(90deg, var(--cyan) 0%, var(--magenta) 100%);
+            --dark: #0a0a0f;
+            --dark-card: #12121a;
+            --dark-border: #1f1f2e;
+            --dark-hover: #1a1a25;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --gray-dark: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-effects::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 70%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            animation: floatBg 20s ease-in-out infinite;
+        }
+
+        @keyframes floatBg {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(2%, 2%) rotate(1deg);
+            }
+
+            66% {
+                transform: translate(-1%, 1%) rotate(-1deg);
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: var(--light);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo span {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .save-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .save-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 7rem 1.5rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            margin-bottom: 3rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .progress-text strong {
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .progress-percentage {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--dark-card);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--dark-border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Category Pills */
+        .category-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .category-pill {
+            padding: 0.5rem 1rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-pill.active {
+            border-color: var(--purple);
+            color: var(--light);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .category-pill.completed {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .category-pill .icon {
+            font-size: 1rem;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            animation: slideIn 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--purple);
+        }
+
+        .question-number {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .question-hint {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Answer Options */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--dark);
+            border: 2px solid var(--dark-border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            border-color: var(--purple);
+            background: var(--dark-hover);
+            transform: translateX(5px);
+        }
+
+        .option-btn.selected {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .option-btn.selected .option-indicator {
+            background: var(--gradient-primary);
+            border-color: transparent;
+        }
+
+        .option-btn.selected .option-indicator::after {
+            content: '✓';
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .option-indicator {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid var(--dark-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .option-text {
+            flex: 1;
+        }
+
+        .option-emoji {
+            font-size: 1.5rem;
+        }
+
+        /* Multi-Select Options */
+        .multi-select-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+        }
+
+        .options-grid.multi-select .option-indicator {
+            border-radius: 6px;
+        }
+
+        /* Scale Options */
+        .scale-options {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .scale-btn {
+            flex: 1;
+            padding: 1.25rem 0.5rem;
+            background: var(--dark);
+            border: 2px solid var(--dark-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .scale-btn:hover {
+            border-color: var(--purple);
+            transform: translateY(-3px);
+        }
+
+        .scale-btn.selected {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .scale-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .scale-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--gray-dark);
+        }
+
+        /* Text Area */
+        .text-answer {
+            width: 100%;
+            min-height: 150px;
+            padding: 1.25rem;
+            background: var(--dark);
+            border: 2px solid var(--dark-border);
+            border-radius: 16px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .text-answer:focus {
+            outline: none;
+            border-color: var(--purple);
+        }
+
+        .text-answer::placeholder {
+            color: var(--gray-dark);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid var(--dark-border);
+            color: var(--gray);
+        }
+
+        .btn-back:hover {
+            border-color: var(--gray);
+            color: var(--light);
+        }
+
+        .btn-next {
+            background: var(--gradient-primary);
+            border: none;
+            color: var(--light);
+            margin-left: auto;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--light);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--light);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--purple);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--purple);
+            transform: translateY(-2px);
+        }
+
+        /* CV Upload Section */
+        .cv-upload-section {
+            display: none;
+        }
+
+        .cv-upload-section.active {
+            display: block;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--dark-border);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: var(--dark);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            border-style: solid;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .upload-zone.has-file .upload-icon {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .upload-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-formats {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-dark);
+        }
+
+        .file-preview {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: var(--dark-card);
+            border-radius: 12px;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-preview.visible {
+            display: flex;
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-size {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .file-remove {
+            width: 36px;
+            height: 36px;
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: #ef4444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .file-remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .cv-optional {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            color: var(--warning);
+            font-size: 0.9rem;
+        }
+
+        #cv-input {
+            display: none;
+        }
+
+        /* Analyzing Section */
+        .analyzing-section {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .analyzing-section.active {
+            display: block;
+        }
+
+        .analyzing-animation {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 3rem;
+        }
+
+        .analyzing-circles {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .analyzing-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid;
+            animation: analyzeRotate 3s linear infinite;
+        }
+
+        .analyzing-circle:nth-child(1) {
+            width: 160px;
+            height: 160px;
+            top: -80px;
+            left: -80px;
+            border-color: var(--cyan) transparent transparent transparent;
+        }
+
+        .analyzing-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: -60px;
+            left: -60px;
+            border-color: transparent var(--purple) transparent transparent;
+            animation-delay: -0.5s;
+            animation-direction: reverse;
+        }
+
+        .analyzing-circle:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: -40px;
+            left: -40px;
+            border-color: transparent transparent var(--pink) transparent;
+            animation-delay: -1s;
+        }
+
+        @keyframes analyzeRotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .analyzing-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .analyzing-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .analyzing-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .analyzing-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .analyzing-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--dark-card);
+            border-radius: 12px;
+            opacity: 0.4;
+            transition: all 0.5s ease;
+        }
+
+        .analyzing-step.active {
+            opacity: 1;
+            border: 1px solid var(--purple);
+        }
+
+        .analyzing-step.completed {
+            opacity: 1;
+            border: 1px solid var(--success);
+        }
+
+        .step-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--dark-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .analyzing-step.active .step-indicator {
+            background: var(--purple);
+            animation: pulse 1s infinite;
+        }
+
+        .analyzing-step.completed .step-indicator {
+            background: var(--success);
+        }
+
+        .step-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .results-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .results-title .gradient,
+        .gradient {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .results-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        /* Ikigai Diagram */
+        .ikigai-diagram {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 3rem;
+        }
+
+        .ikigai-circle {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ikigai-circle:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .ikigai-circle.passion {
+            width: 150px;
+            height: 150px;
+            top: 20px;
+            left: 85px;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid var(--cyan);
+            color: var(--cyan);
+        }
+
+        .ikigai-circle.mission {
+            width: 150px;
+            height: 150px;
+            top: 85px;
+            left: 150px;
+            background: rgba(236, 72, 153, 0.15);
+            border: 2px solid var(--pink);
+            color: var(--pink);
+        }
+
+        .ikigai-circle.vocation {
+            width: 150px;
+            height: 150px;
+            top: 150px;
+            left: 85px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 2px solid var(--purple);
+            color: var(--purple);
+        }
+
+        .ikigai-circle.profession {
+            width: 150px;
+            height: 150px;
+            top: 85px;
+            left: 20px;
+            background: rgba(65, 105, 225, 0.15);
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .ikigai-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            z-index: 5;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Result Cards */
+        .result-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .result-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-5px);
+        }
+
+        .result-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card.passion .result-card-icon {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .result-card.mission .result-card-icon {
+            background: rgba(236, 72, 153, 0.1);
+        }
+
+        .result-card.vocation .result-card-icon {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .result-card.profession .result-card-icon {
+            background: rgba(65, 105, 225, 0.1);
+        }
+
+        .result-card h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+        }
+
+        .result-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .result-tag {
+            padding: 0.35rem 0.75rem;
+            background: var(--dark);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* Recommendations */
+        .recommendations {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recommendations h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+        }
+
+        .recommendation-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--dark);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            background: var(--dark-hover);
+        }
+
+        .recommendation-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .recommendation-number {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .recommendation-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: white;
+        }
+
+        .recommendation-content p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Upgrade CTA */
+        .upgrade-cta {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(236, 72, 153, 0.1) 100%);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            padding: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .upgrade-content {
+            flex: 1;
+        }
+
+        .upgrade-content h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upgrade-content>p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .upgrade-features {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .upgrade-features li {
+            font-size: 0.9rem;
+            color: var(--success);
+        }
+
+        .upgrade-pricing {
+            text-align: center;
+        }
+
+        .upgrade-price {
+            font-family: 'Sora', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .upgrade-period {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* CTA Buttons */
+        .results-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .question-card {
+                padding: 1.75rem;
+            }
+
+            .question-text {
+                font-size: 1.25rem;
+            }
+
+            .scale-options {
+                flex-wrap: wrap;
+            }
+
+            .scale-btn {
+                min-width: calc(33% - 0.5rem);
+            }
+
+            .result-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .ikigai-diagram {
+                transform: scale(0.85);
+                margin-bottom: 2rem;
+            }
+
+            .results-cta {
+                flex-direction: column;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .btn-next {
+                margin-left: 0;
+            }
+
+            .upgrade-cta {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .upgrade-features {
+                justify-content: center;
+            }
+
+            .save-progress span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-effects"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff" />
+                            <stop offset="50%" style="stop-color:#8b5cf6" />
+                            <stop offset="100%" style="stop-color:#ec4899" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="30" r="20" fill="none" stroke="url(#grad1)" stroke-width="2" />
+                    <circle cx="30" cy="50" r="20" fill="none" stroke="url(#grad1)" stroke-width="2" />
+                    <circle cx="70" cy="50" r="20" fill="none" stroke="url(#grad1)" stroke-width="2" />
+                    <circle cx="50" cy="70" r="20" fill="none" stroke="url(#grad1)" stroke-width="2" />
+                </svg>
+                <span>AI-IKIGAI</span>
+            </a>
+            <div class="header-right">
+                <div class="save-progress">
+                    <div class="save-dot"></div>
+                    <span>Progression sauvegardée</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Progress Section -->
+        <div class="progress-section" id="progress-section">
+            <div class="progress-header">
+                <span class="progress-text">Question <strong id="current-q">1</strong> sur <strong>15</strong></span>
+                <span class="progress-percentage" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="category-pills">
+                <div class="category-pill active" data-category="passion">
+                    <span class="icon">❤️</span>
+                    <span>Passions</span>
+                </div>
+                <div class="category-pill" data-category="talent">
+                    <span class="icon">⭐</span>
+                    <span>Talents</span>
+                </div>
+                <div class="category-pill" data-category="values">
+                    <span class="icon">🎯</span>
+                    <span>Valeurs</span>
+                </div>
+                <div class="category-pill" data-category="market">
+                    <span class="icon">💼</span>
+                    <span>Marché</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container">
+            <!-- Questions will be rendered here by JavaScript -->
+        </div>
+
+        <!-- CV Upload Section -->
+        <div class="cv-upload-section" id="cv-upload-section">
+            <div class="question-card">
+                <div class="question-meta">
+                    <span class="question-category">
+                        <span>📄</span>
+                        Analyse CV
+                    </span>
+                </div>
+                <h2 class="question-text">Téléchargez votre CV pour une analyse complète</h2>
+                <p class="question-hint">Notre IA analysera votre parcours pour enrichir votre profil Ikigai avec des
+                    données factuelles.</p>
+
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">📄</div>
+                    <h3 class="upload-title">Glissez-déposez votre CV ici</h3>
+                    <p class="upload-subtitle">ou cliquez pour parcourir vos fichiers</p>
+                    <button class="upload-btn" type="button">
+                        <span>📁</span>
+                        Choisir un fichier
+                    </button>
+                    <p class="upload-formats">Formats acceptés : PDF, DOCX, DOC • Max 10 Mo</p>
+                </div>
+
+                <input type="file" id="cv-input" accept=".pdf,.doc,.docx">
+
+                <div class="file-preview" id="file-preview">
+                    <div class="file-icon">📄</div>
+                    <div class="file-info">
+                        <div class="file-name" id="file-name">document.pdf</div>
+                        <div class="file-size" id="file-size">2.4 Mo</div>
+                    </div>
+                    <button class="file-remove" id="file-remove" type="button">×</button>
+                </div>
+
+                <div class="cv-optional">
+                    <span>💡</span>
+                    <span>Cette étape est optionnelle mais recommandée pour une analyse plus précise.</span>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-back" onclick="goToPreviousQuestion()">
+                        ← Retour
+                    </button>
+                    <button class="btn btn-next" onclick="startAnalysis()">
+                        Analyser mon profil →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyzing Section -->
+        <div class="analyzing-section" id="analyzing-section">
+            <div class="analyzing-animation">
+                <div class="analyzing-circles">
+                    <div class="analyzing-circle"></div>
+                    <div class="analyzing-circle"></div>
+                    <div class="analyzing-circle"></div>
+                </div>
+                <div class="analyzing-icon">🧠</div>
+            </div>
+            <h2 class="analyzing-title">Analyse en cours...</h2>
+            <p class="analyzing-subtitle">Notre IA fusionne vos réponses avec les données de votre CV</p>
+
+            <div class="analyzing-steps">
+                <div class="analyzing-step" id="step-1">
+                    <div class="step-indicator">1</div>
+                    <span class="step-text">Analyse des réponses au questionnaire</span>
+                </div>
+                <div class="analyzing-step" id="step-2">
+                    <div class="step-indicator">2</div>
+                    <span class="step-text">Extraction des données du CV</span>
+                </div>
+                <div class="analyzing-step" id="step-3">
+                    <div class="step-indicator">3</div>
+                    <span class="step-text">Fusion des informations</span>
+                </div>
+                <div class="analyzing-step" id="step-4">
+                    <div class="step-indicator">4</div>
+                    <span class="step-text">Génération de votre Ikigai</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <div class="results-header">
+                <div class="results-badge">
+                    <span>✨</span>
+                    Analyse complétée
+                </div>
+                <h1 class="results-title">Voici votre <span class="gradient">Ikigai</span></h1>
+                <p class="results-subtitle">Basé sur vos réponses et l'analyse de votre parcours</p>
+            </div>
+
+            <!-- Ikigai Diagram -->
+            <div class="ikigai-diagram">
+                <div class="ikigai-circle passion">Ce que vous AIMEZ</div>
+                <div class="ikigai-circle mission">Ce dont le monde a BESOIN</div>
+                <div class="ikigai-circle vocation">Ce pour quoi vous pouvez être PAYÉ</div>
+                <div class="ikigai-circle profession">Ce pour quoi vous êtes DOUÉ</div>
+                <div class="ikigai-center">VOTRE IKIGAI</div>
+            </div>
+
+            <!-- Result Cards -->
+            <div class="result-cards">
+                <div class="result-card passion">
+                    <div class="result-card-icon">❤️</div>
+                    <h3>Vos Passions</h3>
+                    <p>Vous êtes animé par la créativité, l'innovation technologique et l'accompagnement des autres vers
+                        leur réussite.</p>
+                    <div class="result-tags">
+                        <span class="result-tag">Créativité</span>
+                        <span class="result-tag">Innovation</span>
+                        <span class="result-tag">Mentorat</span>
+                    </div>
+                </div>
+                <div class="result-card profession">
+                    <div class="result-card-icon">⭐</div>
+                    <h3>Vos Talents</h3>
+                    <p>Vos forces résident dans la résolution de problèmes complexes, la communication et la gestion de
+                        projets.</p>
+                    <div class="result-tags">
+                        <span class="result-tag">Problem-solving</span>
+                        <span class="result-tag">Communication</span>
+                        <span class="result-tag">Leadership</span>
+                    </div>
+                </div>
+                <div class="result-card mission">
+                    <div class="result-card-icon">🌍</div>
+                    <h3>Votre Mission</h3>
+                    <p>Contribuer à un monde où la technologie sert l'humain et permet à chacun de s'épanouir
+                        professionnellement.</p>
+                    <div class="result-tags">
+                        <span class="result-tag">Impact social</span>
+                        <span class="result-tag">Éducation</span>
+                        <span class="result-tag">Tech for Good</span>
+                    </div>
+                </div>
+                <div class="result-card vocation">
+                    <div class="result-card-icon">💼</div>
+                    <h3>Votre Vocation</h3>
+                    <p>Les secteurs de la formation, du conseil en transformation digitale et de l'entrepreneuriat
+                        social correspondent à votre profil.</p>
+                    <div class="result-tags">
+                        <span class="result-tag">Formation</span>
+                        <span class="result-tag">Conseil</span>
+                        <span class="result-tag">Startup</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations">
+                <h3>🎯 Recommandations de carrière</h3>
+                <div class="recommendation-item">
+                    <div class="recommendation-number">1</div>
+                    <div class="recommendation-content">
+                        <h4>Chief Learning Officer (CLO)</h4>
+                        <p>Dirigez la stratégie de formation d'une entreprise tech, combinant votre expertise
+                            pédagogique et technologique.</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-number">2</div>
+                    <div class="recommendation-content">
+                        <h4>Fondateur d'une EdTech</h4>
+                        <p>Créez une startup qui démocratise l'accès à l'apprentissage grâce à l'IA et aux nouvelles
+                            technologies.</p>
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-number">3</div>
+                    <div class="recommendation-content">
+                        <h4>Consultant en Transformation Digitale</h4>
+                        <p>Accompagnez les organisations dans leur transition numérique avec une approche centrée sur
+                            l'humain.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upgrade CTA -->
+            <div class="upgrade-cta">
+                <div class="upgrade-content">
+                    <h3>🚀 Débloquez votre rapport complet</h3>
+                    <p>Obtenez 20+ pages d'analyse détaillée, 10 recommandations de carrière et 5 idées business
+                        personnalisées.</p>
+                    <ul class="upgrade-features">
+                        <li>✓ Analyse approfondie de votre CV</li>
+                        <li>✓ Plan d'action personnalisé</li>
+                        <li>✓ Export PDF professionnel</li>
+                    </ul>
+                </div>
+                <div class="upgrade-pricing">
+                    <div class="upgrade-price">29€</div>
+                    <div class="upgrade-period">paiement unique</div>
+                    <button class="btn-primary">Obtenir le rapport complet →</button>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="results-cta">
+                <a href="dashboard-client.html" class="btn-secondary">
+                    <span>←</span>
+                    Retour au dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        /**
+         * AI-IKIGAI - API Configuration & Client
+         * 
+         * Ce fichier gère toutes les communications avec le backend.
+         * Incluez ce fichier avant main.js et questionnaire.js
+         */
+
+        // ============================================
+        // Configuration
+        // ============================================
+
+        const API_CONFIG = {
+            // URL de l'API backend
+            // En production, remplacez par votre URL
+            baseUrl: 'https://ai-ikagai.dallyhermann-71e.workers.dev',
+
+            // En développement local, décommentez cette ligne :
+            // baseUrl: 'http://localhost:8787',
+
+            // Timeout des requêtes (ms)
+            timeout: 30000,
+        };
+
+        // ============================================
+        // API Client
+        // ============================================
+
+        const ApiClient = {
+            // Token JWT stocké
+            token: localStorage.getItem('ai-ikigai-token'),
+
+            // Headers par défaut
+            getHeaders() {
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                if (this.token) {
+                    headers['Authorization'] = `Bearer ${this.token}`;
+                }
+                return headers;
+            },
+
+            // Requête générique
+            async request(endpoint, options = {}) {
+                const url = `${API_CONFIG.baseUrl}${endpoint}`;
+
+                const config = {
+                    ...options,
+                    headers: {
+                        ...this.getHeaders(),
+                        ...options.headers,
+                    },
+                };
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+
+                    const response = await fetch(url, {
+                        ...config,
+                        signal: controller.signal,
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Une erreur est survenue');
+                    }
+
+                    return data;
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        throw new Error('La requête a pris trop de temps');
+                    }
+                    throw error;
+                }
+            },
+
+            // GET request
+            async get(endpoint) {
+                return this.request(endpoint, { method: 'GET' });
+            },
+
+            // POST request
+            async post(endpoint, body) {
+                return this.request(endpoint, {
+                    method: 'POST',
+                    body: JSON.stringify(body),
+                });
+            },
+
+            // POST avec FormData (pour upload)
+            async postForm(endpoint, formData) {
+                const url = `${API_CONFIG.baseUrl}${endpoint}`;
+                const headers = {};
+                if (this.token) {
+                    headers['Authorization'] = `Bearer ${this.token}`;
+                }
+                // Ne pas définir Content-Type pour FormData (le navigateur le fait automatiquement)
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Une erreur est survenue');
+                }
+                return data;
+            },
+
+            // Sauvegarder le token
+            setToken(token) {
+                this.token = token;
+                localStorage.setItem('ai-ikigai-token', token);
+            },
+
+            // Supprimer le token
+            clearToken() {
+                this.token = null;
+                localStorage.removeItem('ai-ikigai-token');
+            },
+
+            // Vérifier si authentifié
+            isAuthenticated() {
+                return !!this.token;
+            },
+        };
+
+        // ============================================
+        // Auth API
+        // ============================================
+
+        const AuthAPI = {
+            // Inscription
+            async register(email, password, name = '') {
+                const data = await ApiClient.post('/api/auth/register', { email, password, name });
+                if (data.token) {
+                    ApiClient.setToken(data.token);
+                }
+                return data;
+            },
+
+            // Connexion
+            async login(email, password) {
+                const data = await ApiClient.post('/api/auth/login', { email, password });
+                if (data.token) {
+                    ApiClient.setToken(data.token);
+                }
+                return data;
+            },
+
+            // Récupérer l'utilisateur courant
+            async getCurrentUser() {
+                return ApiClient.get('/api/auth/me');
+            },
+
+            // Déconnexion
+            logout() {
+                ApiClient.clearToken();
+            },
+        };
+
+        // ============================================
+        // Questionnaire API
+        // ============================================
+
+        const QuestionnaireAPI = {
+            // Soumettre les réponses
+            async submit(answers, email = null, userId = null) {
+                const body = { answers };
+                if (email) {
+                    body.email = email;
+                }
+                if (userId) {
+                    body.user_id = userId;
+                }
+                const data = await ApiClient.post('/api/questionnaire/submit', body);
+
+                // Sauvegarder l'ID du questionnaire
+                if (data.questionnaireId) {
+                    localStorage.setItem('ai-ikigai-questionnaire-id', data.questionnaireId);
+                }
+
+                return data;
+            },
+
+            // Upload CV
+            async uploadCV(file, questionnaireId = null) {
+                const formData = new FormData();
+                formData.append('cv', file);
+
+                if (questionnaireId) {
+                    formData.append('questionnaireId', questionnaireId);
+                } else {
+                    const savedId = localStorage.getItem('ai-ikigai-questionnaire-id');
+                    if (savedId) {
+                        formData.append('questionnaireId', savedId);
+                    }
+                }
+
+                return ApiClient.postForm('/api/questionnaire/upload-cv', formData);
+            },
+
+            // Récupérer un questionnaire
+            async get(id) {
+                return ApiClient.get(`/api/questionnaire/${id}`);
+            },
+
+            // Récupérer le questionnaire sauvegardé
+            async getCurrent() {
+                const id = localStorage.getItem('ai-ikigai-questionnaire-id');
+                if (!id) {
+                    return null;
+                }
+                return this.get(id);
+            },
+        };
+
+        // ============================================
+        // Payment API
+        // ============================================
+
+        const PaymentAPI = {
+            // Créer une session de paiement
+            async createCheckout(plan) {
+                const data = await ApiClient.post('/api/payment/create-checkout', { plan });
+
+                // Rediriger vers Stripe
+                if (data.checkoutUrl) {
+                    window.location.href = data.checkoutUrl;
+                }
+
+                return data;
+            },
+
+            // Vérifier le statut du paiement (après retour de Stripe)
+            async checkPaymentStatus() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const payment = urlParams.get('payment');
+                const sessionId = urlParams.get('session_id');
+
+                if (payment === 'success' && sessionId) {
+                    return { success: true, sessionId };
+                } else if (payment === 'cancelled') {
+                    return { success: false, cancelled: true };
+                }
+
+                return null;
+            },
+        };
+
+        // ============================================
+        // Newsletter API
+        // ============================================
+
+        const NewsletterAPI = {
+            // S'inscrire à la newsletter
+            async subscribe(email, type = 'b2b') {
+                return ApiClient.post('/api/newsletter/subscribe', { email, type });
+            },
+        };
+
+        // ============================================
+        // Health Check
+        // ============================================
+
+        const HealthAPI = {
+            async check() {
+                try {
+                    const data = await ApiClient.get('/api/health');
+                    return data.status === 'ok';
+                } catch {
+                    return false;
+                }
+            },
+        };
+
+        // ============================================
+        // Export pour utilisation globale
+        // ============================================
+
+        window.API_CONFIG = API_CONFIG;
+        window.ApiClient = ApiClient;
+        window.AuthAPI = AuthAPI;
+        window.QuestionnaireAPI = QuestionnaireAPI;
+        window.PaymentAPI = PaymentAPI;
+        window.NewsletterAPI = NewsletterAPI;
+        window.HealthAPI = HealthAPI;
+
+        // Log de connexion
+        console.log('🔌 AI-Ikigai API Client loaded');
+        console.log(`📡 API URL: ${API_CONFIG.baseUrl}`);
+
+        // ============================================
+        // Supabase Client (inline pour éviter les conflits)
+        // ============================================
+        let supabaseClient = null;
+
+        // Charger Supabase dynamiquement
+        (async () => {
+            try {
+                // Charger le SDK Supabase
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                script.onload = () => {
+                    // Initialiser Supabase
+                    const { createClient } = supabase;
+                    supabaseClient = createClient(
+                        'https://gtpkzfpvqlcwnvekcxhy.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0cGt6ZnB2cWxjd252ZWtjeGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyODI0MTAsImV4cCI6MjA4Mjg1ODQxMH0.Q4Y9iheI4EFAJhjH6MptiTodrypC8UIPIz4YN-rHksU'
+                    );
+                    console.log('✅ Supabase client initialized');
+                };
+                document.head.appendChild(script);
+            } catch (error) {
+                console.warn('⚠️ Could not load Supabase:', error);
+            }
+        })();
+
+    </script>
+    <script>
+        /**
+         * AI-IKIGAI - Questionnaire JavaScript
+         */
+
+        // Questions Data
+        const questions = [
+            {
+                id: 1,
+                category: "passion",
+                categoryLabel: "Passions",
+                categoryIcon: "❤️",
+                text: "Quelles activités vous font perdre la notion du temps ?",
+                hint: "Pensez aux moments où vous êtes tellement absorbé que les heures passent sans que vous vous en rendiez compte.",
+                type: "multi-select",
+                maxSelect: 3,
+                options: [
+                    { value: "create", text: "Créer, concevoir, inventer", emoji: "🎨" },
+                    { value: "analyze", text: "Analyser, résoudre des problèmes", emoji: "🧩" },
+                    { value: "teach", text: "Enseigner, transmettre, mentorer", emoji: "📚" },
+                    { value: "connect", text: "Connecter les gens, réseauter", emoji: "🤝" },
+                    { value: "build", text: "Construire, développer des projets", emoji: "🏗️" },
+                    { value: "explore", text: "Explorer, découvrir, apprendre", emoji: "🔍" }
+                ]
+            },
+            {
+                id: 2,
+                category: "passion",
+                categoryLabel: "Passions",
+                categoryIcon: "❤️",
+                text: "Dans quel domaine pourriez-vous parler pendant des heures ?",
+                hint: "Quel sujet vous passionne au point d'en oublier le temps ?",
+                type: "single",
+                options: [
+                    { value: "tech", text: "Technologie et innovation", emoji: "💻" },
+                    { value: "art", text: "Art, design et créativité", emoji: "🎭" },
+                    { value: "business", text: "Business et entrepreneuriat", emoji: "📈" },
+                    { value: "science", text: "Sciences et recherche", emoji: "🔬" },
+                    { value: "social", text: "Causes sociales et humanitaires", emoji: "🌍" },
+                    { value: "health", text: "Santé et bien-être", emoji: "🧘" }
+                ]
+            },
+            {
+                id: 3,
+                category: "passion",
+                categoryLabel: "Passions",
+                categoryIcon: "❤️",
+                text: "Qu'est-ce qui vous motive le plus au réveil ?",
+                hint: "Quelle perspective vous donne envie de commencer la journée ?",
+                type: "single",
+                options: [
+                    { value: "challenge", text: "Relever de nouveaux défis", emoji: "🎯" },
+                    { value: "impact", text: "Avoir un impact positif", emoji: "✨" },
+                    { value: "learn", text: "Apprendre quelque chose de nouveau", emoji: "📖" },
+                    { value: "create", text: "Créer et innover", emoji: "💡" },
+                    { value: "team", text: "Travailler avec mon équipe", emoji: "👥" },
+                    { value: "freedom", text: "Ma liberté et autonomie", emoji: "🦅" }
+                ]
+            },
+            {
+                id: 4,
+                category: "passion",
+                categoryLabel: "Passions",
+                categoryIcon: "❤️",
+                text: "Quel type de contenu consommez-vous le plus ?",
+                hint: "Podcasts, livres, vidéos... Qu'est-ce qui capte votre attention ?",
+                type: "multi-select",
+                maxSelect: 2,
+                options: [
+                    { value: "business", text: "Business et entrepreneuriat", emoji: "💼" },
+                    { value: "tech", text: "Tech et innovation", emoji: "🚀" },
+                    { value: "dev-perso", text: "Développement personnel", emoji: "🧠" },
+                    { value: "creative", text: "Créativité et design", emoji: "🎨" },
+                    { value: "science", text: "Sciences et découvertes", emoji: "🔭" },
+                    { value: "culture", text: "Culture et société", emoji: "📰" }
+                ]
+            },
+            {
+                id: 5,
+                category: "talent",
+                categoryLabel: "Talents",
+                categoryIcon: "⭐",
+                text: "Pour quoi vos proches vous demandent-ils souvent de l'aide ?",
+                hint: "Ce que les autres reconnaissent en vous est souvent un talent naturel.",
+                type: "multi-select",
+                maxSelect: 3,
+                options: [
+                    { value: "advice", text: "Donner des conseils", emoji: "💬" },
+                    { value: "organize", text: "Organiser et planifier", emoji: "📋" },
+                    { value: "tech", text: "Résoudre des problèmes techniques", emoji: "🔧" },
+                    { value: "creative", text: "Proposer des idées créatives", emoji: "💡" },
+                    { value: "mediate", text: "Gérer des conflits", emoji: "🤝" },
+                    { value: "motivate", text: "Motiver et encourager", emoji: "🔥" }
+                ]
+            },
+            {
+                id: 6,
+                category: "talent",
+                categoryLabel: "Talents",
+                categoryIcon: "⭐",
+                text: "Quelle compétence maîtrisez-vous naturellement ?",
+                hint: "Ce qui vous semble facile peut être difficile pour d'autres.",
+                type: "single",
+                options: [
+                    { value: "communication", text: "Communication et expression", emoji: "🎤" },
+                    { value: "analysis", text: "Analyse et réflexion stratégique", emoji: "📊" },
+                    { value: "creativity", text: "Créativité et innovation", emoji: "🎨" },
+                    { value: "leadership", text: "Leadership et influence", emoji: "👑" },
+                    { value: "empathy", text: "Écoute et empathie", emoji: "💝" },
+                    { value: "execution", text: "Exécution et rigueur", emoji: "⚡" }
+                ]
+            },
+            {
+                id: 7,
+                category: "talent",
+                categoryLabel: "Talents",
+                categoryIcon: "⭐",
+                text: "Comment apprenez-vous le mieux ?",
+                hint: "Comprendre votre style d'apprentissage révèle vos forces cognitives.",
+                type: "single",
+                options: [
+                    { value: "practice", text: "En pratiquant et expérimentant", emoji: "🛠️" },
+                    { value: "read", text: "En lisant et analysant", emoji: "📚" },
+                    { value: "watch", text: "En observant et imitant", emoji: "👀" },
+                    { value: "discuss", text: "En discutant et débattant", emoji: "💭" },
+                    { value: "teach", text: "En enseignant aux autres", emoji: "🎓" },
+                    { value: "create", text: "En créant des projets", emoji: "🏗️" }
+                ]
+            },
+            {
+                id: 8,
+                category: "talent",
+                categoryLabel: "Talents",
+                categoryIcon: "⭐",
+                text: "Dans quel rôle excellez-vous en équipe ?",
+                hint: "Votre position naturelle dans un groupe révèle vos talents relationnels.",
+                type: "single",
+                options: [
+                    { value: "leader", text: "Le leader qui guide", emoji: "🎯" },
+                    { value: "creative", text: "Le créatif qui propose", emoji: "💡" },
+                    { value: "analyst", text: "L'analyste qui approfondit", emoji: "🔍" },
+                    { value: "harmonizer", text: "Le médiateur qui unit", emoji: "🤝" },
+                    { value: "executor", text: "L'exécutant qui concrétise", emoji: "⚡" },
+                    { value: "challenger", text: "Le challenger qui questionne", emoji: "🎭" }
+                ]
+            },
+            {
+                id: 9,
+                category: "values",
+                categoryLabel: "Valeurs",
+                categoryIcon: "🎯",
+                text: "Quelle valeur est non-négociable pour vous au travail ?",
+                hint: "Ce qui vous ferait quitter un emploi même bien payé.",
+                type: "single",
+                options: [
+                    { value: "freedom", text: "Liberté et autonomie", emoji: "🦅" },
+                    { value: "impact", text: "Impact et sens", emoji: "🌟" },
+                    { value: "growth", text: "Croissance et apprentissage", emoji: "📈" },
+                    { value: "respect", text: "Respect et reconnaissance", emoji: "🙏" },
+                    { value: "balance", text: "Équilibre vie pro/perso", emoji: "⚖️" },
+                    { value: "creativity", text: "Créativité et expression", emoji: "🎨" }
+                ]
+            },
+            {
+                id: 10,
+                category: "values",
+                categoryLabel: "Valeurs",
+                categoryIcon: "🎯",
+                text: "Quel type d'environnement de travail vous correspond ?",
+                hint: "L'environnement idéal pour donner le meilleur de vous-même.",
+                type: "single",
+                options: [
+                    { value: "startup", text: "Startup dynamique et agile", emoji: "🚀" },
+                    { value: "corporate", text: "Grande entreprise structurée", emoji: "🏢" },
+                    { value: "remote", text: "Télétravail / Nomade digital", emoji: "🌴" },
+                    { value: "social", text: "ONG / Économie sociale", emoji: "💚" },
+                    { value: "freelance", text: "Indépendant / Freelance", emoji: "🎯" },
+                    { value: "creative", text: "Agence créative", emoji: "🎨" }
+                ]
+            },
+            {
+                id: 11,
+                category: "values",
+                categoryLabel: "Valeurs",
+                categoryIcon: "🎯",
+                text: "Comment définissez-vous le succès ?",
+                hint: "Votre vision du succès guide vos choix de carrière.",
+                type: "single",
+                options: [
+                    { value: "wealth", text: "Liberté financière", emoji: "💰" },
+                    { value: "impact", text: "Impact positif sur le monde", emoji: "🌍" },
+                    { value: "recognition", text: "Reconnaissance et influence", emoji: "🏆" },
+                    { value: "mastery", text: "Excellence dans mon domaine", emoji: "🎯" },
+                    { value: "balance", text: "Vie épanouie et équilibrée", emoji: "🧘" },
+                    { value: "freedom", text: "Liberté totale de mes choix", emoji: "🦋" }
+                ]
+            },
+            {
+                id: 12,
+                category: "values",
+                categoryLabel: "Valeurs",
+                categoryIcon: "🎯",
+                text: "Quelle cause vous tient le plus à cœur ?",
+                hint: "Ce pour quoi vous seriez prêt à vous engager bénévolement.",
+                type: "single",
+                options: [
+                    { value: "education", text: "Éducation et accès au savoir", emoji: "📚" },
+                    { value: "environment", text: "Environnement et durabilité", emoji: "🌱" },
+                    { value: "equality", text: "Égalité et inclusion", emoji: "⚖️" },
+                    { value: "health", text: "Santé et bien-être", emoji: "❤️" },
+                    { value: "innovation", text: "Innovation et progrès", emoji: "🚀" },
+                    { value: "community", text: "Communauté locale", emoji: "🏘️" }
+                ]
+            },
+            {
+                id: 13,
+                category: "market",
+                categoryLabel: "Marché",
+                categoryIcon: "💼",
+                text: "Quel secteur vous attire le plus actuellement ?",
+                hint: "Où voyez-vous les meilleures opportunités pour vous ?",
+                type: "single",
+                options: [
+                    { value: "tech", text: "Tech & Digital", emoji: "💻" },
+                    { value: "health", text: "Santé & Biotech", emoji: "🧬" },
+                    { value: "sustainability", text: "Développement durable", emoji: "🌿" },
+                    { value: "finance", text: "Finance & Fintech", emoji: "📊" },
+                    { value: "education", text: "Éducation & Formation", emoji: "🎓" },
+                    { value: "creative", text: "Industries créatives", emoji: "🎬" }
+                ]
+            },
+            {
+                id: 14,
+                category: "market",
+                categoryLabel: "Marché",
+                categoryIcon: "💼",
+                text: "Quel niveau de risque êtes-vous prêt à prendre ?",
+                hint: "Votre appétit pour le risque influence vos choix professionnels.",
+                type: "scale",
+                labels: ["Sécurité max", "Équilibré", "Risque élevé"],
+                options: [
+                    { value: 1, label: "Très prudent" },
+                    { value: 2, label: "Prudent" },
+                    { value: 3, label: "Modéré" },
+                    { value: 4, label: "Audacieux" },
+                    { value: 5, label: "Très audacieux" }
+                ]
+            },
+            {
+                id: 15,
+                category: "market",
+                categoryLabel: "Marché",
+                categoryIcon: "💼",
+                text: "Si vous pouviez créer votre activité idéale, ce serait...",
+                hint: "Décrivez en quelques mots votre vision du travail parfait.",
+                type: "text",
+                placeholder: "Ex: Accompagner les startups tech dans leur stratégie de croissance tout en formant la prochaine génération de leaders..."
+            }
+        ];
+
+        // State
+        let currentQuestion = 0;
+        let answers = {};
+        let uploadedFile = null;
+
+        // DOM Elements
+        const questionsContainer = document.getElementById('questions-container');
+        const cvUploadSection = document.getElementById('cv-upload-section');
+        const analyzingSection = document.getElementById('analyzing-section');
+        const resultsSection = document.getElementById('results-section');
+        const progressSection = document.getElementById('progress-section');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const currentQEl = document.getElementById('current-q');
+        const uploadZone = document.getElementById('upload-zone');
+        const cvInput = document.getElementById('cv-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+
+        // Initialize
+        function init() {
+            loadSavedProgress();
+            renderQuestion();
+            setupCVUpload();
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const data = {
+                currentQuestion,
+                answers,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('ai-ikigai-progress', JSON.stringify(data));
+        }
+
+        // Load saved progress
+        function loadSavedProgress() {
+            try {
+                const saved = localStorage.getItem('ai-ikigai-progress');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    // Only restore if less than 24 hours old
+                    if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+                        answers = data.answers || {};
+                        // Don't restore question position, let user start fresh
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading progress:', e);
+            }
+        }
+
+        // Render Question
+        function renderQuestion() {
+            if (currentQuestion >= questions.length) {
+                showCVUpload();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            updateProgress();
+            updateCategoryPills(q.category);
+
+            let optionsHTML = '';
+
+            if (q.type === 'single' || q.type === 'multi-select') {
+                const multiClass = q.type === 'multi-select' ? 'multi-select' : '';
+                const multiHint = q.type === 'multi-select' ?
+                    `<div class="multi-select-hint">
+                <span>ℹ️</span>
+                <span>Sélectionnez jusqu'à ${q.maxSelect} réponses</span>
+            </div>` : '';
+
+                optionsHTML = `
+            ${multiHint}
+            <div class="options-grid ${multiClass}">
+                ${q.options.map(opt => `
+                    <button class="option-btn ${isSelected(q.id, opt.value) ? 'selected' : ''}" 
+                            onclick="selectOption(${q.id}, '${opt.value}', '${q.type}', ${q.maxSelect || 1})">
+                        <div class="option-indicator"></div>
+                        <span class="option-text">${opt.text}</span>
+                        <span class="option-emoji">${opt.emoji}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+            } else if (q.type === 'scale') {
+                optionsHTML = `
+            <div class="scale-options">
+                ${q.options.map(opt => `
+                    <button class="scale-btn ${isSelected(q.id, opt.value) ? 'selected' : ''}"
+                            onclick="selectOption(${q.id}, ${opt.value}, 'single', 1)">
+                        <span class="scale-value">${opt.value}</span>
+                        <span class="scale-label">${opt.label}</span>
+                    </button>
+                `).join('')}
+            </div>
+            <div class="scale-labels">
+                <span>${q.labels[0]}</span>
+                <span>${q.labels[1]}</span>
+                <span>${q.labels[2]}</span>
+            </div>
+        `;
+            } else if (q.type === 'text') {
+                const currentValue = answers[q.id] || '';
+                optionsHTML = `
+            <textarea class="text-answer" 
+                      id="text-answer-${q.id}"
+                      placeholder="${q.placeholder}"
+                      oninput="handleTextInput(${q.id}, this.value)">${currentValue}</textarea>
+            <div class="char-count"><span id="char-count-${q.id}">${currentValue.length}</span> / 500 caractères</div>
+        `;
+            }
+
+            questionsContainer.innerHTML = `
+        <div class="question-card">
+            <div class="question-meta">
+                <span class="question-category">
+                    <span>${q.categoryIcon}</span>
+                    ${q.categoryLabel}
+                </span>
+                <span class="question-number">Question ${q.id}/15</span>
+            </div>
+            <h2 class="question-text">${q.text}</h2>
+            <p class="question-hint">${q.hint}</p>
+            ${optionsHTML}
+            <div class="nav-buttons">
+                ${currentQuestion > 0 ?
+                    `<button class="btn btn-back" onclick="goToPreviousQuestion()">← Retour</button>` :
+                    '<div></div>'
+                }
+                <button class="btn btn-next" onclick="goToNextQuestion()" ${!hasAnswer(q.id) ? 'disabled' : ''}>
+                    ${currentQuestion === questions.length - 1 ? 'Continuer' : 'Suivant'} →
+                </button>
+            </div>
+        </div>
+    `;
+        }
+
+        // Check if option is selected
+        function isSelected(questionId, value) {
+            const answer = answers[questionId];
+            if (Array.isArray(answer)) {
+                return answer.includes(value);
+            }
+            return answer === value;
+        }
+
+        // Check if question has answer
+        function hasAnswer(questionId) {
+            const answer = answers[questionId];
+            if (Array.isArray(answer)) {
+                return answer.length > 0;
+            }
+            return answer !== undefined && answer !== '';
+        }
+
+        // Select Option
+        function selectOption(questionId, value, type, maxSelect) {
+            if (type === 'multi-select') {
+                if (!answers[questionId]) {
+                    answers[questionId] = [];
+                }
+                const index = answers[questionId].indexOf(value);
+                if (index > -1) {
+                    answers[questionId].splice(index, 1);
+                } else if (answers[questionId].length < maxSelect) {
+                    answers[questionId].push(value);
+                }
+            } else {
+                answers[questionId] = value;
+            }
+            saveProgress();
+            renderQuestion();
+        }
+
+        // Handle Text Input
+        function handleTextInput(questionId, value) {
+            if (value.length <= 500) {
+                answers[questionId] = value;
+                document.getElementById(`char-count-${questionId}`).textContent = value.length;
+                saveProgress();
+            }
+            updateNextButton(questionId);
+        }
+
+        // Update Next Button
+        function updateNextButton(questionId) {
+            const nextBtn = document.querySelector('.btn-next');
+            if (nextBtn) {
+                nextBtn.disabled = !hasAnswer(questionId);
+            }
+        }
+
+        // Navigation
+        function goToNextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                saveProgress();
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showCVUpload();
+            }
+        }
+
+        function goToPreviousQuestion() {
+            if (cvUploadSection.classList.contains('active')) {
+                cvUploadSection.classList.remove('active');
+                questionsContainer.style.display = 'block';
+                currentQuestion = questions.length - 1;
+                renderQuestion();
+            } else if (currentQuestion > 0) {
+                currentQuestion--;
+                saveProgress();
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Update Progress
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            currentQEl.textContent = currentQuestion + 1;
+        }
+
+        // Update Category Pills
+        function updateCategoryPills(currentCategory) {
+            const pills = document.querySelectorAll('.category-pill');
+            const categories = ['passion', 'talent', 'values', 'market'];
+            const currentIndex = categories.indexOf(currentCategory);
+
+            pills.forEach((pill, index) => {
+                pill.classList.remove('active', 'completed');
+                if (index < currentIndex) {
+                    pill.classList.add('completed');
+                } else if (index === currentIndex) {
+                    pill.classList.add('active');
+                }
+            });
+        }
+
+        // Show CV Upload
+        function showCVUpload() {
+            questionsContainer.style.display = 'none';
+            cvUploadSection.classList.add('active');
+            progressFill.style.width = '100%';
+            progressPercent.textContent = '100%';
+            currentQEl.textContent = '15';
+
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.classList.remove('active');
+                pill.classList.add('completed');
+            });
+        }
+
+        // Setup CV Upload
+        function setupCVUpload() {
+            // Click to upload
+            uploadZone.addEventListener('click', () => {
+                cvInput.click();
+            });
+
+            // File input change
+            cvInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Drag and drop
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            // Remove file
+            fileRemove.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeFile();
+            });
+        }
+
+        // Handle File
+        function handleFile(file) {
+            if (!file) return;
+
+            const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type)) {
+                alert('Format non supporté. Veuillez télécharger un PDF ou un document Word.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Le fichier est trop volumineux. Maximum 10 Mo.');
+                return;
+            }
+
+            uploadedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.add('visible');
+            uploadZone.classList.add('has-file');
+            uploadZone.querySelector('.upload-icon').textContent = '✅';
+            uploadZone.querySelector('.upload-title').textContent = 'CV téléchargé avec succès';
+            uploadZone.querySelector('.upload-subtitle').textContent = 'Cliquez pour remplacer le fichier';
+        }
+
+        // Format File Size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' o';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+        }
+
+        // Remove File
+        function removeFile() {
+            uploadedFile = null;
+            cvInput.value = '';
+            filePreview.classList.remove('visible');
+            uploadZone.classList.remove('has-file');
+            uploadZone.querySelector('.upload-icon').textContent = '📄';
+            uploadZone.querySelector('.upload-title').textContent = 'Glissez-déposez votre CV ici';
+            uploadZone.querySelector('.upload-subtitle').textContent = 'ou cliquez pour parcourir vos fichiers';
+        }
+
+        // Start Analysis
+        async function startAnalysis() {
+            cvUploadSection.classList.remove('active');
+            progressSection.style.display = 'none';
+            analyzingSection.classList.add('active');
+
+            // Clear saved progress
+            localStorage.removeItem('ai-ikigai-progress');
+
+            // Submit to backend
+            let backendResult = await submitToBackend();
+
+            console.log('📊 Résultat initial (sans CV):', backendResult);
+
+            // Upload CV if present and get updated analysis
+            if (uploadedFile) {
+                const cvResult = await uploadCVToBackend(uploadedFile);
+                // Use CV analysis if available, otherwise keep initial
+                if (cvResult && cvResult.analysis) {
+                    backendResult = cvResult;
+                    console.log('📊 Résultat mis à jour (avec CV):', backendResult);
+                }
+            }
+
+            // Animate steps
+            const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+            let currentStep = 0;
+
+            function animateStep() {
+                if (currentStep > 0) {
+                    document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                    document.getElementById(steps[currentStep - 1]).classList.add('completed');
+                    document.getElementById(steps[currentStep - 1]).querySelector('.step-indicator').textContent = '✓';
+                }
+
+                if (currentStep < steps.length) {
+                    document.getElementById(steps[currentStep]).classList.add('active');
+                    currentStep++;
+                    setTimeout(animateStep, 1500);
+                } else {
+                    // Use the final analysis (with CV if uploaded)
+                    const finalAnalysis = backendResult?.analysis;
+                    console.log('🎯 Analyse finale envoyée à showResults:', finalAnalysis);
+                    setTimeout(() => showResults(finalAnalysis), 1000);
+                }
+            }
+
+            setTimeout(animateStep, 500);
+        }
+
+        // Show Results
+        function showResults(backendAnalysis = null) {
+            // Hide all questionnaire sections using correct IDs
+            const progressSection = document.getElementById('progress-section');
+            const questionsContainer = document.getElementById('questions-container');
+            const cvUploadSection = document.getElementById('cv-upload-section');
+            const analyzingSection = document.getElementById('analyzing-section');
+            const resultsSection = document.getElementById('results-section');
+
+
+            if (progressSection) progressSection.style.display = 'none';
+            if (questionsContainer) questionsContainer.style.display = 'none';
+            if (cvUploadSection) cvUploadSection.style.display = 'none';
+            if (analyzingSection) analyzingSection.style.display = 'none';
+
+            // Show only results section
+            if (resultsSection) resultsSection.style.display = 'block';
+
+            // If we have backend analysis, update the displayed results
+            if (backendAnalysis) {
+                console.log('📊 Mise à jour des résultats avec:', backendAnalysis);
+
+                // Update passions card
+                const passionCard = document.querySelector('.result-card.passion');
+                if (passionCard && backendAnalysis.passions && backendAnalysis.passions.length > 0) {
+                    const passionDesc = passionCard.querySelector('p');
+                    const passionTags = passionCard.querySelector('.result-tags');
+
+                    if (passionDesc) {
+                        passionDesc.textContent = `Vous êtes animé par ${backendAnalysis.passions.slice(0, 3).join(', ').toLowerCase()}.`;
+                    }
+                    if (passionTags) {
+                        passionTags.innerHTML = backendAnalysis.passions.map(p =>
+                            `<span class="result-tag">${p}</span>`
+                        ).join('');
+                    }
+                }
+
+                // Update talents card
+                const talentCard = document.querySelector('.result-card.profession');
+                if (talentCard && backendAnalysis.talents && backendAnalysis.talents.length > 0) {
+                    const talentDesc = talentCard.querySelector('p');
+                    const talentTags = talentCard.querySelector('.result-tags');
+
+                    if (talentDesc) {
+                        talentDesc.textContent = `Vos forces résident dans ${backendAnalysis.talents.slice(0, 3).join(', ').toLowerCase()}.`;
+                    }
+                    if (talentTags) {
+                        talentTags.innerHTML = backendAnalysis.talents.map(t =>
+                            `<span class="result-tag">${t}</span>`
+                        ).join('');
+                    }
+                }
+
+                // Update mission card
+                const missionCard = document.querySelector('.result-card.mission');
+                if (missionCard && backendAnalysis.mission && backendAnalysis.mission.length > 0) {
+                    const missionDesc = missionCard.querySelector('p');
+                    const missionTags = missionCard.querySelector('.result-tags');
+
+                    if (missionDesc) {
+                        missionDesc.textContent = `Contribuer à ${backendAnalysis.mission.slice(0, 2).join(' et ').toLowerCase()}.`;
+                    }
+                    if (missionTags) {
+                        missionTags.innerHTML = backendAnalysis.mission.map(m =>
+                            `<span class="result-tag">${m}</span>`
+                        ).join('');
+                    }
+                }
+
+                // Update vocation card
+                const vocationCard = document.querySelector('.result-card.vocation');
+                if (vocationCard && backendAnalysis.vocation && backendAnalysis.vocation.length > 0) {
+                    const vocationDesc = vocationCard.querySelector('p');
+                    const vocationTags = vocationCard.querySelector('.result-tags');
+
+                    if (vocationDesc) {
+                        vocationDesc.textContent = `Les secteurs de ${backendAnalysis.vocation.slice(0, 3).join(', ').toLowerCase()} correspondent à votre profil.`;
+                    }
+                    if (vocationTags) {
+                        vocationTags.innerHTML = backendAnalysis.vocation.map(v =>
+                            `<span class="result-tag">${v}</span>`
+                        ).join('');
+                    }
+                }
+
+                // Update recommendations
+                if (backendAnalysis.recommendations && backendAnalysis.recommendations.length > 0) {
+                    const recommendationsList = document.querySelector('.recommendations');
+                    if (recommendationsList) {
+                        const recsHTML = backendAnalysis.recommendations.map((rec, i) => `
+                    <div class="recommendation-item">
+                        <div class="recommendation-number">${i + 1}</div>
+                        <div class="recommendation-content">
+                            <h4>${rec.title}</h4>
+                            <p>${rec.description}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                        recommendationsList.innerHTML = `
+                    <h3>🎯 Recommandations de carrière</h3>
+                    ${recsHTML}
+                `;
+                    }
+                }
+
+                console.log('✅ Résultats mis à jour avec succès');
+            } else {
+                console.warn('⚠️ Pas de données backend, affichage des exemples par défaut');
+            }
+
+            // Animate result cards
+            const cards = document.querySelectorAll('.result-card, .recommendation-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 200 + index * 100);
+            });
+        }
+
+        // ============================================
+        // API Integration
+        // ============================================
+
+        // Submit answers to backend
+        async function submitToBackend() {
+            try {
+                // Get authenticated user from Supabase
+                let userId = null;
+                let userEmail = null;
+
+                // Utiliser supabaseClient si disponible
+                if (supabaseClient) {
+                    try {
+                        const { data: { user }, error } = await supabaseClient.auth.getUser();
+                        if (user && !error) {
+                            userId = user.id;
+                            userEmail = user.email;
+                            console.log('✅ User authenticated:', userEmail);
+                            console.log('🆔 User ID:', userId);
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Could not get authenticated user:', error);
+                    }
+                }
+
+                // Fallback to localStorage email if no authenticated user
+                if (!userEmail) {
+                    userEmail = localStorage.getItem('ai-ikigai-email');
+                }
+
+                // Check if API is available
+                if (typeof QuestionnaireAPI !== 'undefined') {
+                    // Send answers with user_id and email
+                    const result = await QuestionnaireAPI.submit(answers, userEmail, userId);
+
+                    if (result.success) {
+                        console.log('✅ Questionnaire submitted:', result.questionnaireId);
+                        console.log('📧 Email:', userEmail);
+                        console.log('🆔 User ID:', userId);
+                        return result;
+                    }
+                }
+            } catch (error) {
+                console.error('API submission error:', error);
+            }
+            return null;
+        }
+
+        // Upload CV to backend
+        async function uploadCVToBackend(file) {
+            try {
+                if (typeof QuestionnaireAPI !== 'undefined') {
+                    const result = await QuestionnaireAPI.uploadCV(file);
+
+                    if (result.success) {
+                        console.log('✅ CV uploaded:', result.cvData);
+                        return result;
+                    }
+                }
+            } catch (error) {
+                console.error('CV upload error:', error);
+            }
+            return null;
+        }
+
+        // Handle payment button click
+        async function handlePayment(plan) {
+            try {
+                if (typeof PaymentAPI !== 'undefined') {
+                    await PaymentAPI.createCheckout(plan);
+                } else {
+                    alert('Le système de paiement n\'est pas encore configuré.');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Erreur lors du paiement. Veuillez réessayer.');
+            }
+        }
+
+        // Check payment status on page load
+        function checkPaymentOnLoad() {
+            if (typeof PaymentAPI !== 'undefined') {
+                const status = PaymentAPI.checkPaymentStatus();
+                if (status) {
+                    if (status.success) {
+                        // Show success message and unlock premium content
+                        console.log('✅ Payment successful!');
+                        localStorage.setItem('ai-ikigai-premium', 'true');
+                    } else if (status.cancelled) {
+                        console.log('❌ Payment cancelled');
+                    }
+                }
+            }
+        }
+
+        // Check if we need to display an existing analysis
+        async function checkResultParameter() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const resultId = urlParams.get('result');
+
+            if (resultId) {
+                console.log('📊 Loading existing analysis:', resultId);
+
+                // Try to get from localStorage first
+                const storedAnalysis = localStorage.getItem('current-analysis');
+                if (storedAnalysis) {
+                    try {
+                        const analysis = JSON.parse(storedAnalysis);
+                        console.log('✅ Analysis loaded from localStorage');
+                        showResults(analysis);
+                        return;
+                    } catch (error) {
+                        console.warn('⚠️ Could not parse stored analysis:', error);
+                    }
+                }
+
+                // If not in localStorage, fetch from backend
+                try {
+                    const response = await fetch(`https://ai-ikagai.dallyhermann-71e.workers.dev/api/questionnaire/${resultId}`);
+                    const data = await response.json();
+
+                    if (data.success && data.analysis) {
+                        console.log('✅ Analysis loaded from backend');
+                        showResults(data.analysis);
+                    } else {
+                        console.error('❌ Analysis not found');
+                        alert('Analyse introuvable');
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading analysis:', error);
+                    alert('Erreur lors du chargement de l\'analyse');
+                }
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            checkPaymentOnLoad();
+            checkResultParameter();
+        });
+
+    </script>
+</body>
+
+</html>

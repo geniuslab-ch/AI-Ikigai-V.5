@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Ikigai pour Coachs - Enrichissez votre pratique de coaching avec l'IA. Offrez des analyses Ikigai professionnelles à vos clients.">
+    <meta name="keywords" content="ikigai, coaching, coach professionnel, développement personnel, IA, analyse carrière">
+    <meta name="author" content="AI-Ikigai">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai-ikigai.com/coach">
+    <meta property="og:title" content="AI-Ikigai pour Coachs | Enrichissez votre pratique">
+    <meta property="og:description" content="Boostez votre pratique de coaching avec notre plateforme d'analyse Ikigai propulsée par l'IA.">
+    <meta property="og:image" content="assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ai-ikigai.com/coach">
+    <meta property="twitter:title" content="AI-Ikigai pour Coachs | Enrichissez votre pratique">
+    <meta property="twitter:description" content="Boostez votre pratique de coaching avec l'IA.">
+    <meta property="twitter:image" content="assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    
+    <title>AI-Ikigai pour Coachs | Enrichissez votre pratique</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+/* =============================================
+   AI-IKIGAI - Main Stylesheet
+   ============================================= */
+
+/* CSS Variables */
+:root {
+    --cyan: #00d4ff;
+    --blue: #4169e1;
+    --purple: #8b5cf6;
+    --magenta: #d946ef;
+    --pink: #ec4899;
+    --gradient-primary: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 25%, var(--purple) 50%, var(--magenta) 75%, var(--pink) 100%);
+    --gradient-text: linear-gradient(90deg, var(--cyan) 0%, var(--magenta) 100%);
+    --dark: #0a0a0f;
+    --dark-card: #12121a;
+    --dark-border: #1f1f2e;
+    --light: #f8fafc;
+    --gray: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--dark);
+    color: var(--light);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gradient-primary);
+    border-radius: 4px;
+}
+
+/* =============================================
+   Navigation
+   ============================================= */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+}
+
+nav.scrolled {
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: var(--light);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.logo span {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--gray);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.nav-links a:hover {
+    color: var(--light);
+}
+
+.nav-toggle {
+    display: flex;
+    background: var(--dark-card);
+    border-radius: 50px;
+    padding: 4px;
+    border: 1px solid var(--dark-border);
+}
+
+.nav-toggle button {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.nav-toggle button.active {
+    background: var(--gradient-primary);
+    color: var(--light);
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--gradient-primary);
+    color: var(--light);
+    padding: 0.75rem 1.75rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--light);
+    padding: 0.75rem 1.75rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid var(--purple);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+    background: var(--purple);
+    transform: translateY(-2px);
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.mobile-menu-btn span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--light);
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--dark);
+    z-index: 999;
+    display: none;
+    flex-direction: column;
+    padding: 6rem 2rem 2rem;
+}
+
+.mobile-menu.active {
+    display: flex;
+}
+
+.mobile-menu a {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.mobile-menu .mobile-toggle {
+    display: flex;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.mobile-menu .mobile-toggle button {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu .mobile-toggle button:first-child {
+    background: var(--gradient-primary);
+    border: none;
+    color: var(--light);
+}
+
+.mobile-menu .mobile-toggle button:last-child {
+    background: transparent;
+    border: 2px solid var(--purple);
+    color: var(--light);
+}
+
+.close-menu {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--light);
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+/* =============================================
+   Hero Section
+   ============================================= */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 8rem 2rem 4rem;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
+    animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.hero-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+}
+
+.b2b-hero-content {
+    max-width: 1000px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: var(--purple);
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease;
+}
+
+.hero-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--purple);
+    border-radius: 50%;
+    animation: blink 2s infinite;
+}
+
+.coming-soon-badge {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: var(--warning);
+}
+
+.coming-soon-badge::before {
+    background: var(--warning);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.8s ease 0.1s backwards;
+}
+
+.hero h1 .gradient {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: var(--gray);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    animation: fadeInUp 0.8s ease 0.2s backwards;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.3s backwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =============================================
+   Coming Soon Card (B2B)
+   ============================================= */
+.coming-soon-card {
+    background: var(--dark-card);
+    border: 2px solid var(--dark-border);
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+
+.coming-soon-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.coming-soon-card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.coming-soon-card > p {
+    color: var(--gray);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.notify-form {
+    margin-bottom: 2rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.notify-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: var(--dark);
+    border: 2px solid var(--dark-border);
+    border-radius: 12px;
+    color: var(--light);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.notify-input:focus {
+    outline: none;
+    border-color: var(--purple);
+}
+
+.notify-input::placeholder {
+    color: var(--gray);
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.coming-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    text-align: left;
+}
+
+.coming-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--dark);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.feature-check {
+    color: var(--success);
+    font-weight: 700;
+}
+
+/* =============================================
+   Stats Section
+   ============================================= */
+.stats {
+    padding: 4rem 2rem;
+    background: var(--dark-card);
+    border-top: 1px solid var(--dark-border);
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-family: 'Sora', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    color: var(--gray);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+/* =============================================
+   Section Headers
+   ============================================= */
+.section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 5rem;
+}
+
+.section-label {
+    display: inline-block;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+/* =============================================
+   How It Works Section
+   ============================================= */
+.how-it-works {
+    padding: 8rem 2rem;
+    position: relative;
+}
+
+.steps-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    position: relative;
+}
+
+.step-card {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--purple);
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+}
+
+.step-number {
+    position: absolute;
+    top: -20px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.step-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+}
+
+.step-icon svg {
+    width: 30px;
+    height: 30px;
+    stroke: var(--purple);
+}
+
+.step-card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.step-card p {
+    color: var(--gray);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* =============================================
+   Features Section
+   ============================================= */
+.features {
+    padding: 8rem 2rem;
+    background: linear-gradient(180deg, var(--dark) 0%, var(--dark-card) 50%, var(--dark) 100%);
+}
+
+.features-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.feature-card {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    transition: all 0.4s ease;
+}
+
+.feature-card:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-5px);
+}
+
+.feature-card.highlight {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+}
+
+.feature-card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+/* =============================================
+   Pricing Section
+   ============================================= */
+.pricing {
+    padding: 8rem 2rem;
+}
+
+.pricing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.pricing-card {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--purple);
+}
+
+.pricing-card.popular {
+    border-color: var(--purple);
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.15) 0%, var(--dark-card) 100%);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-primary);
+    padding: 0.4rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pricing-header {
+    margin-bottom: 2rem;
+}
+
+.pricing-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-desc {
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.pricing-price {
+    margin-bottom: 2rem;
+}
+
+.price-amount {
+    font-family: 'Sora', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+}
+
+.price-period {
+    color: var(--gray);
+    font-size: 0.95rem;
+}
+
+.pricing-features {
+    flex-grow: 1;
+    margin-bottom: 2rem;
+    list-style: none;
+}
+
+.pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--gray);
+    font-size: 0.95rem;
+}
+
+.pricing-features li::before {
+    content: '✓';
+    color: var(--cyan);
+    font-weight: 700;
+}
+
+.pricing-features li.disabled {
+    opacity: 0.4;
+}
+
+.pricing-features li.disabled::before {
+    content: '✗';
+    color: var(--gray);
+}
+
+.pricing-cta {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.pricing-card.popular .pricing-cta {
+    background: var(--gradient-primary);
+    border: none;
+    color: var(--light);
+}
+
+.pricing-card:not(.popular) .pricing-cta {
+    background: transparent;
+    border: 2px solid var(--purple);
+    color: var(--light);
+}
+
+.pricing-cta:hover {
+    transform: translateY(-2px);
+}
+
+/* =============================================
+   Testimonials Section
+   ============================================= */
+.testimonials {
+    padding: 8rem 2rem;
+    background: var(--dark-card);
+}
+
+.testimonials-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.testimonial-card {
+    background: var(--dark);
+    border: 1px solid var(--dark-border);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.4s ease;
+}
+
+.testimonial-card:hover {
+    border-color: var(--purple);
+}
+
+.testimonial-stars {
+    color: #fbbf24;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.testimonial-text {
+    color: var(--gray);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.testimonial-avatar {
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.testimonial-info h4 {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.testimonial-info span {
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   FAQ Section
+   ============================================= */
+.faq {
+    padding: 8rem 2rem;
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    background: var(--dark-card);
+    border: 1px solid var(--dark-border);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--purple);
+}
+
+.faq-question {
+    width: 100%;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: var(--light);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+.faq-icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+    content: '';
+    position: absolute;
+    background: var(--purple);
+    border-radius: 2px;
+}
+
+.faq-icon::before {
+    width: 100%;
+    height: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.faq-icon::after {
+    width: 2px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-icon::after {
+    transform: translateX(-50%) rotate(90deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 300px;
+}
+
+.faq-answer p {
+    padding: 0 2rem 1.5rem;
+    color: var(--gray);
+    line-height: 1.8;
+}
+
+/* =============================================
+   CTA Section
+   ============================================= */
+.cta-section {
+    padding: 8rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 30% 50%, rgba(0, 212, 255, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
+}
+
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-content h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.cta-content p {
+    color: var(--gray);
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* =============================================
+   Footer
+   ============================================= */
+footer {
+    padding: 4rem 2rem 2rem;
+    background: var(--dark-card);
+    border-top: 1px solid var(--dark-border);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.footer-brand {
+    max-width: 300px;
+}
+
+.footer-brand .logo {
+    margin-bottom: 1rem;
+}
+
+.footer-brand p {
+    color: var(--gray);
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.footer-links h4 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.footer-links a {
+    display: block;
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--light);
+}
+
+.footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid var(--dark-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-bottom p {
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-social a {
+    width: 40px;
+    height: 40px;
+    background: var(--dark);
+    border: 1px solid var(--dark-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+    transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+    border-color: var(--purple);
+    color: var(--light);
+}
+
+/* =============================================
+   Toast Notification
+   ============================================= */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--dark-card);
+    border: 1px solid var(--success);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 1001;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.toast-message {
+    color: var(--light);
+    font-size: 0.95rem;
+}
+
+/* =============================================
+   B2C / B2B Toggle
+   ============================================= */
+.b2c-section,
+.b2b-section {
+    display: none;
+}
+
+.b2c-section.active,
+.b2b-section.active {
+    display: block;
+}
+
+/* =============================================
+   Responsive Design
+   ============================================= */
+@media (max-width: 1024px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .steps-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card.highlight {
+        grid-column: span 1;
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+
+    .footer-top {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .coming-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .nav-toggle {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-top {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .coming-soon-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">✓</div>
+        <span class="toast-message">Message</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff"/>
+                            <stop offset="50%" style="stop-color:#8b5cf6"/>
+                            <stop offset="100%" style="stop-color:#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="30" r="20" fill="none" stroke="url(#grad1)" stroke-width="2"/>
+                    <circle cx="30" cy="50" r="20" fill="none" stroke="url(#grad1)" stroke-width="2"/>
+                    <circle cx="70" cy="50" r="20" fill="none" stroke="url(#grad1)" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="20" fill="none" stroke="url(#grad1)" stroke-width="2"/>
+                </svg>
+                <span>AI-IKIGAI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Accueil</a>
+                <a href="coach.html" style="color: var(--light);">Coachs</a>
+                <a href="questionnaire.html" class="btn-primary">Commencer →</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="close-menu" onclick="toggleMobileMenu()">×</button>
+        <a href="index.html" onclick="toggleMobileMenu()">Accueil</a>
+        <a href="coach.html" onclick="toggleMobileMenu()" style="color: var(--light);">Coachs</a>
+        <a href="questionnaire.html" class="btn-primary" onclick="toggleMobileMenu()">Commencer →</a>
+    </div>
+
+    <!-- Hero Section Coach -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🎓 Pour les professionnels de l'accompagnement</div>
+            <h1>Accompagnez vos clients avec <span class="gradient">AI-Ikigai</span></h1>
+            <p class="hero-subtitle">Boostez votre pratique de coaching avec notre plateforme d'analyse Ikigai propulsée par l'IA. Offrez des sessions enrichies et des rapports professionnels à vos coachés.</p>
+            
+            <div class="hero-cta">
+                <a href="questionnaire.html" class="btn-primary">Tester gratuitement →</a>
+                <a href="#coach-features" class="btn-secondary">Découvrir l'offre</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section Coach -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Coachs partenaires</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Sessions enrichies</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">96%</div>
+                <div class="stat-label">Satisfaction clients</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">-60%</div>
+                <div class="stat-label">Temps d'analyse</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section Coach -->
+    <section class="features" id="coach-features">
+        <div class="section-header">
+            <span class="section-label">Fonctionnalités</span>
+            <h2>Enrichissez vos sessions de coaching</h2>
+            <p>Des outils puissants pour accompagner vos clients vers leur Ikigai</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card highlight">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <h3>Rapports professionnels PDF</h3>
+                <p>Générez des rapports d'analyse Ikigai de 20+ pages personnalisés pour vos clients, avec votre branding et vos insights de coach.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3>Gestion des coachés</h3>
+                <p>Tableau de bord pour suivre l'évolution de tous vos clients, leurs résultats et leurs progrès dans le temps.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <h3>Tarification personnalisée</h3>
+                <p>Définissez vos propres tarifs et monétisez vos analyses Ikigai auprès de vos clients.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <h3>Templates de sessions</h3>
+                <p>Accédez à des templates de sessions de coaching pré-conçus basés sur les résultats Ikigai.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </div>
+                <h3>White-label disponible</h3>
+                <p>Personnalisez l'outil à votre image de marque pour une expérience 100% alignée avec votre pratique.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M2 12h20"></path>
+                    </svg>
+                </div>
+                <h3>Analyses comparatives</h3>
+                <p>Suivez l'évolution de vos clients avec des analyses avant/après pour mesurer les progrès.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section Coach -->
+    <section class="pricing" id="coach-pricing">
+        <div class="section-header">
+            <span class="section-label">Tarifs Coachs</span>
+            <h2>Investissez dans votre pratique</h2>
+            <p>Des forfaits adaptés à votre volume d'activité</p>
+        </div>
+
+        <div class="pricing-container">
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Starter</h3>
+                        <p class="pricing-desc">Pour débuter</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">49€</span>
+                        <span class="price-period">/ mois</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>10 analyses Ikigai / mois</li>
+                        <li>Rapports PDF brandés</li>
+                        <li>Dashboard de suivi</li>
+                        <li>Templates de base</li>
+                        <li>Support par email</li>
+                        <li class="disabled">White-label</li>
+                    </ul>
+                    <a href="#" class="pricing-cta">Commencer</a>
+                </div>
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Le plus populaire</div>
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Pro</h3>
+                        <p class="pricing-desc">Pour coachs actifs</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">99€</span>
+                        <span class="price-period">/ mois</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>30 analyses Ikigai / mois</li>
+                        <li>Rapports PDF brandés</li>
+                        <li>Dashboard avancé</li>
+                        <li>Tous les templates</li>
+                        <li>Analyses comparatives</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="#" class="pricing-cta">Choisir Pro</a>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Business</h3>
+                        <p class="pricing-desc">Pour cabinets</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="price-amount">249€</span>
+                        <span class="price-period">/ mois</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Analyses illimitées</li>
+                        <li>White-label complet</li>
+                        <li>Multi-utilisateurs (5 coachs)</li>
+                        <li>API personnalisée</li>
+                        <li>Formation incluse</li>
+                        <li>Account manager dédié</li>
+                    </ul>
+                    <a href="#" class="pricing-cta">Contactez-nous</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section Coach -->
+    <section class="testimonials">
+        <div class="section-header">
+            <span class="section-label">Témoignages</span>
+            <h2>Ils utilisent AI-Ikigai</h2>
+            <p>Des coachs professionnels partagent leur expérience</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"AI-Ikigai a transformé ma pratique de coaching. Les rapports génèrent automatiquement des insights que je prenais des heures à produire. Mes clients adorent !"</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">CM</div>
+                    <div class="testimonial-info">
+                        <h4>Claire M.</h4>
+                        <span>Coach professionnelle certifiée</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Le dashboard me permet de suivre l'évolution de tous mes clients en un coup d'œil. L'analyse comparative est particulièrement puissante pour mesurer les progrès."</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">JB</div>
+                    <div class="testimonial-info">
+                        <h4>Jean B.</h4>
+                        <span>Coach carrière & transitions</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text">"Les templates de sessions sont un gain de temps incroyable. Je me concentre sur l'humain pendant que l'IA gère l'analyse. Parfait !"</p>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">SL</div>
+                    <div class="testimonial-info">
+                        <h4>Sophie L.</h4>
+                        <span>Coach en reconversion</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-bg"></div>
+        <div class="cta-content">
+            <h2>Prêt à enrichir votre pratique de coaching ?</h2>
+            <p>Rejoignez plus de 500 coachs qui utilisent AI-Ikigai pour accompagner leurs clients</p>
+            <div class="cta-buttons">
+                <a href="questionnaire.html" class="btn-primary">Tester gratuitement →</a>
+                <a href="#coach-pricing" class="btn-secondary">Voir les tarifs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <svg class="logo-icon" viewBox="0 0 100 100">
+                            <defs>
+                                <linearGradient id="grad-footer" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00d4ff"/>
+                                    <stop offset="50%" style="stop-color:#8b5cf6"/>
+                                    <stop offset="100%" style="stop-color:#ec4899"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="30" r="20" fill="none" stroke="url(#grad-footer)" stroke-width="2"/>
+                            <circle cx="30" cy="50" r="20" fill="none" stroke="url(#grad-footer)" stroke-width="2"/>
+                            <circle cx="70" cy="50" r="20" fill="none" stroke="url(#grad-footer)" stroke-width="2"/>
+                            <circle cx="50" cy="70" r="20" fill="none" stroke="url(#grad-footer)" stroke-width="2"/>
+                        </svg>
+                        <span>AI-IKIGAI</span>
+                    </a>
+                    <p>Découvrez votre raison d'être avec l'IA</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Produit</h4>
+                    <a href="index.html">Particuliers</a>
+                    <a href="index.html#b2b">Entreprises</a>
+                    <a href="coach.html">Coachs</a>
+                    <a href="questionnaire.html">Commencer</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="#faq">FAQ</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#docs">Documentation</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Légal</h4>
+                    <a href="#mentions">Mentions légales</a>
+                    <a href="#cgu">CGU</a>
+                    <a href="#privacy">Confidentialité</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AI-Ikigai. Tous droits réservés.</p>
+                <div class="footer-social">
+                    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path></svg></a>
+                    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path></svg></a>
+                    <a href="#"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+// Navigation scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenu.classList.toggle('active');
+    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+            const offsetTop = target.offsetTop - 80;
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Toast notification
+function showToast(message, duration = 4000) {
+    const toast = document.getElementById('toast');
+    const toastMessage = toast.querySelector('.toast-message');
+    if (toastMessage) {
+        toastMessage.textContent = message;
+    }
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
+}
+
+// Scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const animateOnScroll = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            animateOnScroll.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const animatedElements = document.querySelectorAll(
+        '.feature-card, .pricing-card, .testimonial-card'
+    );
+    
+    animatedElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        animateOnScroll.observe(el);
+    });
+});
+
+console.log('AI-Ikigai Coach page initialized');
+    </script>
+</body>
+</html>

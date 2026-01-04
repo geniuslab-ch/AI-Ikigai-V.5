@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <title>Contact | AI-Ikigai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .contact-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        .contact-content h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-content .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-info {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-info h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--purple);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            font-size: 1.5rem;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+        }
+
+        .contact-details h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: var(--light);
+        }
+
+        .contact-details p {
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .contact-details a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        .contact-details a:hover {
+            color: var(--cyan);
+        }
+
+        .contact-form {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .contact-form h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--purple);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--dark);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--purple);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--purple);
+            text-decoration: none;
+            margin-bottom: 2rem;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="contact-content">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+
+        <h1>Contactez-nous</h1>
+        <p class="subtitle">Une question ? Une suggestion ? N'hésitez pas à nous contacter, nous vous répondrons dans
+            les plus brefs délais.</p>
+
+        <div class="contact-info">
+            <h2>Informations de contact</h2>
+
+            <div class="contact-item">
+                <div class="contact-icon">📧</div>
+                <div class="contact-details">
+                    <h3>Email</h3>
+                    <p><a href="mailto:contact@ai-ikigai.com">contact@ai-ikigai.com</a></p>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">💬</div>
+                <div class="contact-details">
+                    <h3>Support</h3>
+                    <p><a href="mailto:support@ai-ikigai.com">support@ai-ikigai.com</a></p>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">🏢</div>
+                <div class="contact-details">
+                    <h3>Adresse</h3>
+                    <p>[Votre adresse]<br>[Code postal] [Ville]<br>France</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2>Envoyez-nous un message</h2>
+
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name">Nom complet *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Sujet *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Sélectionnez un sujet</option>
+                        <option value="question">Question générale</option>
+                        <option value="support">Support technique</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="partnership">Partenariat</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Envoyer le message</button>
+            </form>
+        </div>
+
+        <p style="margin-top: 3rem; color: var(--gray); font-size: 0.9rem;">
+            * Champs obligatoires
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Récupérer les données du formulaire
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+
+            // TODO: Envoyer au backend
+            console.log('Form data:', formData);
+
+            // Afficher un message de succès
+            alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
+
+            // Réinitialiser le formulaire
+            this.reset();
+        });
+    </script>
+</body>
+
+</html>

@@ -1707,7 +1707,7 @@
         const API_CONFIG = {
             // URL de l'API backend
             // En production, remplacez par votre URL
-            baseUrl: 'https://ai-ikagai.dallyhermann-71e.workers.dev',
+            baseUrl: 'https://ai-ikigai.ai-ikigai.workers.dev',
 
             // En développement local, décommentez cette ligne :
             // baseUrl: 'http://localhost:8787',
@@ -2911,7 +2911,7 @@
 
                 // If not in localStorage, fetch from backend
                 try {
-                    const response = await fetch(`https://ai-ikagai.dallyhermann-71e.workers.dev/api/questionnaire/${resultId}`);
+                    const response = await fetch(`https://ai-ikigai.ai-ikigai.workers.dev/api/questionnaire/${resultId}`);
                     const data = await response.json();
 
                     if (data.success && data.analysis) {

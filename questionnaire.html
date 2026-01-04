@@ -22,6 +22,71 @@
         rel="stylesheet">
 
     <!-- Styles -->
+    <script>
+        // ==============================================
+        // Check User Plan and Restrict CV Upload
+        // ==============================================
+        async function checkUserPlanAndRestrictCV() {
+            try {
+                // Check if Supabase client is available
+                if (!window.supabaseClient) {
+                    console.log('No Supabase client - CV upload enabled by default');
+                    return;
+                }
+
+                // Get current user
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+
+                if (error || !user) {
+                    console.log('No authenticated user - CV upload enabled');
+                    return;
+                }
+
+                // Get user profile to check plan
+                const { data: profile, error: profileError } = await window.supabaseClient
+                    .from('profiles')
+                    .select('plan')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError || !profile) {
+                    console.log('Could not fetch profile - CV upload enabled');
+                    return;
+                }
+
+                const userPlan = profile.plan || 'decouverte';
+                console.log('User plan:', userPlan);
+
+                // If plan is "découverte", disable CV upload
+                if (userPlan === 'decouverte') {
+                    const uploadZone = document.getElementById('upload-zone');
+                    const cvInput = document.getElementById('cv-input');
+                    const cvOptionalMessage = document.getElementById('cv-optional-message');
+                    const cvUpgradeMessage = document.getElementById('cv-upgrade-message');
+
+                    if (uploadZone) {
+                        uploadZone.style.display = 'none';
+                    }
+                    if (cvInput) {
+                        cvInput.disabled = true;
+                    }
+                    if (cvOptionalMessage) {
+                        cvOptionalMessage.style.display = 'none';
+                    }
+                    if (cvUpgradeMessage) {
+                        cvUpgradeMessage.style.display = 'flex';
+                    }
+
+                    console.log('✅ CV upload disabled for découverte plan');
+                }
+            } catch (error) {
+                console.error('Error checking user plan:', error);
+            }
+        }
+
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', checkUserPlanAndRestrictCV);
+    </script>
     <style>
         /* =============================================
    AI-IKIGAI - Questionnaire Styles
@@ -1441,9 +1506,19 @@
                     <button class="file-remove" id="file-remove" type="button">×</button>
                 </div>
 
-                <div class="cv-optional">
+                <div class="cv-optional" id="cv-optional-message">
                     <span>💡</span>
                     <span>Cette étape est optionnelle mais recommandée pour une analyse plus précise.</span>
+                </div>
+
+                <div class="cv-optional" id="cv-upgrade-message"
+                    style="display: none; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 1rem; border-radius: 12px;">
+                    <span>✨</span>
+                    <span><strong>Analyse CV disponible avec l'offre Essentiel</strong><br>
+                        Passez à l'offre Essentiel (29€) pour bénéficier de l'analyse complète de votre CV et obtenir 10
+                        recommandations + 5 idées business.
+                        <a href="index.html#pricing" style="color: var(--purple); text-decoration: underline;">Voir les
+                            offres</a></span>
                 </div>
 
                 <div class="nav-buttons">

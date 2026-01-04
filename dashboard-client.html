@@ -655,6 +655,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js"></script>
+    <script src="dashboard-recommendations.js"></script>
 
     <script>
         let currentUser = null;
@@ -712,7 +713,7 @@
                     createIkigaiChart(scores);
 
                     // Afficher les recommandations
-                    displayRecommendations(dashboardData.latestAnalysis.recommendations);
+                    displayRecommendations(dashboardData.latestAnalysis);
 
                     // Afficher les insights
                     displayInsights(dashboardData.latestAnalysis);
@@ -929,8 +930,8 @@
                     break;
                 case 'recommendations':
                     // Afficher toutes les recommandations
-                    if (dashboardData && dashboardData.latestAnalysis && dashboardData.latestAnalysis.recommendations) {
-                        displayAllRecommendations(dashboardData.latestAnalysis.recommendations);
+                    if (dashboardData && dashboardData.latestAnalysis) {
+                        displayAllRecommendations(dashboardData.latestAnalysis);
                     }
                     break;
                 case 'settings':

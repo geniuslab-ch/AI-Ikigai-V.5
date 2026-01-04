@@ -27,22 +27,22 @@ function toggleMobileMenu() {
     document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
 }
 
-// B2C/B2B Mode Switch
+// B2C/Coach Mode Switch
 function switchMode(mode) {
     const b2cContent = document.getElementById('b2c-content');
-    const b2bContent = document.getElementById('b2b-content');
+    const coachContent = document.getElementById('coach-content');
     const navToggleBtns = document.querySelectorAll('.nav-toggle button');
 
     if (mode === 'b2c') {
         b2cContent.classList.add('active');
-        b2bContent.classList.remove('active');
+        coachContent.classList.remove('active');
         if (navToggleBtns.length >= 2) {
             navToggleBtns[0].classList.add('active');
             navToggleBtns[1].classList.remove('active');
         }
     } else {
         b2cContent.classList.remove('active');
-        b2bContent.classList.add('active');
+        coachContent.classList.add('active');
         if (navToggleBtns.length >= 2) {
             navToggleBtns[0].classList.remove('active');
             navToggleBtns[1].classList.add('active');
@@ -61,12 +61,12 @@ document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
         const faqItem = button.parentElement;
         const isActive = faqItem.classList.contains('active');
-        
+
         // Close all FAQ items
         document.querySelectorAll('.faq-item').forEach(item => {
             item.classList.remove('active');
         });
-        
+
         // Open clicked item if it wasn't active
         if (!isActive) {
             faqItem.classList.add('active');
@@ -82,7 +82,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
         if (href === '#') return;
-        
+
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
@@ -105,7 +105,7 @@ function showToast(message, duration = 4000) {
         toastMessage.textContent = message;
     }
     toast.classList.add('show');
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, duration);
@@ -118,21 +118,21 @@ function showToast(message, duration = 4000) {
 if (notifyForm) {
     notifyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const emailInput = document.getElementById('notifyEmail');
         const email = emailInput.value.trim();
-        
+
         if (!email) return;
-        
+
         const submitBtn = notifyForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Envoi...';
         submitBtn.disabled = true;
-        
+
         try {
             // Use API if available
             if (typeof NewsletterAPI !== 'undefined') {
-                const result = await NewsletterAPI.subscribe(email, 'b2b');
+                const result = await NewsletterAPI.subscribe(email, 'coach');
                 if (result.success) {
                     showToast('✓ Inscription réussie ! Vous serez notifié du lancement.');
                     emailInput.value = '';
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const animatedElements = document.querySelectorAll(
         '.step-card, .feature-card, .pricing-card, .testimonial-card'
     );
-    
+
     animatedElements.forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
@@ -224,7 +224,7 @@ function trackEvent(eventName, eventData = {}) {
     // Replace with your analytics implementation
     // Example: Google Analytics, Mixpanel, etc.
     console.log('Track Event:', eventName, eventData);
-    
+
     // Google Analytics 4 example:
     // gtag('event', eventName, eventData);
 }
@@ -250,7 +250,7 @@ document.querySelectorAll('.pricing-card').forEach(card => {
             }
         });
     }, { threshold: 0.5 });
-    
+
     observer.observe(card);
 });
 

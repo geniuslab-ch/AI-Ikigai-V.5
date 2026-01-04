@@ -1396,7 +1396,7 @@
                 <a href="#faq">FAQ</a>
                 <div class="nav-toggle">
                     <button class="active" onclick="switchMode('b2c')">Particuliers</button>
-                    <button onclick="switchMode('b2b')">Entreprises</button>
+                    <button onclick="switchMode('coach')">Coachs</button>
                 </div>
                 <a href="auth.html" style="color: var(--purple); font-weight: 600;">Connexion</a>
                 <a href="questionnaire.html" class="btn-primary">Commencer</a>
@@ -1419,7 +1419,7 @@
         <a href="auth.html" style="color: var(--purple); font-weight: 600;">Connexion</a>
         <div class="mobile-toggle">
             <button onclick="switchMode('b2c'); toggleMobileMenu()">Particuliers</button>
-            <button onclick="switchMode('b2b'); toggleMobileMenu()">Entreprises</button>
+            <button onclick="switchMode('coach'); toggleMobileMenu()">Coachs</button>
         </div>
     </div>
 
@@ -1464,8 +1464,8 @@
         </section>
     </div>
 
-    <!-- B2B Content - Coming Soon -->
-    <div class="b2b-section" id="b2b-content">
+    <!-- Coach Content -->
+    <div class="b2b-section" id="coach-content">
         <!-- Hero Section B2B Coming Soon -->
         <section class="hero">
             <div class="hero-bg"></div>
@@ -2295,22 +2295,22 @@
             document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
         }
 
-        // B2C/B2B Mode Switch
+        // B2C/Coach Mode Switch
         function switchMode(mode) {
             const b2cContent = document.getElementById('b2c-content');
-            const b2bContent = document.getElementById('b2b-content');
+            const coachContent = document.getElementById('coach-content');
             const navToggleBtns = document.querySelectorAll('.nav-toggle button');
 
             if (mode === 'b2c') {
                 b2cContent.classList.add('active');
-                b2bContent.classList.remove('active');
+                coachContent.classList.remove('active');
                 if (navToggleBtns.length >= 2) {
                     navToggleBtns[0].classList.add('active');
                     navToggleBtns[1].classList.remove('active');
                 }
             } else {
                 b2cContent.classList.remove('active');
-                b2bContent.classList.add('active');
+                coachContent.classList.add('active');
                 if (navToggleBtns.length >= 2) {
                     navToggleBtns[0].classList.remove('active');
                     navToggleBtns[1].classList.add('active');

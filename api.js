@@ -13,10 +13,10 @@ const API_CONFIG = {
     // URL de l'API backend
     // En production, remplacez par votre URL
     baseUrl: 'https://api.ai-ikigai.com',
-    
+
     // En développement local, décommentez cette ligne :
     // baseUrl: 'http://localhost:8787',
-    
+
     // Timeout des requêtes (ms)
     timeout: 30000,
 };
@@ -43,7 +43,7 @@ const ApiClient = {
     // Requête générique
     async request(endpoint, options = {}) {
         const url = `${API_CONFIG.baseUrl}${endpoint}`;
-        
+
         const config = {
             ...options,
             headers: {
@@ -177,12 +177,12 @@ const QuestionnaireAPI = {
             body.email = email;
         }
         const data = await ApiClient.post('/api/questionnaire/submit', body);
-        
+
         // Sauvegarder l'ID du questionnaire
         if (data.questionnaireId) {
             localStorage.setItem('ai-ikigai-questionnaire-id', data.questionnaireId);
         }
-        
+
         return data;
     },
 
@@ -190,7 +190,7 @@ const QuestionnaireAPI = {
     async uploadCV(file, questionnaireId = null) {
         const formData = new FormData();
         formData.append('cv', file);
-        
+
         if (questionnaireId) {
             formData.append('questionnaireId', questionnaireId);
         } else {
@@ -226,12 +226,12 @@ const PaymentAPI = {
     // Créer une session de paiement
     async createCheckout(plan) {
         const data = await ApiClient.post('/api/payment/create-checkout', { plan });
-        
+
         // Rediriger vers Stripe
         if (data.checkoutUrl) {
             window.location.href = data.checkoutUrl;
         }
-        
+
         return data;
     },
 
@@ -246,7 +246,7 @@ const PaymentAPI = {
         } else if (payment === 'cancelled') {
             return { success: false, cancelled: true };
         }
-        
+
         return null;
     },
 };
@@ -257,7 +257,7 @@ const PaymentAPI = {
 
 const NewsletterAPI = {
     // S'inscrire à la newsletter
-    async subscribe(email, type = 'b2b') {
+    async subscribe(email, type = 'coach') {
         return ApiClient.post('/api/newsletter/subscribe', { email, type });
     },
 };

@@ -54,7 +54,7 @@ async function analyzeCVWithClaude(cvText, env) {
 
 	try {
 		console.log('🤖 Appel Claude API pour analyse CV...');
-		
+
 		const response = await fetch('https://api.anthropic.com/v1/messages', {
 			method: 'POST',
 			headers: {
@@ -86,7 +86,7 @@ Retourne UNIQUEMENT le JSON, rien d'autre.`
 		});
 
 		const data = await response.json();
-		
+
 		if (!response.ok) {
 			console.error('❌ Erreur Claude API:', data);
 			return analyzeSimpleCV(cvText);
@@ -94,13 +94,13 @@ Retourne UNIQUEMENT le JSON, rien d'autre.`
 
 		const content = data.content[0].text;
 		const jsonMatch = content.match(/\{[\s\S]*\}/);
-		
+
 		if (jsonMatch) {
 			const cvData = JSON.parse(jsonMatch[0]);
 			console.log('✅ CV analysé par Claude:', cvData);
 			return cvData;
 		}
-		
+
 		console.warn('⚠️ Pas de JSON trouvé dans la réponse Claude');
 		return analyzeSimpleCV(cvText);
 
@@ -117,7 +117,7 @@ Retourne UNIQUEMENT le JSON, rien d'autre.`
 function analyzeSimpleCV(cvText) {
 	console.log('📊 Analyse simple du CV (sans IA)');
 	const text = cvText.toLowerCase();
-	
+
 	const cvData = {
 		skills: [],
 		experiences: [],
@@ -126,10 +126,10 @@ function analyzeSimpleCV(cvText) {
 		yearsExperience: 0
 	};
 
-	const techSkills = ['javascript', 'python', 'java', 'react', 'node', 'sql', 'aws', 'docker', 
+	const techSkills = ['javascript', 'python', 'java', 'react', 'node', 'sql', 'aws', 'docker',
 		'git', 'api', 'machine learning', 'ai', 'data', 'cloud', 'typescript', 'angular', 'vue',
 		'html', 'css', 'mongodb', 'postgresql', 'kubernetes', 'terraform'];
-	
+
 	techSkills.forEach(skill => {
 		if (text.includes(skill)) {
 			cvData.skills.push(skill.charAt(0).toUpperCase() + skill.slice(1));
@@ -138,7 +138,7 @@ function analyzeSimpleCV(cvText) {
 
 	const softSkills = ['leadership', 'communication', 'management', 'gestion', 'stratégie',
 		'analyse', 'créativité', 'innovation', 'organisation', 'autonomie'];
-	
+
 	softSkills.forEach(skill => {
 		if (text.includes(skill)) {
 			cvData.skills.push(skill.charAt(0).toUpperCase() + skill.slice(1));
@@ -167,7 +167,7 @@ function analyzeSimpleCV(cvText) {
 		skills: cvData.skills.length,
 		yearsExp: cvData.yearsExperience
 	});
-	
+
 	return cvData;
 }
 
@@ -175,15 +175,41 @@ function analyzeSimpleCV(cvText) {
 // GÉNÉRATION RECOMMANDATIONS avec Claude AI
 // ============================================
 
-async function generateRecommendationsWithClaude(answers, cvData, env) {
+async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'decouverte') {
 	if (!env.ANTHROPIC_API_KEY) {
 		console.warn('⚠️ Pas de clé API Claude, utilisation génération simple');
-		return generateSimpleRecommendations(answers, cvData);
+		return generateSimpleRecommendations(answers, cvData, userPlan);
 	}
+
+	// Déterminer le nombre de recommandations selon le plan
+	const recommendationCounts = {
+		'decouverte': { career: 3, business: 0 },
+		'essentiel': { career: 10, business: 5 },
+		'premium': { career: 10, business: 5 }
+	};
+
+	const counts = recommendationCounts[userPlan] || recommendationCounts['decouverte'];
+	console.log(`📊 Plan: ${userPlan} - Génération de ${counts.career} recommandations${counts.business > 0 ? ` + ${counts.business} idées business` : ''}`);
 
 	try {
 		console.log('🤖 Appel Claude API pour recommandations...');
-		
+
+		// Construire les exemples de recommandations dans le prompt
+		const careerRecsExample = Array.from({ length: counts.career }, (_, i) => `    {
+      "title": "Poste recommandé ${i + 1}",
+      "description": "Description personnalisée basée sur le profil réel",
+      "matchScore": ${95 - i * 3}
+    }`).join(',\n');
+
+		const businessIdeasExample = counts.business > 0 ? `,
+  "businessIdeas": [
+${Array.from({ length: counts.business }, (_, i) => `    {
+      "title": "Idée business ${i + 1}",
+      "description": "Concept entrepreneurial aligné avec les forces et le marché",
+      "viabilityScore": ${90 - i * 4}
+    }`).join(',\n')}
+  ]` : '';
+
 		const response = await fetch('https://api.anthropic.com/v1/messages', {
 			method: 'POST',
 			headers: {
@@ -193,7 +219,7 @@ async function generateRecommendationsWithClaude(answers, cvData, env) {
 			},
 			body: JSON.stringify({
 				model: 'claude-3-5-sonnet-20241022',
-				max_tokens: 3000,
+				max_tokens: 4000,
 				messages: [{
 					role: 'user',
 					content: `Tu es un expert en orientation professionnelle. Analyse ces données et génère un profil Ikigai personnalisé au format JSON strict:
@@ -214,23 +240,9 @@ Génère un JSON avec cette structure exacte (sans texte avant ou après):
   "talents": ["talent1", "talent2", "talent3"],
   "mission": ["mission1", "mission2", "mission3"],
   "vocation": ["vocation1", "vocation2", "vocation3"],
-  "recommendations": [
-    {
-      "title": "Poste recommandé 1",
-      "description": "Description personnalisée basée sur le profil réel",
-      "matchScore": 95
-    },
-    {
-      "title": "Poste recommandé 2", 
-      "description": "Description personnalisée basée sur le profil réel",
-      "matchScore": 88
-    },
-    {
-      "title": "Poste recommandé 3",
-      "description": "Description personnalisée basée sur le profil réel", 
-      "matchScore": 82
-    }
-  ],
+  "careerRecommendations": [
+${careerRecsExample}
+  ]${businessIdeasExample},
   "score": {
     "passion": 85,
     "profession": 75,
@@ -239,33 +251,37 @@ Génère un JSON avec cette structure exacte (sans texte avant ou après):
   }
 }
 
-IMPORTANT: Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser. Sois spécifique et pertinent. Retourne UNIQUEMENT le JSON.`
+IMPORTANT: 
+- Génère EXACTEMENT ${counts.career} recommandations de carrière${counts.business > 0 ? ` ET ${counts.business} idées business` : ''}.
+- Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser.
+- Sois spécifique et pertinent.
+- Retourne UNIQUEMENT le JSON valide.`
 				}]
 			})
 		});
 
 		const data = await response.json();
-		
+
 		if (!response.ok) {
 			console.error('❌ Erreur Claude API:', data);
-			return generateSimpleRecommendations(answers, cvData);
+			return generateSimpleRecommendations(answers, cvData, userPlan);
 		}
 
 		const content = data.content[0].text;
 		const jsonMatch = content.match(/\{[\s\S]*\}/);
-		
+
 		if (jsonMatch) {
 			const analysis = JSON.parse(jsonMatch[0]);
 			console.log('✅ Recommandations générées par Claude');
 			return analysis;
 		}
-		
+
 		console.warn('⚠️ Pas de JSON trouvé dans la réponse Claude');
-		return generateSimpleRecommendations(answers, cvData);
+		return generateSimpleRecommendations(answers, cvData, userPlan);
 
 	} catch (error) {
 		console.error('❌ Erreur génération Claude:', error.message);
-		return generateSimpleRecommendations(answers, cvData);
+		return generateSimpleRecommendations(answers, cvData, userPlan);
 	}
 }
 
@@ -273,15 +289,25 @@ IMPORTANT: Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser. S
 // GÉNÉRATION SIMPLE (sans Claude)
 // ============================================
 
-function generateSimpleRecommendations(answers, cvData) {
-	console.log('📊 Génération simple des recommandations (sans IA)');
-	
+function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte') {
+	console.log(`📊 Génération simple des recommandations (sans IA) - Plan: ${userPlan}`);
+
+	// Déterminer le nombre de recommandations selon le plan
+	const recommendationCounts = {
+		'decouverte': { career: 3, business: 0 },
+		'essentiel': { career: 10, business: 5 },
+		'premium': { career: 10, business: 5 }
+	};
+
+	const counts = recommendationCounts[userPlan] || recommendationCounts['decouverte'];
+
 	const analysis = {
 		passions: [],
 		talents: [],
 		mission: [],
 		vocation: [],
-		recommendations: [],
+		careerRecommendations: [],
+		businessIdeas: [],
 		score: { passion: 0, profession: 0, mission: 0, vocation: 0 }
 	};
 
@@ -361,57 +387,101 @@ function generateSimpleRecommendations(answers, cvData) {
 	}
 
 	const dominant = Object.entries(analysis.score).sort((a, b) => b[1] - a[1])[0][0];
-	
+
+	// Générer les recommandations de carrière
 	if (dominant === 'passion' && analysis.passions[0]) {
-		analysis.recommendations.push({
+		analysis.careerRecommendations.push({
 			title: `Créateur ${analysis.passions[0]}`,
 			description: `Exploitez votre passion pour ${analysis.passions[0].toLowerCase()} en créant des projets innovants qui vous inspirent.`,
 			matchScore: 92
 		});
 	} else if (dominant === 'mission' && analysis.mission[0]) {
-		analysis.recommendations.push({
+		analysis.careerRecommendations.push({
 			title: `Responsable ${analysis.mission[0]}`,
 			description: `Dirigez des initiatives dans ${analysis.mission[0].toLowerCase()} pour créer un impact durable.`,
 			matchScore: 90
 		});
 	} else if (dominant === 'profession' && analysis.talents[0]) {
-		analysis.recommendations.push({
+		analysis.careerRecommendations.push({
 			title: `Expert ${analysis.talents[0]}`,
 			description: `Devenez une référence en ${analysis.talents[0].toLowerCase()} grâce à votre expertise unique.`,
 			matchScore: 88
 		});
 	} else {
-		analysis.recommendations.push({
+		analysis.careerRecommendations.push({
 			title: `Consultant Stratégique`,
 			description: `Conseillez des organisations en combinant vos compétences et votre vision.`,
 			matchScore: 85
 		});
 	}
-	
+
 	if (cvData.skills && cvData.skills.length > 0) {
 		const mainSkill = cvData.skills[0];
 		const expText = cvData.yearsExperience > 0 ? ` avec ${cvData.yearsExperience} ans d'expérience` : '';
-		analysis.recommendations.push({
+		analysis.careerRecommendations.push({
 			title: `Lead ${mainSkill}`,
 			description: `Dirigez des équipes et projets en ${mainSkill.toLowerCase()}${expText} pour maximiser votre impact.`,
 			matchScore: 87
 		});
 	}
-	
+
 	if (analysis.passions[0] && analysis.mission[0]) {
-		analysis.recommendations.push({
-			title: `Entrepreneur ${analysis.passions[0]} & ${analysis.mission[0]}`,
-			description: `Créez votre entreprise alliant ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()}.`,
+		analysis.careerRecommendations.push({
+			title: `Manager ${analysis.passions[0]} & ${analysis.mission[0]}`,
+			description: `Combinez ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()} dans un rôle de management.`,
 			matchScore: 84
 		});
 	}
 
-	while (analysis.recommendations.length < 3) {
-		analysis.recommendations.push({
-			title: 'Consultant Indépendant',
+	// Compléter jusqu'au nombre requis
+	while (analysis.careerRecommendations.length < counts.career) {
+		analysis.careerRecommendations.push({
+			title: `Consultant ${analysis.vocation[0] || 'Indépendant'}`,
 			description: 'Développez votre activité de conseil en exploitant votre expertise unique.',
-			matchScore: 75
+			matchScore: 75 - analysis.careerRecommendations.length
 		});
+	}
+
+	// Limiter au nombre exact requis
+	analysis.careerRecommendations = analysis.careerRecommendations.slice(0, counts.career);
+
+	// Générer les idées business si applicable
+	if (counts.business > 0) {
+		if (analysis.passions[0] && analysis.mission[0]) {
+			analysis.businessIdeas.push({
+				title: `Startup ${analysis.passions[0]} & ${analysis.mission[0]}`,
+				description: `Créez une entreprise alliant ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()}.`,
+				viabilityScore: 88
+			});
+		}
+
+		if (cvData.skills && cvData.skills[0]) {
+			analysis.businessIdeas.push({
+				title: `Agence de services ${cvData.skills[0]}`,
+				description: `Lancez une agence spécialisée en ${cvData.skills[0].toLowerCase()} pour accompagner les entreprises.`,
+				viabilityScore: 85
+			});
+		}
+
+		if (analysis.vocation[0]) {
+			analysis.businessIdeas.push({
+				title: `Plateforme ${analysis.vocation[0]}`,
+				description: `Développez une plateforme digitale dans le secteur ${analysis.vocation[0].toLowerCase()}.`,
+				viabilityScore: 82
+			});
+		}
+
+		// Compléter jusqu'au nombre requis
+		while (analysis.businessIdeas.length < counts.business) {
+			analysis.businessIdeas.push({
+				title: `Consulting ${analysis.talents[0] || 'Expertise'}`,
+				description: 'Proposez vos services de conseil aux PME et startups.',
+				viabilityScore: 78 - analysis.businessIdeas.length * 2
+			});
+		}
+
+		// Limiter au nombre exact requis
+		analysis.businessIdeas = analysis.businessIdeas.slice(0, counts.business);
 	}
 
 	return analysis;
@@ -448,7 +518,7 @@ async function handleRequest(request, env) {
 		}
 
 		// ============ NOUVEAUX ENDPOINTS DASHBOARD ============
-		
+
 		// GET /api/dashboard/client
 		if (path === '/api/dashboard/client' && method === 'GET') {
 			const authHeader = request.headers.get('Authorization');
@@ -458,7 +528,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			// Vérifier le token et récupérer l'utilisateur
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
@@ -493,7 +563,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -555,7 +625,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -601,7 +671,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -644,7 +714,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -689,7 +759,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -727,7 +797,7 @@ async function handleRequest(request, env) {
 
 			const token = authHeader.replace('Bearer ', '');
 			const supabase = getSupabaseClient(env);
-			
+
 			const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 			if (authError || !user) {
 				return errorResponse('Token invalide', 401);
@@ -765,18 +835,18 @@ async function handleRequest(request, env) {
 		// Submit questionnaire + Analyse immédiate (SANS CV)
 		if (path === '/api/questionnaire/submit' && method === 'POST') {
 			console.log('📝 POST /api/questionnaire/submit');
-			
+
 			const body = await request.json();
 			const { answers, email } = body;
-			
+
 			if (!answers || Object.keys(answers).length === 0) {
 				return errorResponse('Pas de réponses fournies');
 			}
-			
+
 			const questionnaireId = 'ikigai-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-			
+
 			console.log('📊 Analyse sans CV...');
-			
+
 			const emptyCvData = {
 				skills: [],
 				experiences: [],
@@ -784,9 +854,33 @@ async function handleRequest(request, env) {
 				industries: [],
 				yearsExperience: 0
 			};
-			
-			const analysis = await generateRecommendationsWithClaude(answers, emptyCvData, env);
-			
+
+			// Récupérer le plan de l'utilisateur depuis Supabase si authentifié
+			let userPlan = 'decouverte'; // par défaut
+			const authHeader = request.headers.get('Authorization');
+			if (authHeader && env.SUPABASE_URL) {
+				try {
+					const token = authHeader.replace('Bearer ', '');
+					const supabase = getSupabaseClient(env);
+					const { data: { user } } = await supabase.auth.getUser(token);
+
+					if (user) {
+						const { data: profile } = await supabase
+							.from('profiles')
+							.select('plan')
+							.eq('id', user.id)
+							.single();
+
+						userPlan = profile?.plan || 'decouverte';
+						console.log(`👤 Utilisateur authentifié - Plan: ${userPlan}`);
+					}
+				} catch (error) {
+					console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);
+				}
+			}
+
+			const analysis = await generateRecommendationsWithClaude(answers, emptyCvData, env, userPlan);
+
 			// Stocker dans KV (temporaire - 24h)
 			if (env.IKIGAI_KV) {
 				try {
@@ -802,12 +896,12 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur stockage KV:', e.message);
 				}
 			}
-			
+
 			// NOUVEAU: Stocker dans Supabase (permanent)
 			if (env.SUPABASE_URL) {
 				try {
 					const supabase = getSupabaseClient(env);
-					
+
 					// Récupérer l'utilisateur par email si fourni
 					let userId = null;
 					if (email) {
@@ -818,7 +912,7 @@ async function handleRequest(request, env) {
 							.single();
 						userId = profile?.id || null;
 					}
-					
+
 					// Sauvegarder le questionnaire
 					await supabase.from('questionnaires').insert({
 						id: questionnaireId,
@@ -828,15 +922,15 @@ async function handleRequest(request, env) {
 						cv_data: null,
 						analysis
 					});
-					
+
 					console.log('✅ Données stockées dans Supabase');
 				} catch (e) {
 					console.warn('⚠️ Erreur stockage Supabase:', e.message);
 				}
 			}
-			
+
 			console.log('✅ Questionnaire analysé:', questionnaireId);
-			
+
 			return jsonResponse({
 				success: true,
 				questionnaireId,
@@ -848,22 +942,22 @@ async function handleRequest(request, env) {
 		// Upload CV + Ré-analyse complète
 		if (path === '/api/questionnaire/upload-cv' && method === 'POST') {
 			console.log('📄 POST /api/questionnaire/upload-cv');
-			
+
 			const formData = await request.formData();
 			const cvFile = formData.get('cv');
 			const questionnaireId = formData.get('questionnaireId');
-			
+
 			if (!cvFile) {
 				return errorResponse('Pas de CV fourni');
 			}
-			
+
 			if (!questionnaireId) {
 				return errorResponse('ID questionnaire manquant');
 			}
-			
+
 			// Récupérer les données stockées (KV ou Supabase)
 			let storedData = null;
-			
+
 			// Essayer KV d'abord
 			if (env.IKIGAI_KV) {
 				try {
@@ -876,7 +970,7 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur lecture KV:', e.message);
 				}
 			}
-			
+
 			// Sinon essayer Supabase
 			if (!storedData && env.SUPABASE_URL) {
 				try {
@@ -886,7 +980,7 @@ async function handleRequest(request, env) {
 						.select('*')
 						.eq('id', questionnaireId)
 						.single();
-					
+
 					if (data) {
 						storedData = data;
 						console.log('✅ Données récupérées depuis Supabase');
@@ -895,25 +989,25 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur lecture Supabase:', e.message);
 				}
 			}
-			
+
 			if (!storedData) {
 				return errorResponse('Questionnaire non trouvé ou expiré. Veuillez recommencer.');
 			}
-			
+
 			// Extraire texte du CV
 			const cvText = await cvFile.text();
 			console.log('📄 CV reçu, taille:', cvText.length, 'caractères');
-			
+
 			if (cvText.length < 50) {
 				return errorResponse('Le CV semble vide ou invalide');
 			}
-			
+
 			// Analyser le CV
 			const cvData = await analyzeCVWithClaude(cvText, env);
-			
+
 			// Ré-générer recommandations avec CV
 			const analysis = await generateRecommendationsWithClaude(storedData.answers, cvData, env);
-			
+
 			// Mettre à jour dans KV
 			if (env.IKIGAI_KV) {
 				try {
@@ -928,7 +1022,7 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur mise à jour KV:', e.message);
 				}
 			}
-			
+
 			// Mettre à jour dans Supabase
 			if (env.SUPABASE_URL) {
 				try {
@@ -942,9 +1036,9 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur mise à jour Supabase:', e.message);
 				}
 			}
-			
+
 			console.log('✅ Analyse complète avec CV terminée!');
-			
+
 			return jsonResponse({
 				success: true,
 				questionnaireId,
@@ -956,7 +1050,7 @@ async function handleRequest(request, env) {
 		// Récupérer un questionnaire
 		if (path.startsWith('/api/questionnaire/') && method === 'GET') {
 			const id = path.split('/').pop();
-			
+
 			// Essayer KV d'abord
 			if (env.IKIGAI_KV) {
 				try {
@@ -972,7 +1066,7 @@ async function handleRequest(request, env) {
 					console.warn('⚠️ Erreur lecture KV:', e.message);
 				}
 			}
-			
+
 			// Sinon essayer Supabase
 			if (env.SUPABASE_URL) {
 				try {
@@ -982,9 +1076,9 @@ async function handleRequest(request, env) {
 						.select('*')
 						.eq('id', id)
 						.single();
-					
+
 					if (error) throw error;
-					
+
 					return jsonResponse({
 						success: true,
 						...data
@@ -993,7 +1087,7 @@ async function handleRequest(request, env) {
 					return errorResponse('Questionnaire non trouvé', 404);
 				}
 			}
-			
+
 			return errorResponse('Stockage non configuré', 500);
 		}
 

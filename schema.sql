@@ -9,7 +9,10 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     password TEXT,
     name TEXT,
-    plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'essential', 'premium', 'enterprise')),
+    role TEXT DEFAULT 'client' CHECK (role IN ('client', 'coach', 'admin', 'super_admin')),
+    plan TEXT DEFAULT 'decouverte' CHECK (plan IN ('decouverte', 'essentiel', 'premium')),
+    analyses_remaining INTEGER DEFAULT NULL,  -- NULL = illimité, pour plans avec limite
+    subscription_end_date TEXT DEFAULT NULL,  -- Format ISO 8601, pour abonnements mensuels
     payment_date TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT
@@ -36,7 +39,7 @@ CREATE INDEX IF NOT EXISTS idx_questionnaires_created ON questionnaires(created_
 CREATE TABLE IF NOT EXISTS newsletter (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
-    type TEXT DEFAULT 'b2b' CHECK (type IN ('b2c', 'b2b', 'all')),
+    type TEXT DEFAULT 'coach' CHECK (type IN ('client', 'coach', 'all')),
     subscribed_at TEXT NOT NULL,
     unsubscribed_at TEXT
 );

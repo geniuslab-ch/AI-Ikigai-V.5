@@ -1710,7 +1710,7 @@
                         <li>Résumé de votre profil</li>
                         <li>3 recommandations de carrière</li>
                         <li class="disabled">Analyse de CV</li>
-                        <li class="disabled">Rapport détaillé PDF</li>
+
                         <li class="disabled">Idées business personnalisées</li>
                     </ul>
                     <a href="questionnaire.html" class="pricing-cta">Commencer gratuitement</a>
@@ -1728,7 +1728,7 @@
                     <ul class="pricing-features">
                         <li>Tout de Découverte +</li>
                         <li>Analyse complète du CV par IA</li>
-                        <li>Rapport détaillé PDF (20+ pages)</li>
+
                         <li>10 recommandations de carrière</li>
                         <li>5 idées business personnalisées</li>
                         <li class="disabled">Coaching individuel</li>
@@ -1870,17 +1870,7 @@
                         de fois que vous le souhaitez pendant 1 an. Votre Ikigai peut évoluer avec votre parcours.</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <button class="faq-question">
-                    L'offre entreprise sera-t-elle bientôt disponible ?
-                    <span class="faq-icon"></span>
-                </button>
-                <div class="faq-answer">
-                    <p>Oui ! Notre offre B2B est en cours de développement et sera lancée au premier trimestre 2025.
-                        Elle inclura un dashboard RH complet, des analyses par équipe, des intégrations SIRH et un
-                        accompagnement dédié. Inscrivez-vous à notre newsletter pour être informé du lancement.</p>
-                </div>
-            </div>
+
         </div>
     </section>
 
@@ -1923,9 +1913,7 @@
                 <div class="footer-links">
                     <h4>Ressources</h4>
                     <a href="blog.html">Blog</a>
-                    <a href="#">Guide Ikigai</a>
                     <a href="#faq">FAQ</a>
-                    <a href="#">Support</a>
                 </div>
                 <div class="footer-links">
                     <h4>Légal</h4>
@@ -2308,6 +2296,7 @@
                     navToggleBtns[0].classList.add('active');
                     navToggleBtns[1].classList.remove('active');
                 }
+                window.location.hash = 'b2c-content';
             } else {
                 b2cContent.classList.remove('active');
                 coachContent.classList.add('active');
@@ -2315,6 +2304,7 @@
                     navToggleBtns[0].classList.remove('active');
                     navToggleBtns[1].classList.add('active');
                 }
+                window.location.hash = 'coach-content';
             }
 
             // Scroll to top when switching

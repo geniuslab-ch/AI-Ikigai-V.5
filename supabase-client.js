@@ -211,11 +211,14 @@ async function checkAuth(requiredRole = null) {
 
     console.log('✅ User authenticated:', user.email, 'Role:', user.role);
 
+    // DEBUG: Affichage visible
+    console.error('🔍 DEBUG - requiredRole:', requiredRole, 'user.role:', user.role);
+
     // Vérifier le rôle si spécifié
     if (requiredRole && user.role !== requiredRole && !['admin', 'super_admin'].includes(user.role)) {
-        console.log('⚠️ Wrong role, redirecting to correct dashboard');
-        // Rediriger vers le bon dashboard
-        redirectToDashboard(user.role);
+        console.error('⚠️ BOUCLE DÉTECTÉE - Wrong role, ARRÊT TEMPORAIRE');
+        alert(`DEBUG: Role mismatch!\nRequired: ${requiredRole}\nActual: ${user.role}\n\nBoucle arrêtée. Vérifiez la console.`);
+        // STOPPER LA BOUCLE TEMPORAIREMENT
         return null;
     }
 

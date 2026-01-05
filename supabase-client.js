@@ -3,8 +3,8 @@
  */
 
 const SUPABASE_CONFIG = {
-    url: 'https://gtpkzfpvqlcwnvekcxhy.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0cGt6ZnB2cWxjd252ZWtjeGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcyODI0MTAsImV4cCI6MjA4Mjg1ODQxMH0.Q4Y9iheI4EFAJhjH6MptiTodrypC8UIPIz4YN-rHksU'
+    url: 'https://wgmtujvvfnsbhudshmkh.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDA3MTIsImV4cCI6MjA1MTU3NjcxMn0.qNS5J0RlV1PG7xc-kxSlKnKZ9EuZHQWLyHlPaWmLqKA'
 };
 
 // Initialiser le client Supabase (via CDN)

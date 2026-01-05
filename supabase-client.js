@@ -230,7 +230,12 @@ function redirectToDashboard(role) {
         'super_admin': 'dashboard-admin.html'
     };
 
-    window.location.href = dashboards[role] || 'dashboard-client.html';
+    const targetDashboard = dashboards[role] || 'dashboard-client.html';
+
+    // Éviter boucle infinie - ne pas rediriger si on est déjà sur la bonne page
+    if (!window.location.href.includes(targetDashboard)) {
+        window.location.href = targetDashboard;
+    }
 }
 
 // ============================================

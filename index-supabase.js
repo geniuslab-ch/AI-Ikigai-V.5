@@ -866,7 +866,7 @@ async function handleRequest(request, env) {
 
 					if (user) {
 						const { data: profile } = await supabase
-							.from('users')
+							.from('profiles')
 							.select('plan')
 							.eq('id', user.id)
 							.single();

@@ -2814,7 +2814,7 @@
         }
 
         // Show Results
-        function showResults(backendAnalysis = null) {
+        async function showResults(backendAnalysis = null) {
             // Hide all questionnaire sections using correct IDs
             const progressSection = document.getElementById('progress-section');
             const questionsContainer = document.getElementById('questions-container');
@@ -2841,6 +2841,43 @@
             // If we have backend analysis, update the displayed results
             if (backendAnalysis) {
                 console.log('📊 Mise à jour des résultats avec:', backendAnalysis);
+
+                // 🔸 FILTRAGE SELON LE PLAN UTILISATEUR
+                // Récupérer le plan de l'utilisateur depuis Supabase
+                let userPlan = 'decouverte'; // Par défaut = gratuit
+                try {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    if (session?.user) {
+                        const { data: profile } = await window.supabaseClient
+                            .from('profiles')
+                            .select('plan')
+                            .eq('id', session.user.id)
+                            .single();
+                        userPlan = profile?.plan || 'decouverte';
+                        console.log('👤 Plan utilisateur:', userPlan);
+                    }
+                } catch (e) {
+                    console.log('⚠️ Erreur récupération plan, utilisation plan gratuit par défaut');
+                }
+
+                // ✅ APPLIQUER LES RESTRICTIONS SELON LE PLAN
+                if (userPlan === 'decouverte' || userPlan === 'free') {
+                    // Plan gratuit: max 3 career reco, PAS de business ideas
+                    console.log('🚫 Plan gratuit: suppression des business ideas');
+                    if (backendAnalysis.careerRecommendations) {
+                        backendAnalysis.careerRecommendations = backendAnalysis.careerRecommendations.slice(0, 3);
+                    }
+                    backendAnalysis.businessIdeas = []; // ❌ PAS de business ideas
+                } else if (userPlan === 'essentiel') {
+                    // Plan essentiel: max 10 career + 5 business
+                    if (backendAnalysis.careerRecommendations) {
+                        backendAnalysis.careerRecommendations = backendAnalysis.careerRecommendations.slice(0, 10);
+                    }
+                    if (backendAnalysis.businessIdeas) {
+                        backendAnalysis.businessIdeas = backendAnalysis.businessIdeas.slice(0, 5);
+                    }
+                }
+                // Premium: pas de limite
 
                 // Update passions card
                 const passionCard = document.querySelector('.result-card.passion');

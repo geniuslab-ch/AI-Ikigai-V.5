@@ -222,7 +222,7 @@ ${Array.from({ length: counts.business }, (_, i) => `    {
 				max_tokens: 4000,
 				messages: [{
 					role: 'user',
-					content: `Tu es un expert en orientation professionnelle. Analyse ces données et génère un profil Ikigai personnalisé au format JSON strict:
+					content: `Tu es un expert français en orientation professionnelle. Analyse ces données et génère un profil Ikigai personnalisé EN FRANÇAIS au format JSON strict:
 
 RÉPONSES QUESTIONNAIRE:
 ${JSON.stringify(answers, null, 2)}
@@ -251,11 +251,15 @@ ${careerRecsExample}
   }
 }
 
-IMPORTANT: 
-- Génère EXACTEMENT ${counts.career} recommandations de carrière${counts.business > 0 ? ` ET ${counts.business} idées business` : ''}.
-- Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser.
-- Sois spécifique et pertinent.
-- Retourne UNIQUEMENT le JSON valide.`
+RÈGLES STRICTES: 
+- Génère EXACTEMENT ${counts.career} recommandations de carrière (postes SALARIÉS)${counts.business > 0 ? ` ET ${counts.business} idées de création d'entreprise/startup` : ''}.
+- "careerRecommendations" = UNIQUEMENT des postes salariés (ex: "Chef de projet", "Consultant", "Designer")
+- "businessIdeas" = UNIQUEMENT création entreprise/startup (ex: "Agence de...", "Plateforme...", "Service de...")
+- Si une recommandation contient "Entrepreneur", "Startup", "Créer", "Lancer" → c'est une businessIdea, PAS une careerRecommendation
+- Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser
+- TOUT doit être en FRANÇAIS (titres, descriptions, concepts)
+- Sois spécifique et pertinent
+- Retourne UNIQUEMENT le JSON valide`
 				}]
 			})
 		});

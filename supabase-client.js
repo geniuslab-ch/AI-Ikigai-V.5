@@ -83,6 +83,31 @@ const AuthAPI = {
                     console.log('✅ Profile fetched from database:', profileData);
                 } else {
                     console.warn('⚠️ Could not fetch profile:', profileError);
+
+                    // AUTO-FIX: Créer le profil s'il n'existe pas
+                    if (profileError?.code === 'PGRST116') { // Pas de résultat
+                        console.log('🔧 Auto-creating missing profile...');
+                        try {
+                            const { error: createError } = await supabaseClient
+                                .from('profiles')
+                                .insert({
+                                    id: user.id,
+                                    email: user.email,
+                                    name: user.user_metadata?.name || user.email?.split('@')[0],
+                                    role: 'client',
+                                    plan: 'decouverte'
+                                });
+
+                            if (!createError) {
+                                console.log('✅ Profile auto-created! Reloading...');
+                                // Recharger la page pour récupérer le profil
+                                window.location.reload();
+                                return null;
+                            }
+                        } catch (createErr) {
+                            console.error('❌ Could not auto-create profile:', createErr);
+                        }
+                    }
                 }
             } catch (profileError) {
                 console.warn('⚠️ Profile fetch failed:', profileError);
@@ -204,6 +229,11 @@ async function checkAuth(requiredRole = null) {
 
     if (!user) {
         console.log('❌ No user, redirecting to auth.html');
+        // PROTECTION: Éviter boucle infinie si déjà sur auth.html
+        if (window.location.href.includes('auth.html')) {
+            console.error('🔴 Already on auth page, stopping redirect loop!');
+            return null;
+        }
         // Rediriger vers login
         window.location.href = 'auth.html';
         return null;

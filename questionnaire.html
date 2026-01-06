@@ -1369,21 +1369,25 @@
             border-radius: 24px;
             max-width: 500px;
             width: 90%;
+            padding: 3rem;
             text-align: center;
-            border: 1px solid var(--border);
+            position: relative;
+            z-index: 100000;
         }
 
-        .signup-modal h3 {
+        .signup-modal-content h3 {
             font-size: 2rem;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--purple) 0%, var(--pink) 100%);
+            background: var(--gradient-text);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .signup-modal p {
-            color: var(--gray);
+        .signup-modal-content p {
+            color: var(--light);
             margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .signup-form input {

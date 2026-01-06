@@ -175,7 +175,7 @@ function analyzeSimpleCV(cvText) {
 // GÉNÉRATION RECOMMANDATIONS avec Claude AI
 // ============================================
 
-async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'essentiel') {
+async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'decouverte') {
 	if (!env.ANTHROPIC_API_KEY) {
 		console.warn('⚠️ Pas de clé API Claude, utilisation génération simple');
 		return generateSimpleRecommendations(answers, cvData, userPlan);
@@ -293,7 +293,7 @@ RÈGLES STRICTES:
 // GÉNÉRATION SIMPLE (sans Claude)
 // ============================================
 
-function generateSimpleRecommendations(answers, cvData, userPlan = 'essentiel') {
+function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte') {
 	console.log(`📊 Génération simple des recommandations (sans IA) - Plan: ${userPlan}`);
 
 	// Déterminer le nombre de recommandations selon le plan
@@ -860,7 +860,7 @@ async function handleRequest(request, env) {
 			};
 
 			// Récupérer le plan de l'utilisateur depuis Supabase si authentifié
-			let userPlan = 'essentiel'; // WORKAROUND: par défaut essentiel au lieu de découverte
+			let userPlan = 'decouverte'; // par défaut pour utilisateurs non authentifiés
 			const authHeader = request.headers.get('Authorization');
 			console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
 

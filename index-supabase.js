@@ -856,7 +856,7 @@ async function handleRequest(request, env) {
 			};
 
 			// Récupérer le plan de l'utilisateur depuis Supabase si authentifié
-			let userPlan = 'decouverte'; // par défaut
+			let userPlan = 'essentiel'; // WORKAROUND: par défaut essentiel au lieu de découverte
 			const authHeader = request.headers.get('Authorization');
 			console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
 

@@ -2777,12 +2777,11 @@
 
                     // NOUVEAU: Vérifier session avant affichage
                     setTimeout(async () => {
-                        const canShow = await checkSessionBeforeResults();
+                        const canShow = await checkSessionBeforeResults(finalAnalysis);
                         if (canShow) {
                             showResults(finalAnalysis);
                         }
-                        // Si canShow = false, le modal signup est affiché
-                        // Les résultats s'afficheront après signup
+                        // Si canShow = false, modal affiché, résultats dans window.pendingAnalysis
                     }, 1000);
                 }
             }

@@ -3113,14 +3113,22 @@
         });
 
         // Fonction pour vérifier session et afficher modal si besoin
-        async function checkSessionBeforeResults(analysis) {  // AJOUTER analysis en paramètre
+        async function checkSessionBeforeResults(analysis) {
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
 
                 if (!session) {
-                    // Pas de session → STOCKER et afficher modal
+                    // Pas de session → CACHER page loading et afficher modal
                     console.log('❌ Pas de session → Modal + stockage analysis');
-                    window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
+
+                    // CACHER la page de chargement
+                    const loadingSection = document.getElementById('loading-section');
+                    if (loadingSection) {
+                        loadingSection.style.display = 'none';
+                    }
+
+                    // Stocker et afficher modal
+                    window.pendingAnalysis = analysis;
                     document.getElementById('signup-modal').classList.add('active');
                     return false;
                 }
@@ -3129,7 +3137,14 @@
                 return true;
             } catch (error) {
                 console.error('Erreur vérification session:', error);
-                window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
+
+                // Cacher loading aussi en cas d'erreur
+                const loadingSection = document.getElementById('loading-section');
+                if (loadingSection) {
+                    loadingSection.style.display = 'none';
+                }
+
+                window.pendingAnalysis = analysis;
                 document.getElementById('signup-modal').classList.add('active');
                 return false;
             }

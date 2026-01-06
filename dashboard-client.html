@@ -475,89 +475,89 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Score Passion</div>
-/* CSS pour Dashboard Historique - À ajouter dans dashboard-client.html */
+                        /* CSS pour Dashboard Historique - À ajouter dans dashboard-client.html */
 
-.questionnaire-card {
-    background: var(--dark-card);
-    border: 1px solid var(--dark-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
+                        .questionnaire-card {
+                        background: var(--dark-card);
+                        border: 1px solid var(--dark-border);
+                        border-radius: 16px;
+                        padding: 1.5rem;
+                        margin-bottom: 1rem;
+                        transition: transform 0.2s, box-shadow 0.2s;
+                        }
 
-.questionnaire-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
-}
+                        .questionnaire-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
+                        }
 
-.questionnaire-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
+                        .questionnaire-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 1rem;
+                        }
 
-.quest ionnaire-header h4 {
-    font-size: 1.1rem;
-    color: var(--light);
-}
+                        .quest ionnaire-header h4 {
+                        font-size: 1.1rem;
+                        color: var(--light);
+                        }
 
-.plan-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
+                        .plan-badge {
+                        padding: 0.25rem 0.75rem;
+                        border-radius: 8px;
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        }
 
-.plan-decouverte {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
+                        .plan-decouverte {
+                        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                        }
 
-.plan-essentiel {
-    background: linear-gradient(135deg, var(--purple), var(--magenta));
-}
+                        .plan-essentiel {
+                        background: linear-gradient(135deg, var(--purple), var(--magenta));
+                        }
 
-.plan-premium {
-    background: linear-gradient(135deg, var(--cyan), var(--pink));
-}
+                        .plan-premium {
+                        background: linear-gradient(135deg, var(--cyan), var(--pink));
+                        }
 
-.questionnaire-stats {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1rem;
-}
+                        .questionnaire-stats {
+                        display: flex;
+                        gap: 2rem;
+                        margin-bottom: 1rem;
+                        }
 
-.questionnaire-stats .stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
+                        .questionnaire-stats .stat {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.25rem;
+                        }
 
-.questionnaire-stats .stat strong {
-    font-size: 1.5rem;
-    color: var(--cyan);
-}
+                        .questionnaire-stats .stat strong {
+                        font-size: 1.5rem;
+                        color: var(--cyan);
+                        }
 
-.questionnaire-stats .stat span {
-    font-size: 0.85rem;
-    color: var(--gray);
-}
+                        .questionnaire-stats .stat span {
+                        font-size: 0.85rem;
+                        color: var(--gray);
+                        }
 
-.questionnaire-actions {
-    display: flex;
-    gap: 1rem;
-}
+                        .questionnaire-actions {
+                        display: flex;
+                        gap: 1rem;
+                        }
 
-.questionnaire-actions button {
-    flex: 1;
-    padding: 0.75rem;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+                        .questionnaire-actions button {
+                        flex: 1;
+                        padding: 0.75rem;
+                        border-radius: 12px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        }
                         <div class="stat-value" id="score-passion">-</div>
                     </div>
                     <div class="stat-card">
@@ -1040,50 +1040,50 @@
                     <div class="recommendation-desc">${rec.description}</div>
                 </div>
             `).join('');
-// ========================================
-// DASHBOARD HISTORIQUE QUESTIONNAIRES
-// ========================================
+            // ========================================
+            // DASHBOARD HISTORIQUE QUESTIONNAIRES
+            // ========================================
 
-async function loadQuestionnaireHistory() {
-    try {
-        // Récupérer session utilisateur
-        const { data: { session } } = await supabaseClient.auth.getSession();
+            async function loadQuestionnaireHistory() {
+                try {
+                    // Récupérer session utilisateur
+                    const { data: { session } } = await supabaseClient.auth.getSession();
 
-        if (!session) {
-            window.location.href = 'auth.html';
-            return;
-        }
+                    if (!session) {
+                        window.location.href = 'auth.html';
+                        return;
+                    }
 
-        // Fetch questionnaires depuis Supabase
-        const { data: questionnaires, error } = await supabaseClient
-            .from('questionnaires')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .order('created_at', { ascending: false });
+                    // Fetch questionnaires depuis Supabase
+                    const { data: questionnaires, error } = await supabaseClient
+                        .from('questionnaires')
+                        .select('*')
+                        .eq('user_id', session.user.id)
+                        .order('created_at', { ascending: false });
 
-        if (error) throw error;
+                    if (error) throw error;
 
-        console.log(`✅ ${questionnaires.length} questionnaires trouvés`);
+                    console.log(`✅ ${questionnaires.length} questionnaires trouvés`);
 
-        // Afficher dans UI
-        displayQuestionnaireList(questionnaires);
+                    // Afficher dans UI
+                    displayQuestionnaireList(questionnaires);
 
-    } catch (error) {
-        console.error('❌ Erreur chargement historique:', error);
-        alert('Erreur lors du chargement de votre historique');
-    }
-}
+                } catch (error) {
+                    console.error('❌ Erreur chargement historique:', error);
+                    alert('Erreur lors du chargement de votre historique');
+                }
+            }
 
-function displayQuestionnaireList(questionnaires) {
-    const container = document.getElementById('questionnaire-history');
+            function displayQuestionnaireList(questionnaires) {
+                const container = document.getElementById('questionnaire-history');
 
-    if (!container) {
-        console.warn('⚠️ Container #questionnaire-history introuvable');
-        return;
-    }
+                if (!container) {
+                    console.warn('⚠️ Container #questionnaire-history introuvable');
+                    return;
+                }
 
-    if (questionnaires.length === 0) {
-        container.innerHTML = `
+                if (questionnaires.length === 0) {
+                    container.innerHTML = `
             <div style="text-align: center; padding: 3rem;">
                 <p style="color: var(--gray); font-size: 1.1rem;">
                     Aucun questionnaire complété pour le moment
@@ -1093,10 +1093,10 @@ function displayQuestionnaireList(questionnaires) {
                 </a>
             </div>
         `;
-        return;
-    }
+                    return;
+                }
 
-    const html = questionnaires.map(q => `
+                const html = questionnaires.map(q => `
         <div class="questionnaire-card" data-id="${q.id}">
             <div class="questionnaire-header">
                 <h4>${formatDate(q.created_at)}</h4>
@@ -1123,30 +1123,30 @@ function displayQuestionnaireList(questionnaires) {
         </div>
     `).join('');
 
-    container.innerHTML = html;
-}
+                container.innerHTML = html;
+            }
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return date.toLocaleDateString('fr-FR', options);
-}
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                return date.toLocaleDateString('fr-FR', options);
+            }
 
-function viewQuestionnaire(id) {
-    // Rediriger vers questionnaire avec résultats
-    window.location.href = `questionnaire.html?result=${id}`;
-}
+            function viewQuestionnaire(id) {
+                // Rediriger vers questionnaire avec résultats
+                window.location.href = `questionnaire.html?result=${id}`;
+            }
 
-// Fonction  downloadPDF sera implémentée Phase 4
-function downloadPDF(id) {
-    alert('Export PDF en cours d\'implémentation (Phase 4)');
-    // Sera implémenté dans Phase 4
-}
+            // Fonction  downloadPDF sera implémentée Phase 4
+            function downloadPDF(id) {
+                alert('Export PDF en cours d\'implémentation (Phase 4)');
+                // Sera implémenté dans Phase 4
+            }
 
-// Charger au chargement page
-document.addEventListener('DOMContentLoaded', () => {
-    loadQuestionnaireHistory();
-});
+            // Charger au chargement page
+            document.addEventListener('DOMContentLoaded', () => {
+                loadQuestionnaireHistory();
+            });
         }
 
         // Settings functions
@@ -1241,124 +1241,124 @@ script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.j
 document.head.appendChild(script);
 
 async function downloadPDF(questionnaireId) {
-    try {
-        // Attendre que jsPDF soit chargé
-        if (!window.jspdf) {
-            alert('Chargement PDF en cours...');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+try {
+// Attendre que jsPDF soit chargé
+if (!window.jspdf) {
+alert('Chargement PDF en cours...');
+await new Promise(resolve => setTimeout(resolve, 1000));
+}
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
 
-        // Récupérer les données du questionnaire
-        const { data: questionnaire, error } = await supabaseClient
-            .from('questionnaires')
-            .select('*')
-            .eq('id', questionnaireId)
-            .single();
+// Récupérer les données du questionnaire
+const { data: questionnaire, error } = await supabaseClient
+.from('questionnaires')
+.select('*')
+.eq('id', questionnaireId)
+.single();
 
-        if (error) throw error;
+if (error) throw error;
 
-        const analysis = questionnaire.analysis;
+const analysis = questionnaire.analysis;
 
-        // Page 1: En-tête
-        doc.setFontSize(24);
-        doc.setTextColor(139, 92, 246); // Purple
-        doc.text('Rapport Ikigai', 105, 20, { align: 'center' });
+// Page 1: En-tête
+doc.setFontSize(24);
+doc.setTextColor(139, 92, 246); // Purple
+doc.text('Rapport Ikigai', 105, 20, { align: 'center' });
 
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 105, 30, { align: 'center' });
+doc.setFontSize(12);
+doc.setTextColor(100);
+doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 105, 30, { align: 'center' });
 
-        // Vos Passions
-        let y = 50;
-        doc.setFontSize(16);
-        doc.setTextColor(0);
-        doc.text('🎨 Vos Passions', 20, y);
+// Vos Passions
+let y = 50;
+doc.setFontSize(16);
+doc.setTextColor(0);
+doc.text('🎨 Vos Passions', 20, y);
 
-        y += 10;
-        doc.setFontSize(11);
-        analysis.passions?.forEach(passion => {
-            doc.text(`• ${passion}`, 25, y);
-            y += 7;
-        });
+y += 10;
+doc.setFontSize(11);
+analysis.passions?.forEach(passion => {
+doc.text(`• ${passion}`, 25, y);
+y += 7;
+});
 
-        // Vos Talents
-        y += 10;
-        doc.setFontSize(16);
-        doc.text('💪 Vos Talents', 20, y);
+// Vos Talents
+y += 10;
+doc.setFontSize(16);
+doc.text('💪 Vos Talents', 20, y);
 
-        y += 10;
-        doc.setFontSize(11);
-        analysis.talents?.forEach(talent => {
-            doc.text(`• ${talent}`, 25, y);
-            y += 7;
-        });
+y += 10;
+doc.setFontSize(11);
+analysis.talents?.forEach(talent => {
+doc.text(`• ${talent}`, 25, y);
+y += 7;
+});
 
-        // Recommandations Carrière
-        doc.addPage();
-        y = 20;
-        doc.setFontSize(18);
-        doc.setTextColor(139, 92, 246);
-        doc.text('🎯 Recommandations de Carrière', 20, y);
+// Recommandations Carrière
+doc.addPage();
+y = 20;
+doc.setFontSize(18);
+doc.setTextColor(139, 92, 246);
+doc.text('🎯 Recommandations de Carrière', 20, y);
 
-        y += 15;
-        doc.setFontSize(11);
-        doc.setTextColor(0);
-        analysis.careerRecommendations?.forEach((rec, i) => {
-            if (y > 270) {
-                doc.addPage();
-                y = 20;
-            }
+y += 15;
+doc.setFontSize(11);
+doc.setTextColor(0);
+analysis.careerRecommendations?.forEach((rec, i) => {
+if (y > 270) {
+doc.addPage();
+y = 20;
+}
 
-            doc.setFont(undefined, 'bold');
-            doc.text(`${i + 1}. ${rec.title || rec.name}`, 20, y);
-            y += 7;
+doc.setFont(undefined, 'bold');
+doc.text(`${i + 1}. ${rec.title || rec.name}`, 20, y);
+y += 7;
 
-            doc.setFont(undefined, 'normal');
-            const lines = doc.splitTextToSize(rec.description, 170);
-            doc.text(lines, 25, y);
-            y += lines.length * 5 + 10;
-        });
+doc.setFont(undefined, 'normal');
+const lines = doc.splitTextToSize(rec.description, 170);
+doc.text(lines, 25, y);
+y += lines.length * 5 + 10;
+});
 
-        // Idées Business
-        if (analysis.businessIdeas && analysis.businessIdeas.length > 0) {
-            doc.addPage();
-            y = 20;
-            doc.setFontSize(18);
-            doc.setTextColor(236, 72, 153); // Pink
-            doc.text('💼 Idées de Business', 20, y);
+// Idées Business
+if (analysis.businessIdeas && analysis.businessIdeas.length > 0) {
+doc.addPage();
+y = 20;
+doc.setFontSize(18);
+doc.setTextColor(236, 72, 153); // Pink
+doc.text('💼 Idées de Business', 20, y);
 
-            y += 15;
-            doc.setFontSize(11);
-            doc.setTextColor(0);
-            analysis.businessIdeas.forEach((idea, i) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
+y += 15;
+doc.setFontSize(11);
+doc.setTextColor(0);
+analysis.businessIdeas.forEach((idea, i) => {
+if (y > 270) {
+doc.addPage();
+y = 20;
+}
 
-                doc.setFont(undefined, 'bold');
-                doc.text(`${i + 1}. ${idea.title || idea.name}`, 20, y);
-                y += 7;
+doc.setFont(undefined, 'bold');
+doc.text(`${i + 1}. ${idea.title || idea.name}`, 20, y);
+y += 7;
 
-                doc.setFont(undefined, 'normal');
-                const lines = doc.splitTextToSize(idea.description, 170);
-                doc.text(lines, 25, y);
-                y += lines.length * 5 + 10;
-            });
-        }
+doc.setFont(undefined, 'normal');
+const lines = doc.splitTextToSize(idea.description, 170);
+doc.text(lines, 25, y);
+y += lines.length * 5 + 10;
+});
+}
 
-        // Télécharger
-        doc.save(`ikigai-rapport-${new Date().toISOString().split('T')[0]}.pdf`);
+// Télécharger
+doc.save(`ikigai-rapport-${new Date().toISOString().split('T')[0]}.pdf`);
 
-        console.log('✅ PDF téléchargé');
+console.log('✅ PDF téléchargé');
 
-    } catch (error) {
-        console.error('❌ Erreur génération PDF:', error);
-        alert('Erreur lors de la génération du PDF');
-    }
+} catch (error) {
+console.error('❌ Erreur génération PDF:', error);
+alert('Erreur lors de la génération du PDF');
+}
 }
 
 // Rendre la fonction globale

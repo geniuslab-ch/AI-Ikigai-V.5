@@ -175,7 +175,7 @@ function analyzeSimpleCV(cvText) {
 // GÉNÉRATION RECOMMANDATIONS avec Claude AI
 // ============================================
 
-async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'decouverte') {
+async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'essentiel') {
 	if (!env.ANTHROPIC_API_KEY) {
 		console.warn('⚠️ Pas de clé API Claude, utilisation génération simple');
 		return generateSimpleRecommendations(answers, cvData, userPlan);
@@ -289,7 +289,7 @@ IMPORTANT:
 // GÉNÉRATION SIMPLE (sans Claude)
 // ============================================
 
-function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte') {
+function generateSimpleRecommendations(answers, cvData, userPlan = 'essentiel') {
 	console.log(`📊 Génération simple des recommandations (sans IA) - Plan: ${userPlan}`);
 
 	// Déterminer le nombre de recommandations selon le plan

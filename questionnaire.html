@@ -1724,14 +1724,12 @@
             // Token JWT récupéré dynamiquement depuis Supabase
             async getToken() {
                 try {
-                    // Créer client Supabase si pas déjà fait
-                    if (!window._supabaseClientForApi) {
-                        window._supabaseClientForApi = window.supabase.createClient(
-                            'https://wgmtujvvfnsbhudshmkh.supabase.co',
-                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
-                        );
+                    // Utiliser le client global qui partage la session
+                    if (!window.supabaseClient) {
+                        console.warn('⚠️ Supabase client pas encore chargé');
+                        return null;
                     }
-                    const { data: { session } } = await window._supabaseClientForApi.auth.getSession();
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
                     return session?.access_token || null;
                 } catch (error) {
                     console.error('Error getting token:', error);
@@ -2019,13 +2017,16 @@
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
                 script.onload = () => {
-                    // Initialiser Supabase
+                    // Initialiser Supabase GLOBALEMENT pour partager session
                     const { createClient } = supabase;
-                    supabaseClient = createClient(
+                    window.supabaseClient = createClient(
                         'https://wgmtujvvfnsbhudshmkh.supabase.co',
                         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
                     );
                     console.log('✅ Supabase client initialized');
+
+                    // Vérifier session au chargement
+                    checkExistingSession();
                 };
                 document.head.appendChild(script);
             } catch (error) {
@@ -2033,6 +2034,20 @@
             }
         })();
 
+        // Vérifier session existante
+        async function checkExistingSession() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    console.log('✅ Session trouvée:', session.user.email);
+                    // Le token sera maintenant disponible pour getToken()
+                } else {
+                    console.log('ℹ️ Pas de session active (utilisateur anonyme)');
+                }
+            } catch (error) {
+                console.warn('⚠️ Erreur vérification session:', error);
+            }
+        }
     </script>
     <script>
         /**

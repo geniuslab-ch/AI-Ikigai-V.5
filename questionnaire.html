@@ -3096,7 +3096,12 @@
                 // Fermer modal
                 document.getElementById('signup-modal').classList.remove('active');
 
-                // Afficher résultats (déjà chargés)
+                // AFFICHER résultats stockés
+                console.log('✅ Affichage résultats:', window.pendingAnalysis);
+                if (window.pendingAnalysis) {
+                    showResults(window.pendingAnalysis);
+                    window.pendingAnalysis = null;
+                }
 
             } catch (error) {
                 console.error('❌ Erreur signup:', error);
@@ -3108,21 +3113,23 @@
         });
 
         // Fonction pour vérifier session et afficher modal si besoin
-        async function checkSessionBeforeResults() {
+        async function checkSessionBeforeResults(analysis) {  // AJOUTER analysis en paramètre
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
 
                 if (!session) {
-                    // Pas de session → afficher modal
+                    // Pas de session → STOCKER et afficher modal
+                    console.log('❌ Pas de session → Modal + stockage analysis');
+                    window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
                     document.getElementById('signup-modal').classList.add('active');
-                    return false; // Ne pas afficher résultats
+                    return false;
                 }
 
                 console.log('✅ Session trouvée, affichage résultats');
-                return true; // Afficher résultats
+                return true;
             } catch (error) {
                 console.error('Erreur vérification session:', error);
-                // En cas d'erreur, afficher modal par sécurité
+                window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
                 document.getElementById('signup-modal').classList.add('active');
                 return false;
             }

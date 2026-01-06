@@ -4,7 +4,7 @@
 
 const SUPABASE_CONFIG = {
     url: 'https://wgmtujvvfnsbhudshmkh.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMDA3MTIsImV4cCI6MjA1MTU3NjcxMn0.qNS5J0RlV1PG7xc-kxSlKnKZ9EuZHQWLyHlPaWmLqKA'
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
 };
 
 // Initialiser le client Supabase (via CDN)

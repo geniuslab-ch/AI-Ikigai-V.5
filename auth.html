@@ -371,12 +371,12 @@
 
         function redirectToDashboard(role) {
             const dashboards = {
-                'client': 'dashboard-client.html',
+                'client': 'dashboard-simple.html',
                 'coach': 'dashboard-coach.html',
                 'admin': 'dashboard-admin.html',
                 'super_admin': 'dashboard-admin.html'
             };
-            window.location.href = dashboards[role] || 'dashboard-client.html';
+            window.location.href = dashboards[role] || 'dashboard-simple.html';
         }
         function showError(message) {
             const errorDiv = document.getElementById('error-message');

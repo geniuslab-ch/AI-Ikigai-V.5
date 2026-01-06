@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Simple - Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .info {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Dashboard Simple (Sans Redirection)</h1>
+    <div id="status"></div>
+    <div id="content"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://wgmtujvvfnsbhudshmkh.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
+        };
+
+        const supabaseSimple = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        const statusDiv = document.getElementById('status');
+        const contentDiv = document.getElementById('content');
+
+        async function loadDashboard() {
+            statusDiv.innerHTML = '<p class="info">Vérification de la connexion...</p>';
+
+            try {
+                // Vérifier si utilisateur connecté
+                const { data: { user }, error } = await supabaseSimple.auth.getUser();
+
+                if (error || !user) {
+                    statusDiv.innerHTML = `
+                        <p class="error">Vous n'êtes pas connecté.</p>
+                        <p><a href="auth.html">Cliquez ici pour vous connecter</a></p>
+                    `;
+                    return;
+                }
+
+                statusDiv.innerHTML = `<p class="success">✅ Connecté: ${user.email}</p>`;
+
+                // Récupérer le profil
+                const { data: profile, error: profileError } = await supabaseSimple
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profileError) {
+                    contentDiv.innerHTML = `
+                        <h2>Profil manquant</h2>
+                        <p class="error">Erreur: ${profileError.message}</p>
+                        <p>Création automatique du profil...</p>
+                    `;
+
+                    // Créer le profil
+                    const { error: createError } = await supabaseSimple
+                        .from('profiles')
+                        .insert({
+                            id: user.id,
+                            email: user.email,
+                            plan: 'essentiel'
+                        });
+
+                    if (!createError) {
+                        contentDiv.innerHTML += '<p class="success">✅ Profil créé! Rechargez la page.</p>';
+                    } else {
+                        contentDiv.innerHTML += `<p class="error">❌ Erreur création: ${createError.message}</p>`;
+                    }
+                    return;
+                }
+
+                // Afficher les infos
+                contentDiv.innerHTML = `
+                    <h2>Votre Dashboard</h2>
+                    <div>
+                        <p><strong>Email:</strong> ${profile.email}</p>
+                        <p><strong>Plan:</strong> ${profile.plan}</p>
+                        <p><strong>Rôle:</strong> ${profile.role}</p>
+                    </div>
+                    <hr>
+                    <p><a href="questionnaire.html">Faire le questionnaire</a></p>
+                    <p><button onclick="logout()">Déconnexion</button></p>
+                `;
+
+            } catch (err) {
+                statusDiv.innerHTML = `<p class="error">Erreur: ${err.message}</p>`;
+                console.error('Error:', err);
+            }
+        }
+
+        async function logout() {
+            await supabaseSimple.auth.signOut();
+            window.location.href = 'auth.html';
+        }
+
+        // Charger au démarrage
+        loadDashboard();
+    </script>
+</body>
+
+</html>

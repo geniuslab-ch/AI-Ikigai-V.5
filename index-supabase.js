@@ -63,7 +63,7 @@ async function analyzeCVWithClaude(cvText, env) {
 				'anthropic-version': '2023-06-01'
 			},
 			body: JSON.stringify({
-				model: 'claude-3-5-sonnet-20241022',
+				model: 'claude-3-5-sonnet-20240620',
 				max_tokens: 2000,
 				messages: [{
 					role: 'user',
@@ -218,7 +218,7 @@ ${Array.from({ length: counts.business }, (_, i) => `    {
 				'anthropic-version': '2023-06-01'
 			},
 			body: JSON.stringify({
-				model: 'claude-3-5-sonnet-20241022',
+				model: 'claude-3-5-sonnet-20240620',
 				max_tokens: 4000,
 				messages: [{
 					role: 'user',
@@ -858,21 +858,26 @@ async function handleRequest(request, env) {
 			// Récupérer le plan de l'utilisateur depuis Supabase si authentifié
 			let userPlan = 'decouverte'; // par défaut
 			const authHeader = request.headers.get('Authorization');
+			console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
+
 			if (authHeader && env.SUPABASE_URL) {
 				try {
 					const token = authHeader.replace('Bearer ', '');
 					const supabase = getSupabaseClient(env);
-					const { data: { user } } = await supabase.auth.getUser(token);
+					const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+					console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
 
 					if (user) {
-						const { data: profile } = await supabase
+						const { data: profile, error: profileError } = await supabase
 							.from('profiles')
 							.select('plan')
 							.eq('id', user.id)
 							.single();
 
+						console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
 						userPlan = profile?.plan || 'decouverte';
-						console.log(`👤 Utilisateur authentifié - Plan: ${userPlan}`);
+						console.log(`✅ Plan récupéré: ${userPlan}`);
 					}
 				} catch (error) {
 					console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);

@@ -1721,16 +1721,25 @@
         // ============================================
 
         const ApiClient = {
-            // Token JWT stocké
-            token: localStorage.getItem('ai-ikigai-token'),
+            // Token JWT récupéré dynamiquement depuis Supabase
+            async getToken() {
+                try {
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    return session?.access_token || null;
+                } catch (error) {
+                    console.error('Error getting token:', error);
+                    return null;
+                }
+            },
 
             // Headers par défaut
-            getHeaders() {
+            async getHeaders() {
                 const headers = {
                     'Content-Type': 'application/json',
                 };
-                if (this.token) {
-                    headers['Authorization'] = `Bearer ${this.token}`;
+                const token = await this.getToken();
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
                 }
                 return headers;
             },
@@ -1742,7 +1751,7 @@
                 const config = {
                     ...options,
                     headers: {
-                        ...this.getHeaders(),
+                        ...await this.getHeaders(),
                         ...options.headers,
                     },
                 };

@@ -1353,10 +1353,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 99999;
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
 
         .signup-modal.active {
@@ -1367,12 +1370,14 @@
             background: var(--dark-card);
             border: 2px solid var(--purple);
             border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.3);
             max-width: 500px;
             width: 90%;
             padding: 3rem;
             text-align: center;
             position: relative;
-            z-index: 100000;
+            z-index: 100001;
+            margin: auto;
         }
 
         .signup-modal-content h3 {
@@ -1395,10 +1400,17 @@
             padding: 1rem;
             margin-bottom: 1rem;
             background: var(--dark);
-            border: 1px solid var(--border);
+            border: 1px solid var(--dark-border);
             border-radius: 12px;
             color: white;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .signup-form input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
         .signup-form button {
@@ -1753,16 +1765,23 @@
                     <a href="index.html#pricing" class="btn-primary">Obtenir le rapport complet →</a>
                 </div>
             </div>
-            <div id="signup-modal" class="signup-modal">
-                <div class="signup-modal-content">
-                    <h3>🎯 Votre analyse est prête!</h3>
-                    <p>Créez un compte gratuit pour découvrir vos 3 recommandations personnalisées</p>
+            <div id="signup-modal" class="signup-modal"
+                style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999;">
+                <div class="signup-modal-content"
+                    style="background: #12121a; border: 2px solid #8b5cf6; padding: 3rem; border-radius: 24px; max-width: 500px; width: 90%; margin: auto; position: relative; z-index: 1000000;">
+                    <h3 style="color: white; font-size: 2rem; margin-bottom: 1rem;">🎯 Votre analyse est prête!</h3>
+                    <p style="color: #f8fafc; font-size: 1.1rem; margin-bottom: 2rem;">Créez un compte gratuit pour
+                        découvrir vos 3 recommandations personnalisées</p>
 
                     <form id="signup-form" class="signup-form">
-                        <input type="email" id="signup-email" placeholder="Votre email" required>
+                        <input type="email" id="signup-email" placeholder="Votre email" required
+                            style="width: 100%; padding: 1rem; margin-bottom: 1rem; background: #0a0a0f; border: 1px solid #1f1f2e; border-radius: 12px; color: white; font-size: 1rem;">
                         <input type="password" id="signup-password" placeholder="Mot de passe (min 6 caractères)"
-                            minlength="6" required>
-                        <button type="submit">Voir mes recommandations →</button>
+                            minlength="6" required
+                            style="width: 100%; padding: 1rem; margin-bottom: 1rem; background: #0a0a0f; border: 1px solid #1f1f2e; border-radius: 12px; color: white; font-size: 1rem;">
+                        <button type="submit"
+                            style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); border: none; border-radius: 12px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">Voir
+                            mes recommandations →</button>
                     </form>
 
                     <div id="signup-error" style="color: #ef4444; margin-top: 1rem; display: none;"></div>
@@ -2811,6 +2830,13 @@
             // Show only results section
             if (resultsSection) resultsSection.style.display = 'block';
 
+            // Hide signup modal if it was shown
+            const signupModal = document.getElementById('signup-modal');
+            if (signupModal) {
+                signupModal.style.display = 'none';
+                signupModal.classList.remove('active');
+            }
+
             // If we have backend analysis, update the displayed results
             if (backendAnalysis) {
                 console.log('📊 Mise à jour des résultats avec:', backendAnalysis);
@@ -3098,7 +3124,9 @@
                 console.log('✅ Compte créé:', data.user.email);
 
                 // Fermer modal
-                document.getElementById('signup-modal').classList.remove('active');
+                const modal = document.getElementById('signup-modal');
+                modal.style.display = 'none';
+                modal.classList.remove('active');
 
                 // AFFICHER résultats stockés
                 console.log('✅ Affichage résultats:', window.pendingAnalysis);
@@ -3133,12 +3161,26 @@
                         console.log('✅ Analyzing section cachée');
                     }
 
+                    // AFFICHER le parent results-section (CRITIQUE!)
+                    const resultsSection = document.getElementById('results-section');
+                    if (resultsSection) {
+                        resultsSection.style.display = 'block';
+                        console.log('✅ Results section affichée');
+                    }
+
                     // Stocker et afficher modal
                     window.pendingAnalysis = analysis;
                     const modal = document.getElementById('signup-modal');
                     console.log('🔍 Modal trouvé:', modal);
+
+                    // Forcer l'affichage avec style inline
+                    modal.style.display = 'flex';
+                    modal.style.background = 'rgba(0, 0, 0, 0.85)';
+                    modal.style.backdropFilter = 'blur(10px)';
+                    modal.style.justifyContent = 'center';
+                    modal.style.alignItems = 'center';
                     modal.classList.add('active');
-                    console.log('✅ Modal classe active ajoutée');
+                    console.log('✅ Modal affiché avec display: flex');
                     return false;
                 }
 
@@ -3153,8 +3195,20 @@
                     loadingSection.style.display = 'none';
                 }
 
+                // AFFICHER le parent results-section (CRITIQUE!)
+                const resultsSection = document.getElementById('results-section');
+                if (resultsSection) {
+                    resultsSection.style.display = 'block';
+                }
+
                 window.pendingAnalysis = analysis;
-                document.getElementById('signup-modal').classList.add('active');
+                const modal = document.getElementById('signup-modal');
+                modal.style.display = 'flex';
+                modal.style.background = 'rgba(0, 0, 0, 0.85)';
+                modal.style.backdropFilter = 'blur(10px)';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.classList.add('active');
                 return false;
             }
         }

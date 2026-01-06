@@ -3121,8 +3121,8 @@
                     // Pas de session → CACHER page loading et afficher modal
                     console.log('❌ Pas de session → Modal + stockage analysis');
 
-                    // CACHER la page de chargement
-                    const loadingSection = document.getElementById('loading-section');
+                    // CACHER la page de chargement (utiliser classe correcte)
+                    const loadingSection = document.querySelector('.analysis-loading');
                     if (loadingSection) {
                         loadingSection.style.display = 'none';
                     }
@@ -3139,7 +3139,7 @@
                 console.error('Erreur vérification session:', error);
 
                 // Cacher loading aussi en cas d'erreur
-                const loadingSection = document.getElementById('loading-section');
+                const loadingSection = document.querySelector('.analysis-loading');
                 if (loadingSection) {
                     loadingSection.style.display = 'none';
                 }

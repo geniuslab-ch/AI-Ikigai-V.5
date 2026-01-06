@@ -3121,15 +3121,20 @@
                     // Pas de session → CACHER page loading et afficher modal
                     console.log('❌ Pas de session → Modal + stockage analysis');
 
-                    // CACHER la page de chargement (utiliser classe correcte)
-                    const loadingSection = document.querySelector('.analysis-loading');
-                    if (loadingSection) {
-                        loadingSection.style.display = 'none';
+                    // CACHER la page de chargement
+                    const loadingContainer = document.querySelector('.analyzing-container');
+                    console.log('🔍 Loading container trouvé:', loadingContainer);
+                    if (loadingContainer) {
+                        loadingContainer.style.display = 'none';
+                        console.log('✅ Loading container caché');
                     }
 
                     // Stocker et afficher modal
                     window.pendingAnalysis = analysis;
-                    document.getElementById('signup-modal').classList.add('active');
+                    const modal = document.getElementById('signup-modal');
+                    console.log('🔍 Modal trouvé:', modal);
+                    modal.classList.add('active');
+                    console.log('✅ Modal classe active ajoutée');
                     return false;
                 }
 
@@ -3139,9 +3144,9 @@
                 console.error('Erreur vérification session:', error);
 
                 // Cacher loading aussi en cas d'erreur
-                const loadingSection = document.querySelector('.analysis-loading');
-                if (loadingSection) {
-                    loadingSection.style.display = 'none';
+                const loadingContainer = document.querySelector('.analyzing-container');
+                if (loadingContainer) {
+                    loadingContainer.style.display = 'none';
                 }
 
                 window.pendingAnalysis = analysis;

@@ -3122,11 +3122,11 @@
                     console.log('❌ Pas de session → Modal + stockage analysis');
 
                     // CACHER la page de chargement
-                    const loadingContainer = document.querySelector('.analyzing-container');
-                    console.log('🔍 Loading container trouvé:', loadingContainer);
-                    if (loadingContainer) {
-                        loadingContainer.style.display = 'none';
-                        console.log('✅ Loading container caché');
+                    const loadingSection = document.getElementById('analyzing-section');
+                    console.log('🔍 Analyzing section trouvée:', loadingSection);
+                    if (loadingSection) {
+                        loadingSection.style.display = 'none';
+                        console.log('✅ Analyzing section cachée');
                     }
 
                     // Stocker et afficher modal
@@ -3144,9 +3144,9 @@
                 console.error('Erreur vérification session:', error);
 
                 // Cacher loading aussi en cas d'erreur
-                const loadingContainer = document.querySelector('.analyzing-container');
-                if (loadingContainer) {
-                    loadingContainer.style.display = 'none';
+                const loadingSection = document.getElementById('analyzing-section');
+                if (loadingSection) {
+                    loadingSection.style.display = 'none';
                 }
 
                 window.pendingAnalysis = analysis;

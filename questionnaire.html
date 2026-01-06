@@ -1749,7 +1749,21 @@
                     <a href="index.html#pricing" class="btn-primary">Obtenir le rapport complet →</a>
                 </div>
             </div>
+            <div id="signup-modal" class="signup-modal">
+                <div class="signup-modal-content">
+                    <h3>🎯 Votre analyse est prête!</h3>
+                    <p>Créez un compte gratuit pour découvrir vos 3 recommandations personnalisées</p>
 
+                    <form id="signup-form" class="signup-form">
+                        <input type="email" id="signup-email" placeholder="Votre email" required>
+                        <input type="password" id="signup-password" placeholder="Mot de passe (min 6 caractères)"
+                            minlength="6" required>
+                        <button type="submit">Voir mes recommandations →</button>
+                    </form>
+
+                    <div id="signup-error" style="color: #ef4444; margin-top: 1rem; display: none;"></div>
+                </div>
+            </div>
             <!-- CTA -->
             <div class="results-cta">
                 <a href="dashboard-client.html" class="btn-secondary">
@@ -2760,7 +2774,16 @@
                     // Use the final analysis (with CV if uploaded)
                     const finalAnalysis = backendResult?.analysis;
                     console.log('🎯 Analyse finale envoyée à showResults:', finalAnalysis);
-                    setTimeout(() => showResults(finalAnalysis), 1000);
+
+                    // NOUVEAU: Vérifier session avant affichage
+                    setTimeout(async () => {
+                        const canShow = await checkSessionBeforeResults();
+                        if (canShow) {
+                            showResults(finalAnalysis);
+                        }
+                        // Si canShow = false, le modal signup est affiché
+                        // Les résultats s'afficheront après signup
+                    }, 1000);
                 }
             }
 
@@ -3037,6 +3060,72 @@
                     console.error('❌ Error loading analysis:', error);
                     alert('Erreur lors du chargement de l\'analyse');
                 }
+            }
+        }
+
+        // ========================================
+        // MODAL SIGNUP OBLIGATOIRE
+        // ========================================
+
+        // Gestion du formulaire signup
+        document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorDiv = document.getElementById('signup-error');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Création...';
+                errorDiv.style.display = 'none';
+
+                // Créer compte avec Supabase
+                const { data, error } = await window.supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { name: email.split('@')[0] }
+                    }
+                });
+
+                if (error) throw error;
+
+                console.log('✅ Compte créé:', data.user.email);
+
+                // Fermer modal
+                document.getElementById('signup-modal').classList.remove('active');
+
+                // Afficher résultats (déjà chargés)
+
+            } catch (error) {
+                console.error('❌ Erreur signup:', error);
+                errorDiv.textContent = error.message || 'Erreur lors de la création du compte';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Voir mes recommandations →';
+            }
+        });
+
+        // Fonction pour vérifier session et afficher modal si besoin
+        async function checkSessionBeforeResults() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                if (!session) {
+                    // Pas de session → afficher modal
+                    document.getElementById('signup-modal').classList.add('active');
+                    return false; // Ne pas afficher résultats
+                }
+
+                console.log('✅ Session trouvée, affichage résultats');
+                return true; // Afficher résultats
+            } catch (error) {
+                console.error('Erreur vérification session:', error);
+                // En cas d'erreur, afficher modal par sécurité
+                document.getElementById('signup-modal').classList.add('active');
+                return false;
             }
         }
 

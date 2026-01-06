@@ -1724,7 +1724,14 @@
             // Token JWT récupéré dynamiquement depuis Supabase
             async getToken() {
                 try {
-                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    // Créer client Supabase si pas déjà fait
+                    if (!window._supabaseClientForApi) {
+                        window._supabaseClientForApi = window.supabase.createClient(
+                            'https://wgmtujvvfnsbhudshmkh.supabase.co',
+                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
+                        );
+                    }
+                    const { data: { session } } = await window._supabaseClientForApi.auth.getSession();
                     return session?.access_token || null;
                 } catch (error) {
                     console.error('Error getting token:', error);

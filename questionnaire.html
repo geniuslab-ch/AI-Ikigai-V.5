@@ -2769,23 +2769,35 @@
                     }
                 }
 
-                // Update recommendations
-                if (backendAnalysis.recommendations && backendAnalysis.recommendations.length > 0) {
+                // Update career recommendations
+                if (backendAnalysis.careerRecommendations && backendAnalysis.careerRecommendations.length > 0) {
                     const recommendationsList = document.querySelector('.recommendations');
                     if (recommendationsList) {
-                        const recsHTML = backendAnalysis.recommendations.map((rec, i) => `
+                        const careerHTML = backendAnalysis.careerRecommendations.map((rec, i) => `
                     <div class="recommendation-item">
                         <div class="recommendation-number">${i + 1}</div>
                         <div class="recommendation-content">
-                            <h4>${rec.title}</h4>
+                            <h4>${rec.title || rec.name || `Carrière ${i + 1}`}</h4>
                             <p>${rec.description}</p>
                         </div>
                     </div>
                 `).join('');
 
+                        const businessHTML = backendAnalysis.businessIdeas && backendAnalysis.businessIdeas.length > 0
+                            ? backendAnalysis.businessIdeas.map((idea, i) => `
+                    <div class="recommendation-item">
+                        <div class="recommendation-number">💼 ${i + 1}</div>
+                        <div class="recommendation-content">
+                            <h4>${idea.title || idea.name || `Idée ${i + 1}`}</h4>
+                            <p>${idea.description}</p>
+                        </div>
+                    </div>
+                `).join('') : '';
+
                         recommendationsList.innerHTML = `
-                    <h3>🎯 Recommandations de carrière</h3>
-                    ${recsHTML}
+                    <h3>🎯 Recommandations de carrière (${backendAnalysis.careerRecommendations.length})</h3>
+                    ${careerHTML}
+                    ${businessHTML ? `<h3 style="margin-top: 2rem;">💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>${businessHTML}` : ''}
                 `;
                     }
                 }

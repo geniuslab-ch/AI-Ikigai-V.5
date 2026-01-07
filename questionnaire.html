@@ -3161,6 +3161,44 @@
 
                 console.log('✅ Compte créé:', data.user.email);
 
+                // 🔧 FIX: Sauvegarder l'analyse dans Supabase avec le user_id
+                if (window.pendingAnalysis && data.user) {
+                    console.log('💾 Sauvegarde de l\'analyse dans Supabase pour user:', data.user.id);
+
+                    try {
+                        const { data: insertData, error: insertError } = await window.supabaseClient
+                            .from('analyses')
+                            .insert({
+                                user_id: data.user.id,
+                                answers: window.pendingAnalysis.answers || {},
+                                passions: window.pendingAnalysis.passions || [],
+                                talents: window.pendingAnalysis.talents || [],
+                                mission: window.pendingAnalysis.mission || [],
+                                vocation: window.pendingAnalysis.vocation || [],
+                                career_recommendations: window.pendingAnalysis.careerRecommendations || [],
+                                business_ideas: window.pendingAnalysis.businessIdeas || [],
+                                score: window.pendingAnalysis.score || {},
+                                trajectories: window.pendingAnalysis.trajectories || null,
+                                coherence_diagnosis: window.pendingAnalysis.coherenceDiagnosis || null,
+                                final_trajectory: window.pendingAnalysis.finalTrajectory || null,
+                                positioning: window.pendingAnalysis.positioning || null,
+                                coaching_prep: window.pendingAnalysis.coachingPrep || null,
+                                profile_summary: window.pendingAnalysis.profileSummary || null,
+                                ikigai_summary: window.pendingAnalysis.ikigaiSummary || null
+                            })
+                            .select();
+
+                        if (insertError) {
+                            console.error('❌ Erreur sauvegarde analyse:', insertError);
+                        } else {
+                            console.log('✅ Analyse sauvegardée avec succès:', insertData);
+                        }
+                    } catch (saveError) {
+                        console.error('❌ Erreur lors de la sauvegarde:', saveError);
+                        // Ne pas bloquer l'affichage des résultats même si la sauvegarde échoue
+                    }
+                }
+
                 // Fermer modal
                 const modal = document.getElementById('signup-modal');
                 modal.style.display = 'none';

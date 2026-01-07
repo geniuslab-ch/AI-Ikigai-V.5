@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil | AI-Ikigai</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+            background: var(--dark);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--dark-card);
+            border-right: 1px solid var(--dark-border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--dark);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--purple);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .danger-zone {
+            border: 1px solid #ef4444;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: rgba(239, 68, 68, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo"><span>AI-Ikigai</span></a>
+            </div>
+            <nav style="padding: 1rem 0;">
+                <a href="dashboard-client.html"
+                    style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: var(--gray); text-decoration: none;">
+                    <span>←</span><span>Retour au dashboard</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h1 style="font-family: 'Sora', sans-serif; font-size: 2rem; margin-bottom: 2rem;">Mon Profil</h1>
+
+            <div id="error-message" class="message error"></div>
+            <div id="success-message" class="message success"></div>
+
+            <div class="card">
+                <h2>Informations personnelles</h2>
+                <form onsubmit="handleUpdateProfile(event)">
+                    <div class="form-group">
+                        <label>Nom complet</label>
+                        <input type="text" id="name" placeholder="Jean Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" disabled style="opacity: 0.6;">
+                    </div>
+                    <button type="submit" class="btn-primary">Enregistrer les modifications</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Changer le mot de passe</h2>
+                <form onsubmit="handleUpdatePassword(event)">
+                    <div class="form-group">
+                        <label>Nouveau mot de passe</label>
+                        <input type="password" id="new-password" placeholder="••••••••" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer le mot de passe</label>
+                        <input type="password" id="confirm-password" placeholder="••••••••" minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary">Mettre à jour le mot de passe</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 style="color: #ef4444;">Zone de danger</h2>
+                <div class="danger-zone">
+                    <p style="color: var(--gray); margin-bottom: 1rem;">La suppression de votre compte est irréversible.
+                        Toutes vos données seront définitivement perdues.</p>
+                    <button class="btn-danger" onclick="handleDeleteAccount()">Supprimer mon compte</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script>
+        let currentUser = null;
+
+        (async () => {
+            currentUser = await AuthAPI.getUser();
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            loadUserData();
+        })();
+
+        function loadUserData() {
+            document.getElementById('name').value = currentUser.name || '';
+            document.getElementById('email').value = currentUser.email;
+        }
+
+        async function handleUpdateProfile(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+
+            try {
+                const { error } = await supabase.auth.updateUser({
+                    data: { name }
+                });
+
+                if (error) throw error;
+
+                showSuccess('Profil mis à jour avec succès');
+                currentUser.name = name;
+
+            } catch (error) {
+                showError(error.message || 'Erreur lors de la mise à jour');
+            }
+        }
+
+        async function handleUpdatePassword(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                showError('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                if (error) throw error;
+
+                showSuccess('Mot de passe mis à jour avec succès');
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+
+            } catch (error) {
+                showError(error.message || 'Erreur lors de la mise à jour');
+            }
+        }
+
+        async function handleDeleteAccount() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
+                return;
+            }
+
+            if (!confirm('Dernière confirmation : toutes vos données seront perdues. Continuer ?')) {
+                return;
+            }
+
+            try {
+                // Note: La suppression de compte nécessite une fonction backend
+                showError('Fonctionnalité en cours de développement. Contactez le support.');
+            } catch (error) {
+                showError(error.message || 'Erreur lors de la suppression');
+            }
+        }
+    </script>
+</body>
+
+</html>

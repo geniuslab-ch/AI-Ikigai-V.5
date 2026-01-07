@@ -678,8 +678,8 @@ async function handleRequest(request, env) {
 			}
 
 			// Récupérer toutes les analyses de l'utilisateur
-			const { data: questionnaires, error } = await supabase
-				.from('questionnaires')
+			const { data: analyses, error } = await supabase
+				.from('analyses')
 				.select('*')
 				.eq('user_id', user.id)
 				.order('created_at', { ascending: false });
@@ -690,9 +690,9 @@ async function handleRequest(request, env) {
 
 			return jsonResponse({
 				success: true,
-				analyses: questionnaires,
-				latestAnalysis: questionnaires[0]?.analysis || null,
-				totalAnalyses: questionnaires.length
+				analyses: analyses || [],
+				latestAnalysis: analyses?.[0] || null,
+				totalAnalyses: analyses?.length || 0
 			});
 		}
 

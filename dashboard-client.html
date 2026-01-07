@@ -915,6 +915,17 @@
 
             const userPlan = currentUser?.plan || 'decouverte';
 
+            // Mapper les champs snake_case de Supabase vers camelCase pour le dashboard
+            if (analysis) {
+                analysis.careerRecommendations = analysis.career_recommendations || analysis.careerRecommendations || [];
+                analysis.businessIdeas = analysis.business_ideas || analysis.businessIdeas || [];
+                analysis.profileSummary = analysis.profile_summary || analysis.profileSummary;
+                analysis.ikigaiSummary = analysis.ikigai_summary || analysis.ikigaiSummary;
+                analysis.coherenceDiagnosis = analysis.coherence_diagnosis || analysis.coherenceDiagnosis;
+                analysis.finalTrajectory = analysis.final_trajectory || analysis.finalTrajectory;
+                analysis.coachingPrep = analysis.coaching_prep || analysis.coachingPrep;
+            }
+
             // Déterminer le pack level
             const packLevelMap = {
                 'decouverte': 'CLARITY',

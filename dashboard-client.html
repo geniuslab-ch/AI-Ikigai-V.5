@@ -789,22 +789,69 @@
             });
         }
 
-        function displayRecommendations(recommendations) {
+        function displayRecommendations(analysis) {
             const container = document.getElementById('recommendations-list');
 
-            if (!recommendations || recommendations.length === 0) {
+            if (!analysis || !analysis.careerRecommendations) {
                 return;
             }
 
-            container.innerHTML = recommendations.slice(0, 3).map(rec => `
-                <div class="recommendation-item">
-                    <div class="recommendation-header">
-                        <div class="recommendation-title">${rec.title}</div>
-                        ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
+            const careerRecs = analysis.careerRecommendations || [];
+            const businessIdeas = analysis.businessIdeas || [];
+            const userPlan = currentUser?.plan || 'decouverte';
+
+            let html = '';
+
+            // Section Recommandations Carrière
+            if (careerRecs.length > 0) {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--purple);">💼 Recommandations Carrière</h3>
+                        ${careerRecs.slice(0, 3).map(rec => `
+                            <div class="recommendation-item">
+                                <div class="recommendation-header">
+                                    <div class="recommendation-title">${rec.title}</div>
+                                    ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
+                                </div>
+                                <div class="recommendation-desc">${rec.description}</div>
+                            </div>
+                        `).join('')}
                     </div>
-                    <div class="recommendation-desc">${rec.description}</div>
-                </div>
-            `).join('');
+                `;
+            }
+
+            // Section Business Ideas (avec CTA upgrade si plan gratuit)
+            if (userPlan === 'decouverte' || userPlan === 'free') {
+                html += `
+                    <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border-radius: 16px; border: 2px dashed rgba(139, 92, 246, 0.3); text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🚀</div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Débloquez les Recommandations Entreprise</h3>
+                        <p style="color: var(--gray); margin-bottom: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            Passez au plan <strong>Essentiel</strong> pour accéder à 5 idées de business personnalisées alignées avec votre Ikigai
+                        </p>
+                        <button onclick="window.location.href='index.html#pricing'" style="background: var(--gradient-primary); color: white; padding: 12px 32px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                            ✨ Passer à Essentiel - 29 USD
+                        </button>
+                    </div>
+                `;
+            } else if (businessIdeas.length > 0) {
+                html += `
+                    <div style="margin-top: 2rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #ec4899;">🚀 Idées d'Entreprise</h3>
+                        ${businessIdeas.slice(0, 3).map(idea => `
+                            <div class="recommendation-item">
+                                <div class="recommendation-header">
+                                    <div class="recommendation-title">${idea.title}</div>
+                                    ${idea.viabilityScore ? `<div class="match-score">${idea.viabilityScore}%</div>` : ''}
+                                </div>
+                                <div class="recommendation-desc">${idea.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         function displayInsights(analysis) {

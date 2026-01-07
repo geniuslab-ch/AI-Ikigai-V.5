@@ -412,6 +412,70 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Sub-tabs for Recommendations Section */
+        .sub-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--dark-border);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .sub-tab {
+            padding: 0.875rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .sub-tab:hover {
+            color: var(--text);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .sub-tab.active {
+            color: var(--purple);
+            border-bottom-color: var(--purple);
+        }
+
+        .sub-tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+        }
+
+        .sub-tab .badge {
+            display: inline-block;
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -557,13 +621,48 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header">
-                        <h2>Toutes vos recommandations</h2>
+                    <!-- Sub-tabs Navigation -->
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="switchSubTab('career')">
+                            💼 Carrière/Trajectoires
+                        </button>
+                        <button class="sub-tab" onclick="switchSubTab('business')">
+                            🚀 Business Ideas
+                            <span class="badge" id="business-badge" style="display:none;">Premium</span>
+                        </button>
+                        <button class="sub-tab" onclick="switchSubTab('diagnostic')">
+                            🎯 Diagnostic
+                            <span class="badge" id="diagnostic-badge" style="display:none;">Premium</span>
+                        </button>
                     </div>
-                    <div class="recommendations-list" id="all-recommendations-list">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">💡</div>
-                            <p>Complétez une analyse pour recevoir des recommandations personnalisées</p>
+
+                    <!-- Tab Content: Career/Trajectoires -->
+                    <div id="subtab-career" class="sub-tab-content active">
+                        <div id="career-recommendations-list">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💼</div>
+                                <p>Complétez une analyse pour voir vos recommandations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Business Ideas -->
+                    <div id="subtab-business" class="sub-tab-content">
+                        <div id="business-ideas-list">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🚀</div>
+                                <p>Les idées d'entreprise apparaîtront ici</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Diagnostic -->
+                    <div id="subtab-diagnostic" class="sub-tab-content">
+                        <div id="diagnostic-content">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🎯</div>
+                                <p>Le diagnostic de cohérence apparaîtra ici</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -789,6 +888,18 @@
             });
         }
 
+        // Function to switch between sub-tabs in recommendations
+        function switchSubTab(tabId) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.sub-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(`subtab-${tabId}`).classList.add('active');
+        }
+
+
         function displayRecommendations(analysis) {
             const container = document.getElementById('recommendations-list');
 
@@ -797,7 +908,7 @@
             }
 
             const userPlan = currentUser?.plan || 'decouverte';
-            
+
             // Déterminer le pack level
             const packLevelMap = {
                 'decouverte': 'CLARITY',

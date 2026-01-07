@@ -194,6 +194,19 @@ async function generateRecommendationsWithClaude(answers, cvData, env, userPlan 
 	try {
 		console.log('🤖 Appel Claude API pour recommandations...');
 
+		// Mapper le plan au pack level
+		const packLevelMap = {
+			'decouverte': 'CLARITY',
+			'decouverte_coach': 'CLARITY',
+			'essentiel': 'DIRECTION',
+			'essentiel_coach': 'DIRECTION',
+			'premium': 'TRANSFORMATION',
+			'premium_coach': 'TRANSFORMATION',
+			'elite_coach': 'TRANSFORMATION'
+		};
+		const packLevel = packLevelMap[userPlan] || 'CLARITY';
+		console.log(`📦 Pack Level: ${packLevel}`);
+
 		// Construire les exemples de recommandations dans le prompt
 		const careerRecsExample = Array.from({ length: counts.career }, (_, i) => `    {
       "title": "Poste recommandé ${i + 1}",
@@ -205,7 +218,7 @@ async function generateRecommendationsWithClaude(answers, cvData, env, userPlan 
   "businessIdeas": [
 ${Array.from({ length: counts.business }, (_, i) => `    {
       "title": "Idée business ${i + 1}",
-      "description": "Concept entrepreneurial aligné avec les forces et le marché",
+      "description": "Concept entrepreneurial align é avec les forces et le marché",
       "viabilityScore": ${90 - i * 4}
     }`).join(',\n')}
   ]` : '';
@@ -222,44 +235,169 @@ ${Array.from({ length: counts.business }, (_, i) => `    {
 				max_tokens: 4000,
 				messages: [{
 					role: 'user',
-					content: `Tu es un expert français en orientation professionnelle. Analyse ces données et génère un profil Ikigai personnalisé EN FRANÇAIS au format JSON strict:
+					content: `You are Claude, an AI expert in career guidance, CV analysis, and Ikigai methodology.
 
-RÉPONSES QUESTIONNAIRE:
+CORE PRINCIPLES:
+- Do NOT invent information not in inputs
+- Explain reasoning briefly and clearly
+- Prioritize realism and feasibility
+- Be specific and actionable
+- Concise responses
+
+TONE: Professional, supportive, grounded. Not mystical or vague.
+
+PACK_LEVEL = ${packLevel}
+
+USER DATA:
+A) Ikigai questionnaire:
 ${JSON.stringify(answers, null, 2)}
 
-CV ANALYSÉ:
-Compétences: ${cvData.skills.join(', ') || 'Non spécifié'}
-Expériences: ${cvData.experiences.join(', ') || 'Non spécifié'}
-Formation: ${cvData.education.join(', ') || 'Non spécifié'}
-Industries: ${cvData.industries.join(', ') || 'Non spécifié'}
-Années d'expérience: ${cvData.yearsExperience || 0}
+B) CV:
+- Compétences: ${cvData.skills.join(', ') || 'Non spécifié'}
+- Expériences: ${cvData.experiences.join(', ') || 'Non spécifié'}
+- Formation: ${cvData.education.join(', ') || 'Non spécifié'}
+- Industries: ${cvData.industries.join(', ') || 'Non spécifié'}
+- Années: ${cvData.yearsExperience || 0}
 
-Génère un JSON avec cette structure exacte (sans texte avant ou après):
+C) Context: France/Europe, 6-12 months, medium career change tolerance
+
+ANALYSIS STEPS (MANDATORY):
+1. Ikigai: motivations, work environments, constraints, energy drivers
+2. CV: skills, transferable skills, seniority, sectors
+3. Market: growing job families, accessibility
+4. Triangulation: explain how Ikigai + CV + market combined
+
+OUTPUT (JSON ONLY, ALL IN FRENCH):
+
+${packLevel === 'CLARITY' ? `Generate JSON:
 {
+  "profileSummary": "6 lignes max",
+  "ikigaiSummary": "Résumé carte Ikigai",
   "passions": ["passion1", "passion2", "passion3"],
   "talents": ["talent1", "talent2", "talent3"],
-  "mission": ["mission1", "mission2", "mission3"],
-  "vocation": ["vocation1", "vocation2", "vocation3"],
+  "mission": ["mission1", "mission2"],
+  "vocation": ["vocation1", "vocation2"],
+  "score": {"passion": 85, "mission": 90, "vocation": 80, "profession": 75},
   "careerRecommendations": [
-${careerRecsExample}
-  ]${businessIdeasExample},
-  "score": {
-    "passion": 85,
-    "profession": 75,
-    "mission": 90,
-    "vocation": 80
-  }
+    {
+      "title": "Poste 1",
+      "description": "Pourquoi correspond (2-3 lignes)",
+      "matchScore": 85,
+      "realism": "🟢",
+      "realismLabel": "Accessible rapidement",
+      "keyRisk": "Limitation"
+    },
+    {
+      "title": "Poste 2",
+      "description": "Pourquoi correspond (2-3 lignes)",
+      "matchScore": 75,
+      "realism": "🟠",
+      "realismLabel": "Montée en compétences",
+      "keyRisk": "Limitation"
+    },
+    {
+      "title": "Poste 3",
+      "description": "Pourquoi correspond (2-3 lignes)",
+      "matchScore": 70,
+      "realism": "🔴",
+      "realismLabel": "Ambitieux/long terme",
+      "keyRisk": "Limitation"
+    }
+  ]
 }
+RULES: Exactly 3 recommendations. realism 🟢/🟠/🔴. NO business ideas in CLARITY.` : packLevel === 'DIRECTION' ? `Generate JSON:
+{
+  "profileSummary": "6 lignes max",
+  "ikigaiSummary": "Résumé",
+  "passions": [...],
+  "talents": [...],
+  "mission": [...],
+  "vocation": [...],
+  "score": {"passion": 85, "mission": 90, "vocation": 80, "profession": 75},
+  "trajectories": [
+    {
+      "rank": 1,
+      "label": "Trajectoire principale",
+      "title": "Nom parcours",
+      "description": "2-3 lignes",
+      "jobTitles": ["Poste 1", "Poste 2", "Poste 3"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1", "skill2"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    },
+    {
+      "rank": 2,
+      "label": "Alternative crédible",
+      "title": "Alternative",
+      "description": "2-3 lignes",
+      "jobTitles": ["Poste A", "Poste B"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    },
+    {
+      "rank": 3,
+      "label": "Ambitieux (12-24 mois)",
+      "title": "Ambitieux",
+      "description": "2-3 lignes",
+      "jobTitles": ["Poste X", "Poste Y"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    }
+  ],
+  "businessIdeas": [
+    {"title": "Idée 1", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 75},
+    {"title": "Idée 2", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 70},
+    {"title": "Idée 3", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 68},
+    {"title": "Idée 4", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 65},
+    {"title": "Idée 5", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 63}
+  ],
+  "careerRecommendations": []
+}
+RULES: 3 trajectories, 5 business ideas, careerRecommendations EMPTY.` : `Generate JSON:
+{
+  "profileSummary": "6 lignes",
+  "ikigaiSummary": "Résumé",
+  "passions": [...],
+  "talents": [...],
+  "mission": [...],
+  "vocation": [...],
+  "score": {...},
+  "trajectories": [same as DIRECTION],
+  "businessIdeas": [same as DIRECTION],
+  "coherenceDiagnosis": {
+    "strengths": ["Force 1", "Force 2"],
+    "misalignments": ["Écart 1", "Écart 2"],
+    "keyRisks": ["Risque 1", "Risque 2"]
+  },
+  "finalTrajectory": {
+    "choice": "Trajectoire 1/2/3",
+    "justification": "3-4 lignes"
+  },
+  "positioning": {
+    "statement": "1 phrase",
+    "linkedinHeadline": "Max 120 chars",
+    "pitch": "30 sec (3-4 phrases)"
+  },
+  "coachingPrep": {
+    "keyQuestions": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+    "topicsToClarify": ["Topic 1", "Topic 2", "Topic 3"]
+  },
+  "careerRecommendations": []
+}
+RULES: Include ALL from DIRECTION + diagnosis + final trajectory + positioning + coaching prep.`}
 
-RÈGLES STRICTES: 
-- Génère EXACTEMENT ${counts.career} recommandations de carrière (postes SALARIÉS)${counts.business > 0 ? ` ET ${counts.business} idées de création d'entreprise/startup` : ''}.
-- "careerRecommendations" = UNIQUEMENT des postes salariés (ex: "Chef de projet", "Consultant", "Designer")
-- "businessIdeas" = UNIQUEMENT création entreprise/startup (ex: "Agence de...", "Plateforme...", "Service de...")
-- Si une recommandation contient "Entrepreneur", "Startup", "Créer", "Lancer" → c'est une businessIdea, PAS une careerRecommendation
-- Base-toi sur les VRAIES réponses et le VRAI CV pour personnaliser
-- TOUT doit être en FRANÇAIS (titres, descriptions, concepts)
-- Sois spécifique et pertinent
-- Retourne UNIQUEMENT le JSON valide`
+CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 				}]
 			})
 		});

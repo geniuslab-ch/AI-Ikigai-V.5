@@ -792,66 +792,280 @@
         function displayRecommendations(analysis) {
             const container = document.getElementById('recommendations-list');
 
-            if (!analysis || !analysis.careerRecommendations) {
+            if (!analysis) {
                 return;
             }
 
-            const careerRecs = analysis.careerRecommendations || [];
-            const businessIdeas = analysis.businessIdeas || [];
             const userPlan = currentUser?.plan || 'decouverte';
+            
+            // Déterminer le pack level
+            const packLevelMap = {
+                'decouverte': 'CLARITY',
+                'decouverte_coach': 'CLARITY',
+                'essentiel': 'DIRECTION',
+                'essentiel_coach': 'DIRECTION',
+                'premium': 'TRANSFORMATION',
+                'premium_coach': 'TRANSFORMATION',
+                'elite_coach': 'TRANSFORMATION'
+            };
+            const packLevel = packLevelMap[userPlan] || 'CLARITY';
 
             let html = '';
 
-            // Section Recommandations Carrière
-            if (careerRecs.length > 0) {
+            // === SECTION COMMUNE: Profile Summary & Ikigai Summary ===
+            if (analysis.profileSummary || analysis.ikigaiSummary) {
                 html += `
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--purple);">💼 Recommandations Carrière</h3>
-                        ${careerRecs.slice(0, 3).map(rec => `
-                            <div class="recommendation-item">
-                                <div class="recommendation-header">
-                                    <div class="recommendation-title">${rec.title}</div>
-                                    ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
-                                </div>
-                                <div class="recommendation-desc">${rec.description}</div>
-                            </div>
-                        `).join('')}
+                    <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%); border-radius: 12px; border-left: 4px solid var(--purple);">
+                        ${analysis.profileSummary ? `
+                            <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--purple);">👤 Votre Profil</h3>
+                            <p style="color: var(--text); line-height: 1.6; white-space: pre-line;">${analysis.profileSummary}</p>
+                        ` : ''}
+                        ${analysis.ikigaiSummary ? `
+                            <h3 style="font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--purple);">🎯 Résumé Ikigai</h3>
+                            <p style="color: var(--text); line-height: 1.6;">${analysis.ikigaiSummary}</p>
+                        ` : ''}
                     </div>
                 `;
             }
 
-            // Section Business Ideas (avec CTA upgrade si plan gratuit)
-            if (userPlan === 'decouverte' || userPlan === 'free') {
+            // === PACK CLARITY: Career Recommendations avec Realism ===
+            if (packLevel === 'CLARITY') {
+                const careerRecs = analysis.careerRecommendations || [];
+                if (careerRecs.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">💼 Recommandations Carrière</h3>
+                            ${careerRecs.map(rec => `
+                                <div class="recommendation-item" style="position: relative; margin-bottom: 1rem; padding: 1.5rem; background: white; border-radius: 12px; border: 1px solid var(--border); transition: box-shadow 0.2s;">
+                                    <div class="recommendation-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                                        <div>
+                                            <div class="recommendation-title" style="font-weight: 600; font-size: 1.1rem; color: var(--text); margin-bottom: 0.25rem;">${rec.title}</div>
+                                            ${rec.realism ? `<div style="margin-top: 0.5rem;"><span style="font-size: 1.2rem;">${rec.realism}</span> <span style="color: var(--gray); font-size: 0.9rem;">${rec.realismLabel || ''}</span></div>` : ''}
+                                        </div>
+                                        ${rec.matchScore ? `<div class="match-score" style="background: var(--gradient-primary); color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.95rem;">${rec.matchScore}%</div>` : ''}
+                                    </div>
+                                    <div class="recommendation-desc" style="color: var(--text); line-height: 1.6; margin-bottom: 0.75rem;">${rec.description}</div>
+                                    ${rec.keyRisk ? `<div style="padding: 0.75rem; background: rgba(251, 146, 60, 0.1); border-radius: 8px; border-left: 3px solid #fb923c;"><strong style="color: #fb923c;">⚠️ Point d'attention:</strong> <span style="color: var(--text);">${rec.keyRisk}</span></div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            // === PACK DIRECTION: Trajectories + Business Ideas ===
+            if (packLevel === 'DIRECTION' || packLevel === 'TRANSFORMATION') {
+                const trajectories = analysis.trajectories || [];
+                if (trajectories.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🛤️ Trajectoires Professionnelles</h3>
+                            ${trajectories.map((traj, idx) => `
+                                <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: ${idx === 0 ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'white'}; border-radius: 12px; border: 2px solid ${idx === 0 ? 'var(--purple)' : 'var(--border)'};">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                        <div>
+                                            <span style="background: ${idx === 0 ? 'var(--gradient-primary)' : 'var(--gray)'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${traj.label || `Trajectoire ${traj.rank}`}</span>
+                                            <h4 style="font-size: 1.15rem; margin: 0.75rem 0 0.5rem 0; color: var(--text);">${traj.title}</h4>
+                                        </div>
+                                    </div>
+                                    <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6;">${traj.description}</p>
+                                    
+                                    ${traj.jobTitles && traj.jobTitles.length > 0 ? `
+                                        <div style="margin-bottom: 1rem;">
+                                            <strong style="color: var(--text); font-size: 0.95rem;">📋 Postes visés:</strong>
+                                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: gap; gap: 0.5rem;">
+                                                ${traj.jobTitles.map(job => `<span style="background: rgba(139, 92, 246, 0.1); color: var(--purple); padding: 6px 12px; border-radius: 8px; font-size: 0.9rem;">${job}</span>`).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                                        ${traj.whyIkigai ? `<div><strong style="color: #8b5cf6; font-size: 0.9rem;">💜 Ikigai:</strong><p style="color: var(--gray); font-size: 0.9rem; margin: 0.25rem 0 0 0;">${traj.whyIkigai}</p></div>` : ''}
+                                        ${traj.whyCV ? `<div><strong style="color: #ec4899; font-size: 0.9rem;">📄 CV:</strong><p style="color: var(--gray); font-size: 0.9rem; margin: 0.25rem 0 0 0;">${traj.whyCV}</p></div>` : ''}
+                                        ${traj.whyMarket ? `<div><strong style="color: #14b8a6; font-size: 0.9rem;">📈 Marché:</strong><p style="color: var(--gray); font-size: 0.9rem; margin: 0.25rem 0 0 0;">${traj.whyMarket}</p></div>` : ''}
+                                    </div>
+
+                                    ${traj.existingSkills && traj.existingSkills.length > 0 ? `
+                                        <div style="margin-top: 1rem;">
+                                            <strong style="color: var(--text); font-size: 0.95rem;">✅ Compétences existantes:</strong>
+                                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                ${traj.existingSkills.map(skill => `<span style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;">${skill}</span>`).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+
+                                    ${traj.skillsToDevelop && traj.skillsToDevelop.length > 0 ? `
+                                        <div style="margin-top: 1rem;">
+                                            <strong style="color: var(--text); font-size: 0.95rem;">📚 À développer:</strong>
+                                            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                ${traj.skillsToDevelop.map(skill => `<span style="background: rgba(251, 146, 60, 0.1); color: #fb923c; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;">${skill}</span>`).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+
+                                    ${traj.actionPlan30Days && traj.actionPlan30Days.length > 0 ? `
+                                        <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 8px;">
+                                            <strong style="color: #3b82f6; font-size: 0.95rem;">🎯 Plan 30 jours:</strong>
+                                            <ol style="margin: 0.5rem 0 0 1.5rem; padding: 0; color: var(--text); font-size: 0.9rem;">
+                                                ${traj.actionPlan30Days.map(action => `<li style="margin: 0.25rem 0;">${action}</li>`).join('')}
+                                            </ol>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                // Business Ideas
+                const businessIdeas = analysis.businessIdeas || [];
+                if (businessIdeas.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: #ec4899;">🚀 Idées d'Entreprise</h3>
+                            ${businessIdeas.map(idea => `
+                                <div style="margin-bottom: 1rem; padding: 1.5rem; background: white; border-radius: 12px; border: 1px solid var(--border);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                                        <h4 style="font-size: 1.1rem; margin: 0; color: var(--text);">${idea.title}</h4>
+                                        ${idea.viabilityScore ? `<div style="background: rgba(236, 72, 153, 0.1); color: #ec4899; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">${idea.viabilityScore}%</div>` : ''}
+                                    </div>
+                                    <p style="color: var(--text); margin-bottom: 0.75rem; line-height: 1.6;">${idea.description}</p>
+                                    ${idea.problem ? `<div style="margin-bottom: 0.5rem;"><strong style="color: #f59e0b;">❗ Problème:</strong> <span style="color: var(--gray);">${idea.problem}</span></div>` : ''}
+                                    ${idea.target ? `<div style="margin-bottom: 0.5rem;"><strong style="color: #3b82f6;">🎯 Cible:</strong> <span style="color: var(--gray);">${idea.target}</span></div>` : ''}
+                                    ${idea.whyFits ? `<div style="padding: 0.75rem; background: rgba(139, 92, 246, 0.05); border-radius: 8px; margin-top: 0.75rem;"><strong style="color: var(--purple);">✨ Pourquoi ça correspond:</strong> <span style="color: var(--text);">${idea.whyFits}</span></div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            // === PACK TRANSFORMATION: Advanced Fields ===
+            if (packLevel === 'TRANSFORMATION') {
+                // Coherence Diagnosis
+                if (analysis.coherenceDiagnosis) {
+                    const diag = analysis.coherenceDiagnosis;
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🔍 Diagnostic de Cohérence</h3>
+                            <div style="display: grid; gap: 1rem;">
+                                ${diag.strengths && diag.strengths.length > 0 ? `
+                                    <div style="padding: 1rem; background: rgba(34, 197, 94, 0.05); border-left: 4px solid #22c55e; border-radius: 8px;">
+                                        <strong style="color: #22c55e;">✅ Forces:</strong>
+                                        <ul style="margin: 0.5rem 0 0 1.5rem; color: var(--text);">
+                                            ${diag.strengths.map(s => `<li>${s}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${diag.misalignments && diag.misalignments.length > 0 ? `
+                                    <div style="padding: 1rem; background: rgba(251, 146, 60, 0.05); border-left: 4px solid #fb923c; border-radius: 8px;">
+                                        <strong style="color: #fb923c;">⚠️ Désalignements potentiels:</strong>
+                                        <ul style="margin: 0.5rem 0 0 1.5rem; color: var(--text);">
+                                            ${diag.misalignments.map(m => `<li>${m}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                                ${diag.keyRisks && diag.keyRisks.length > 0 ? `
+                                    <div style="padding: 1rem; background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; border-radius: 8px;">
+                                        <strong style="color: #ef4444;">🚨 Risques clés:</strong>
+                                        <ul style="margin: 0.5rem 0 0 1.5rem; color: var(--text);">
+                                            ${diag.keyRisks.map(r => `<li>${r}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Final Trajectory
+                if (analysis.finalTrajectory) {
+                    const final = analysis.finalTrajectory;
+                    html += `
+                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border-radius: 12px; border: 2px solid var(--purple);">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🎯 Trajectoire Recommandée</h3>
+                            <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem;">
+                                <strong style="color: var(--purple); font-size: 1.05rem;">${final.choice}</strong>
+                            </div>
+                            <p style="color: var(--text); line-height: 1.7;">${final.justification}</p>
+                        </div>
+                    `;
+                }
+
+                // Positioning
+                if (analysis.positioning) {
+                    const pos = analysis.positioning;
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">💼 Positionnement Professionnel</h3>
+                            <div style="display: grid; gap: 1rem;">
+                                ${pos.statement ? `
+                                    <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid var(--border);">
+                                        <strong style="color: var(--purple);">🎯 Statement:</strong>
+                                        <p style="margin: 0.5rem 0 0 0; color: var(--text); font-style: italic;">"${pos.statement}"</p>
+                                    </div>
+                                ` : ''}
+                                ${pos.linkedinHeadline ? `
+                                    <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid var(--border);">
+                                        <strong style="color: #0077b5;">💼 LinkedIn Headline:</strong>
+                                        <p style="margin: 0.5rem 0 0 0; color: var(--text);">${pos.linkedinHeadline}</p>
+                                    </div>
+                                ` : ''}
+                                ${pos.pitch ? `
+                                    <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid var(--border);">
+                                        <strong style="color: #ec4899;">🎤 Pitch 30 secondes:</strong>
+                                        <p style="margin: 0.5rem 0 0 0; color: var(--text); line-height: 1.6;">${pos.pitch}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Coaching Prep
+                if (analysis.coachingPrep) {
+                    const prep = analysis.coachingPrep;
+                    html += `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">💬 Préparation Coaching</h3>
+                            ${prep.keyQuestions && prep.keyQuestions.length > 0 ? `
+                                <div style="padding: 1.5rem; background: white; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem;">
+                                    <strong style="color: var(--purple); font-size: 1.05rem;">❓ Questions clés à explorer:</strong>
+                                    <ol style="margin: 1rem 0 0 1.5rem; color: var(--text); line-height: 1.7;">
+                                        ${prep.keyQuestions.map(q => `<li style="margin: 0.5rem 0;">${q}</li>`).join('')}
+                                    </ol>
+                                </div>
+                            ` : ''}
+                            ${prep.topicsToClarify && prep.topicsToClarify.length > 0 ? `
+                                <div style="padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 8px;">
+                                    <strong style="color: #3b82f6;">🔍 Sujets à clarifier:</strong>
+                                    <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                        ${prep.topicsToClarify.map(topic => `<span style="background: white; border: 1px solid #3b82f6; color: #3b82f6; padding: 6px 12px; border-radius: 8px; font-size: 0.9rem;">${topic}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            // Upgrade CTA pour plans gratuits (si pas de trajectories)
+            if ((packLevel === 'CLARITY') && (!analysis.trajectories || analysis.trajectories.length === 0)) {
                 html += `
                     <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border-radius: 16px; border: 2px dashed rgba(139, 92, 246, 0.3); text-align: center;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🚀</div>
-                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Débloquez les Recommandations Entreprise</h3>
-                        <p style="color: var(--gray); margin-bottom: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
-                            Passez au plan <strong>Essentiel</strong> pour accéder à 5 idées de business personnalisées alignées avec votre Ikigai
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Débloquez l'Analyse Complète</h3>
+                        <p style="color: var(--gray); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                            Passez au plan <strong>Essentiel</strong> pour accéder à 3 trajectoires détaillées avec plans d'action 30 jours + 5 idées business
                         </p>
                         <button onclick="window.location.href='index.html#pricing'" style="background: var(--gradient-primary); color: white; padding: 12px 32px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                            ✨ Passer à Essentiel - 29 USD
+                            ✨ Passer à Essentiel - 29€/mois
                         </button>
-                    </div>
-                `;
-            } else if (businessIdeas.length > 0) {
-                html += `
-                    <div style="margin-top: 2rem;">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #ec4899;">🚀 Idées d'Entreprise</h3>
-                        ${businessIdeas.slice(0, 3).map(idea => `
-                            <div class="recommendation-item">
-                                <div class="recommendation-header">
-                                    <div class="recommendation-title">${idea.title}</div>
-                                    ${idea.viabilityScore ? `<div class="match-score">${idea.viabilityScore}%</div>` : ''}
-                                </div>
-                                <div class="recommendation-desc">${idea.description}</div>
-                            </div>
-                        `).join('')}
                     </div>
                 `;
             }
 
-            container.innerHTML = html;
+            container.innerHTML = html || '<div class="empty-state"><p>Aucune recommandation disponible</p></div>';
         }
 
         function displayInsights(analysis) {

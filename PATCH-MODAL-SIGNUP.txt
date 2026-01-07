@@ -1,0 +1,37 @@
+// PATCH MODAL SIGNUP - À copier-coller dans questionnaire.html
+
+// 1. REMPLACER ligne ~3111 (fonction checkSessionBeforeResults):
+// ============================================================
+async function checkSessionBeforeResults(analysis) {  // AJOUTER analysis en paramètre
+    try {
+        const {data: {session}} = await window.supabaseClient.auth.getSession();
+
+        if (!session) {
+            // Pas de session → STOCKER et afficher modal
+            console.log('❌ Pas de session → Modal + stockage analysis');
+            window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
+            document.getElementById('signup-modal').classList.add('active');
+            return false;
+        }
+
+        console.log('✅ Session trouvée, affichage résultats');
+        return true;
+    } catch (error) {
+        console.error('Erreur vérification session:', error);
+        window.pendingAnalysis = analysis;  // AJOUTER CETTE LIGNE
+        document.getElementById('signup-modal').classList.add('active');
+        return false;
+    }
+}
+
+// 2. REMPLACER ligne ~3097 (après signup réussi):
+// ================================================
+// Fermer modal
+document.getElementById('signup-modal').classList.remove('active');
+
+// AFFICHER résultats stockés - AJOUTER CES LIGNES:
+console.log('✅ Affichage résultats:', window.pendingAnalysis);
+if (window.pendingAnalysis) {
+    showResults(window.pendingAnalysis);
+    window.pendingAnalysis = null;
+}

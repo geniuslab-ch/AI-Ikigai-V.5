@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Blog AI-Ikigai - Découvrez nos articles sur l'Ikigai, le développement personnel et la carrière professionnelle">
+    <meta name="description"
+        content="Blog AI-Ikigai - Découvrez nos articles sur l'Ikigai, le développement personnel et la carrière professionnelle">
     <meta name="keywords" content="ikigai, blog, développement personnel, carrière, coaching">
     <title>Blog | AI-Ikigai - Articles sur l'Ikigai et le Développement Personnel</title>
-    
+
     <!-- Open Graph -->
     <meta property="og:title" content="Blog AI-Ikigai">
-    <meta property="og:description" content="Découvrez nos articles sur l'Ikigai, le développement personnel et la carrière">
+    <meta property="og:description"
+        content="Découvrez nos articles sur l'Ikigai, le développement personnel et la carrière">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/assets/og-image.jpg">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <style>
         /* =============================================
            CSS Variables - AI-Ikigai Design System
@@ -174,7 +179,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
             z-index: 0;
@@ -182,8 +187,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
         }
 
         .hero-content {
@@ -805,6 +817,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -817,12 +830,10 @@
 
         /* Loading Skeleton */
         .skeleton {
-            background: linear-gradient(
-                90deg,
-                var(--dark-card) 0%,
-                var(--dark-border) 50%,
-                var(--dark-card) 100%
-            );
+            background: linear-gradient(90deg,
+                    var(--dark-card) 0%,
+                    var(--dark-border) 50%,
+                    var(--dark-card) 100%);
             background-size: 200% 100%;
             animation: skeleton-loading 1.5s ease-in-out infinite;
         }
@@ -831,31 +842,34 @@
             0% {
                 background-position: 200% 0;
             }
+
             100% {
                 background-position: -200% 0;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2"/>
-                    <path d="M20 10 L20 30 M10 20 L30 20" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2" />
+                    <path d="M20 10 L20 30 M10 20 L30 20" stroke="url(#logoGradient)" stroke-width="2"
+                        stroke-linecap="round" />
                     <defs>
                         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00d4ff"/>
-                            <stop offset="50%" style="stop-color:#8b5cf6"/>
-                            <stop offset="100%" style="stop-color:#ec4899"/>
+                            <stop offset="0%" style="stop-color:#00d4ff" />
+                            <stop offset="50%" style="stop-color:#8b5cf6" />
+                            <stop offset="100%" style="stop-color:#ec4899" />
                         </linearGradient>
                     </defs>
                 </svg>
                 <span>AI-Ikigai</span>
             </a>
-            
+
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Accueil</a>
                 <a href="/blog" class="nav-link active">Blog</a>
@@ -863,7 +877,7 @@
                 <a href="/pricing" class="nav-link">Tarifs</a>
                 <a href="/contact" class="nav-link">Contact</a>
             </div>
-            
+
             <a href="/questionnaire" class="nav-cta">Découvrir mon Ikigai</a>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
@@ -878,7 +892,7 @@
                 et Transformez votre Carrière
             </h1>
             <p>
-                Articles, conseils et insights sur le développement personnel, 
+                Articles, conseils et insights sur le développement personnel,
                 la réalisation de soi et l'épanouissement professionnel.
             </p>
         </div>
@@ -901,7 +915,8 @@
     <section class="featured">
         <article class="featured-article" onclick="goToArticle('featured-article-1')">
             <div class="featured-image">
-                <img src="/assets/blog/featured.jpg" alt="Article en vedette" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'600\'%3E%3Crect width=\'800\' height=\'600\' fill=\'%2312121a\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Outfit, sans-serif\' font-size=\'24\' fill=\'%2394a3b8\'%3EImage à venir%3C/text%3E%3C/svg%3E'">
+                <img src="/assets/blog/featured.jpg" alt="Article en vedette"
+                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'800\' height=\'600\'%3E%3Crect width=\'800\' height=\'600\' fill=\'%2312121a\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'Outfit, sans-serif\' font-size=\'24\' fill=\'%2394a3b8\'%3EImage à venir%3C/text%3E%3C/svg%3E'">
                 <span class="featured-badge">⭐ Article en vedette</span>
             </div>
             <div class="featured-content">
@@ -911,8 +926,8 @@
                 </div>
                 <h2>Découvrir son Ikigai : Le Guide Complet pour Trouver sa Raison d'Être</h2>
                 <p>
-                    L'Ikigai est un concept japonais millénaire qui signifie "raison d'être". 
-                    Dans cet article complet, nous explorons comment identifier votre Ikigai 
+                    L'Ikigai est un concept japonais millénaire qui signifie "raison d'être".
+                    Dans cet article complet, nous explorons comment identifier votre Ikigai
                     et l'utiliser pour transformer votre vie professionnelle et personnelle.
                 </p>
                 <a href="#" class="read-more">
@@ -947,12 +962,7 @@
                 Conseils, inspirations et outils pour votre développement.
             </p>
             <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
-                <input 
-                    type="email" 
-                    class="newsletter-input" 
-                    placeholder="Votre adresse email" 
-                    required
-                >
+                <input type="email" class="newsletter-input" placeholder="Votre adresse email" required>
                 <button type="submit" class="newsletter-btn">S'abonner</button>
             </form>
         </div>
@@ -965,10 +975,10 @@
                 <div class="footer-brand">
                     <h3><span class="gradient">AI-Ikigai</span></h3>
                     <p>
-                        Découvrez votre raison d'être professionnelle grâce à 
+                        Découvrez votre raison d'être professionnelle grâce à
                         l'intelligence artificielle et transformez votre carrière.
                     </p>
-                    <div class="social-links">
+                    <div class="social-links" style="display:none;">
                         <a href="#" class="social-link" aria-label="LinkedIn">in</a>
                         <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
                         <a href="#" class="social-link" aria-label="Facebook">f</a>
@@ -1021,4 +1031,5 @@
     <!-- Scripts -->
     <script src="blog.js"></script>
 </body>
+
 </html>

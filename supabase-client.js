@@ -16,16 +16,39 @@ const supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABAS
 
 const AuthAPI = {
     // Inscription
-    async signUp(email, password, name) {
+    async signUp(email, password, name, role = 'client') {
         const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: {
-                data: { name }
+                data: { name, role } // Ajouter role dans metadata
             }
         });
 
         if (error) throw error;
+
+        // Créer le profil avec le bon rôle immédiatement après signup
+        if (data.user) {
+            try {
+                const { error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert({
+                        id: data.user.id,
+                        email: email,
+                        name: name || email.split('@')[0],
+                        role: role, // Utiliser le rôle passé en paramètre
+                        plan: role === 'coach' ? 'decouverte_coach' : 'decouverte'
+                    });
+
+                if (profileError) {
+                    console.error('⚠️ Could not create profile:', profileError);
+                    // Ne pas bloquer le signup pour autant
+                }
+            } catch (profileErr) {
+                console.error('⚠️ Profile creation failed:', profileErr);
+            }
+        }
+
         return data;
     },
 

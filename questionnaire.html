@@ -1987,13 +1987,16 @@
 
         const QuestionnaireAPI = {
             // Soumettre les réponses
-            async submit(answers, email = null, userId = null) {
+            async submit(answers, email = null, userId = null, userPlan = 'decouverte') {
                 const body = { answers };
                 if (email) {
                     body.email = email;
                 }
                 if (userId) {
                     body.user_id = userId;
+                }
+                if (userPlan) {
+                    body.user_plan = userPlan;
                 }
                 const data = await ApiClient.post('/api/questionnaire/submit', body);
 
@@ -3025,10 +3028,28 @@
                     userEmail = localStorage.getItem('ai-ikigai-email');
                 }
 
+                // Get user plan
+                let userPlan = 'decouverte';
+                if (supabaseClient && userId) {
+                    try {
+                        const { data: profile } = await supabaseClient
+                            .from('profiles')
+                            .select('plan')
+                            .eq('id', userId)
+                            .single();
+                        if (profile) {
+                            userPlan = profile.plan || 'decouverte';
+                            console.log('📋 Plan utilisateur:', userPlan);
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Could not fetch user plan:', error);
+                    }
+                }
+
                 // Check if API is available
                 if (typeof QuestionnaireAPI !== 'undefined') {
-                    // Send answers with user_id and email
-                    const result = await QuestionnaireAPI.submit(answers, userEmail, userId);
+                    // Send answers with user_id, email, and plan
+                    const result = await QuestionnaireAPI.submit(answers, userEmail, userId, userPlan);
 
                     if (result.success) {
                         console.log('✅ Questionnaire submitted:', result.questionnaireId);

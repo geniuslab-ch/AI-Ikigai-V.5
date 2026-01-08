@@ -439,11 +439,16 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 	// Déterminer le nombre de recommandations selon le plan
 	const recommendationCounts = {
 		'decouverte': { career: 3, business: 0 },
+		'clarity': { career: 3, business: 0 },
 		'essentiel': { career: 10, business: 5 },
-		'premium': { career: 10, business: 5 }
+		'direction': { career: 10, business: 5 },
+		'premium': { career: 10, business: 5 },
+		'transformation': { career: 10, business: 5 }
 	};
 
-	const counts = recommendationCounts[userPlan] || recommendationCounts['decouverte'];
+	// Normaliser le plan (lowercase + trim) pour match case-insensitive
+	const normalizedPlan = (userPlan || 'decouverte').toLowerCase().trim();
+	const counts = recommendationCounts[normalizedPlan] || recommendationCounts['decouverte'];
 
 	const analysis = {
 		passions: [],

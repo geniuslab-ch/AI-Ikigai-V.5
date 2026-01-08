@@ -1071,9 +1071,9 @@
                 `;
             }
 
-            // === PACK CLARITY: Career Recommendations avec Realism ===
-            if (packLevel === 'CLARITY') {
-                const careerRecs = analysis.careerRecommendations || [];
+            // === Career Recommendations (ALL PACKS) ===
+            const careerRecs = analysis.careerRecommendations || [];
+            if (careerRecs.length > 0) {
                 if (careerRecs.length > 0) {
                     careerHtml += `
                         <div style="margin-bottom: 2rem;">
@@ -1093,10 +1093,9 @@
                             `).join('')}
                         </div>
                     `;
-                }
             }
 
-            // === PACK DIRECTION: Trajectories + Business Ideas ===
+ // === PACK DIRECTION: Trajectories + Business Ideas ===
             if (packLevel === 'DIRECTION' || packLevel === 'TRANSFORMATION') {
                 const trajectories = analysis.trajectories || [];
                 if (trajectories.length > 0) {
@@ -1166,18 +1165,23 @@
                     businessHtml += `
                         <div style="margin-bottom: 2rem;">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: #ec4899;">🚀 Idées d'Entreprise</h3>
-                            ${businessIdeas.map(idea => `
+                            ${businessIdeas.map(idea => {
+                                const isString = typeof idea === 'string';
+                                const title = isString ? idea : (idea.title || idea.name || 'Idée');
+                                const desc = isString ? '' : (idea.description || '');
+                                return `
                                 <div style="margin-bottom: 1rem; padding: 1.5rem; background: var(--dark-card); border-radius: 12px; border: 1px solid var(--dark-border);">
                                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                                        <h4 style="font-size: 1.1rem; margin: 0; color: var(--text);">${idea.title}</h4>
+                                        <h4 style="font-size: 1.1rem; margin: 0; color: var(--text);">${title}</h4>
                                         ${idea.viabilityScore ? `<div style="background: rgba(236, 72, 153, 0.1); color: #ec4899; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 0.9rem;">${idea.viabilityScore}%</div>` : ''}
                                     </div>
-                                    <p style="color: var(--text); margin-bottom: 0.75rem; line-height: 1.6;">${idea.description}</p>
+                                    ${desc ? `<p style="color: var(--text); margin-bottom: 0.75rem; line-height: 1.6;">${desc}</p>` : ''}
                                     ${idea.problem ? `<div style="margin-bottom: 0.5rem;"><strong style="color: #f59e0b;">❗ Problème:</strong> <span style="color: var(--gray);">${idea.problem}</span></div>` : ''}
                                     ${idea.target ? `<div style="margin-bottom: 0.5rem;"><strong style="color: #3b82f6;">🎯 Cible:</strong> <span style="color: var(--gray);">${idea.target}</span></div>` : ''}
                                     ${idea.whyFits ? `<div style="padding: 0.75rem; background: rgba(139, 92, 246, 0.05); border-radius: 8px; margin-top: 0.75rem;"><strong style="color: var(--purple);">✨ Pourquoi ça correspond:</strong> <span style="color: var(--text);">${idea.whyFits}</span></div>` : ''}
                                 </div>
-                            `).join('')}
+                            `;
+                            }).join('')}
                         </div>
                     `;
                 }
@@ -1227,7 +1231,7 @@
                     diagnosticHtml += `
                         <div style="margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border-radius: 12px; border: 2px solid var(--purple);">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🎯 Trajectoire Recommandée</h3>
-                            <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem;">
+                            <div style="background: var(--dark-card); padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem;">
                                 <strong style="color: var(--purple); font-size: 1.05rem;">${final.choice}</strong>
                             </div>
                             <p style="color: var(--text); line-height: 1.7;">${final.justification}</p>

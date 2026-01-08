@@ -500,7 +500,7 @@
                     <div
                         style="margin-bottom: 1rem; padding: 1rem; background: rgba(139, 92, 246, 0.05); border-left: 4px solid #8b5cf6; border-radius: 8px;">
                         <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6;">🎯 Carrière & Trajectoires</h4>
-                        <p style="margin: 0; color: #6b7280; font-size: 0.95rem; line-height: 1.6;">Découvrez vos
+                        <p style="margin: 0; color: var(--gray); font-size: 0.95rem; line-height: 1.6;">Découvrez vos
                             recommandations de carrière personnalisées, vos trajectoires professionnelles détaillées
                             avec plans d'action 30 jours.</p>
                     </div>
@@ -508,35 +508,35 @@
                     <div
                         style="margin-bottom: 1rem; padding: 1rem; background: rgba(236, 72, 153, 0.05); border-left: 4px solid #ec4899; border-radius: 8px;">
                         <h4 style="margin: 0 0 0.5rem 0; color: #ec4899;">🚀 Business Ideas</h4>
-                        <p style="margin: 0; color: #6b7280; font-size: 0.95rem; line-height: 1.6;">Explorez vos idées
+                        <p style="margin: 0; color: var(--gray); font-size: 0.95rem; line-height: 1.6;">Explorez vos idées
                             d'entreprise alignées avec votre Ikigai, avec analyse de viabilité et cibles de marché.</p>
                     </div>
 
                     <div
                         style="margin-bottom: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; border-radius: 8px;">
                         <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6;">🎭 Diagnostic</h4>
-                        <p style="margin: 0; color: #6b7280; font-size: 0.95rem; line-height: 1.6;">Analyse approfondie
+                        <p style="margin: 0; color: var(--gray); font-size: 0.95rem; line-height: 1.6;">Analyse approfondie
                             de cohérence, trajectoire finale optimisée et préparation au coaching (Premium).</p>
                     </div>
                 </div>
 
                 <div
                     style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%); border-radius: 12px;">
-                    <h3 style="color: #1f2937; font-size: 1.1rem; margin-bottom: 0.75rem;">💡 Comment Utiliser Cette
+                    <h3 style="color: var(--text); font-size: 1.1rem; margin-bottom: 0.75rem;">💡 Comment Utiliser Cette
                         Analyse</h3>
                     <ul style="margin: 0; padding-left: 1.5rem; color: var(--text); font-size: 0.95rem; line-height: 1.8;">
-                        <li style="color: var(--text);">Commencez par <strong style="color: #1f2937;">Carrière &
+                        <li style="color: var(--text);">Commencez par <strong style="color: var(--text);">Carrière &
                                 Trajectoires</strong> pour voir vos options professionnelles</li>
-                        <li style="color: var(--text);">Explorez les <strong style="color: #1f2937;">Business Ideas</strong>
+                        <li style="color: var(--text);">Explorez les <strong style="color: var(--text);">Business Ideas</strong>
                             si l'entrepreneuriat vous intéresse</li>
-                        <li style="color: var(--text);">Téléchargez le <strong style="color: #1f2937;">PDF complet</strong>
+                        <li style="color: var(--text);">Téléchargez le <strong style="color: var(--text);">PDF complet</strong>
                             pour une lecture approfondie</li>
                         <li style="color: var(--text);">Revenez régulièrement mettre à jour votre analyse</li>
                     </ul>
                 </div>
 
                 <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: var(--dark-card); border-left: 4px solid #8b5cf6; border-radius: 8px;">
-                    <h3 style="color: #1f2937; font-size: 1.1rem; margin-bottom: 0.75rem;">📊 Comprendre Vos Scores</h3>
+                    <h3 style="color: var(--text); font-size: 1.1rem; margin-bottom: 0.75rem;">📊 Comprendre Vos Scores</h3>
                     <div style="color: var(--text); font-size: 0.95rem; line-height: 1.8;">
                         <p style="margin: 0 0 0.75rem 0;"><strong style="color: #8b5cf6;">Les 4 piliers Ikigai :</strong></p>
                         <ul style="margin: 0 0 0.75rem 0; padding-left: 1.5rem;">
@@ -545,7 +545,7 @@
                             <li><strong>Vocation</strong> (75-90%) : Ce pour quoi vous êtes doué</li>
                             <li><strong>Profession</strong> (70-85%) : Ce pour quoi vous pouvez être payé</li>
                         </ul>
-                        <p style="margin: 0.75rem 0 0 0; font-size: 0.9rem; color: #6b7280;">
+                        <p style="margin: 0.75rem 0 0 0; font-size: 0.9rem; color: var(--gray);">
                             💡 <em>Un score élevé (>80%) indique une forte cohérence. L'équilibre entre les 4 piliers est plus important que le score absolu.</em>
                         </p>
                     </div>
@@ -1102,14 +1102,14 @@
                         <div style="margin-bottom: 2rem;">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🛤️ Trajectoires Professionnelles</h3>
                             ${trajectories.map((traj, idx) => `
-                                <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: ${idx === 0 ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'white'}; border-radius: 12px; border: 2px solid ${idx === 0 ? 'var(--purple)' : 'var(--border)'};">
+                                <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: ${idx === 0 ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'var(--dark-card)'}; border-radius: 12px; border: 2px solid ${idx === 0 ? 'var(--purple)' : 'var(--border)'};">
                                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
                                         <div>
                                             <span style="background: ${idx === 0 ? 'var(--gradient-primary)' : 'var(--gray)'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${traj.label || `Trajectoire ${traj.rank}`}</span>
-                                            <h4 style="font-size: 1.15rem; margin: 0.75rem 0 0.5rem 0; color: var(--text);">${traj.title}</h4>
+                                            <h4 style="font-size: 1.15rem; margin: 0.75rem 0 0.5rem 0; color: var(--text);">${traj.title || traj.career || traj.name || 'Trajectoire professionnelle'}</h4>
                                         </div>
                                     </div>
-                                    <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6;">${traj.description}</p>
+                                    <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6;">${traj.description || traj.justification || ''}</p>
                                     
                                     ${traj.jobTitles && traj.jobTitles.length > 0 ? `
                                         <div style="margin-bottom: 1rem;">
@@ -1147,8 +1147,8 @@
                                     ${traj.actionPlan30Days && traj.actionPlan30Days.length > 0 ? `
                                         <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 8px;">
                                             <strong style="color: #3b82f6; font-size: 0.95rem;">🎯 Plan 30 jours:</strong>
-                                            <ol style="margin: 0.5rem 0 0 1.5rem; padding: 0; color: #1f2937; font-size: 0.9rem;">
-                                                ${traj.actionPlan30Days.map(action => `<li style="margin: 0.25rem 0; color: #1f2937;">${action}</li>`).join('')}
+                                            <ol style="margin: 0.5rem 0 0 1.5rem; padding: 0; color: var(--text); font-size: 0.9rem;">
+                                                ${traj.actionPlan30Days.map(action => `<li style="margin: 0.25rem 0; color: var(--text);">${action}</li>`).join('')}
                                             </ol>
                                         </div>
                                     ` : ''}

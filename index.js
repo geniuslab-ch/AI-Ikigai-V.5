@@ -74,11 +74,11 @@ async function verifyToken(token, env) {
 	try {
 		const [payloadB64, signatureB64] = token.split('.');
 		const payload = JSON.parse(atob(payloadB64));
-		
+
 		if (payload.exp < Date.now()) {
 			return null;
 		}
-		
+
 		const encoder = new TextEncoder();
 		const key = await crypto.subtle.importKey(
 			'raw',
@@ -87,7 +87,7 @@ async function verifyToken(token, env) {
 			false,
 			['verify']
 		);
-		
+
 		const signature = Uint8Array.from(atob(signatureB64), c => c.charCodeAt(0));
 		const valid = await crypto.subtle.verify(
 			'HMAC',
@@ -95,7 +95,7 @@ async function verifyToken(token, env) {
 			signature,
 			encoder.encode(JSON.stringify(payload))
 		);
-		
+
 		return valid ? payload : null;
 	} catch {
 		return null;
@@ -120,7 +120,7 @@ async function getAuthUser(request, env) {
 // Ikigai Analysis Engine
 // ============================================
 
-function analyzeIkigai(answers, cvData = null) {
+function analyzeIkigai(answers, cvData = null, subscriptionPlan = 'decouverte') {
 	// Mapping des réponses aux catégories Ikigai
 	const analysis = {
 		passions: [],
@@ -220,16 +220,23 @@ function analyzeIkigai(answers, cvData = null) {
 	const recommendations = generateRecommendations(analysis.score, sectorAnswer, riskAnswer);
 	analysis.recommendations = recommendations;
 
-	// Générer des idées business
-	const businessIdeas = generateBusinessIdeas(analysis.passions, analysis.talents, sectorAnswer);
-	analysis.businessIdeas = businessIdeas;
+	// Générer des idées business UNIQUEMENT pour Essentiel et Premium
+	// Découverte ne reçoit PAS de business ideas
+	const planLower = (subscriptionPlan || 'decouverte').toLowerCase();
+	if (planLower === 'essentiel' || planLower === 'premium' || planLower === 'direction' || planLower === 'transformation') {
+		const businessIdeas = generateBusinessIdeas(analysis.passions, analysis.talents, sectorAnswer);
+		analysis.businessIdeas = businessIdeas;
+	} else {
+		// Plan Découverte / CLARITY → pas de business ideas
+		analysis.businessIdeas = [];
+	}
 
 	// Enrichir avec les données du CV si disponibles
 	if (cvData) {
 		analysis.cvSkills = cvData.skills || [];
 		analysis.cvExperience = cvData.experience || [];
 		analysis.cvEducation = cvData.education || [];
-		
+
 		// Ajuster les scores basés sur le CV
 		if (cvData.skills && cvData.skills.length > 5) {
 			analysis.score.profession += 20;
@@ -254,7 +261,7 @@ function analyzeIkigai(answers, cvData = null) {
 
 function generateRecommendations(scores, sector, riskLevel) {
 	const recommendations = [];
-	
+
 	// Recommandations basées sur le secteur et le profil
 	const sectorRecommendations = {
 		'tech': [
@@ -380,7 +387,7 @@ async function parseCV(file, env) {
 	// - Google Document AI
 	// - Azure Form Recognizer
 	// - Affinda CV Parser
-	
+
 	// Ici, simulation d'extraction
 	const cvData = {
 		skills: [],
@@ -395,7 +402,7 @@ async function parseCV(file, env) {
 		if (file.type === 'text/plain') {
 			const text = await file.text();
 			cvData.rawText = text;
-			
+
 			// Extraction basique de compétences (mots-clés)
 			const skillKeywords = [
 				'javascript', 'python', 'java', 'react', 'angular', 'vue',
@@ -404,7 +411,7 @@ async function parseCV(file, env) {
 				'sales', 'finance', 'analytics', 'data', 'ai', 'ml',
 				'design', 'ux', 'ui', 'figma', 'photoshop',
 			];
-			
+
 			const textLower = text.toLowerCase();
 			skillKeywords.forEach(skill => {
 				if (textLower.includes(skill)) {
@@ -541,11 +548,11 @@ async function handleRequest(request, env) {
 	// Router
 	try {
 		// ============ Auth Routes ============
-		
+
 		// POST /api/auth/register
 		if (path === '/api/auth/register' && method === 'POST') {
 			const { email, password, name } = await request.json();
-			
+
 			if (!email || !password) {
 				return errorResponse('Email et mot de passe requis');
 			}
@@ -554,7 +561,7 @@ async function handleRequest(request, env) {
 			const existing = await env.DB.prepare(
 				'SELECT id FROM users WHERE email = ?'
 			).bind(email.toLowerCase()).first();
-			
+
 			if (existing) {
 				return errorResponse('Un compte existe déjà avec cet email');
 			}
@@ -562,7 +569,7 @@ async function handleRequest(request, env) {
 			// Créer l'utilisateur
 			const userId = generateId();
 			const hashedPassword = await hashPassword(password);
-			
+
 			await env.DB.prepare(
 				'INSERT INTO users (id, email, password, name, plan, created_at) VALUES (?, ?, ?, ?, ?, ?)'
 			).bind(userId, email.toLowerCase(), hashedPassword, name || '', 'free', new Date().toISOString()).run();
@@ -587,7 +594,7 @@ async function handleRequest(request, env) {
 		// POST /api/auth/login
 		if (path === '/api/auth/login' && method === 'POST') {
 			const { email, password } = await request.json();
-			
+
 			if (!email || !password) {
 				return errorResponse('Email et mot de passe requis');
 			}
@@ -660,8 +667,11 @@ async function handleRequest(request, env) {
 				userId = generateId(); // Utilisateur anonyme
 			}
 
-			// Analyser les réponses
-			const analysis = analyzeIkigai(answers);
+			// Récupérer le plan de l'utilisateur
+			const userPlan = user?.plan || 'decouverte';
+
+			// Analyser les réponses avec le plan
+			const analysis = analyzeIkigai(answers, null, userPlan);
 
 			// Sauvegarder le questionnaire
 			const questionnaireId = generateId();
@@ -728,9 +738,14 @@ async function handleRequest(request, env) {
 
 				if (questionnaire) {
 					const analysis = JSON.parse(questionnaire.analysis);
+					// Récupérer le plan de l'utilisateur pour le CV upload
+					const questionnaireUser = await env.DB.prepare('SELECT plan FROM users WHERE id = (SELECT user_id FROM questionnaires WHERE id = ?)').bind(questionnaireId).first();
+					const userPlan = questionnaireUser?.plan || 'decouverte';
+
 					const updatedAnalysis = analyzeIkigai(
 						JSON.parse((await env.DB.prepare('SELECT answers FROM questionnaires WHERE id = ?').bind(questionnaireId).first()).answers),
-						cvData
+						cvData,
+						userPlan
 					);
 
 					await env.DB.prepare(
@@ -809,7 +824,7 @@ async function handleRequest(request, env) {
 			}
 
 			const { plan } = await request.json();
-			
+
 			const prices = {
 				'essential': env.STRIPE_PRICE_ESSENTIAL,
 				'premium': env.STRIPE_PRICE_PREMIUM,

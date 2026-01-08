@@ -1051,7 +1051,7 @@ async function handleRequest(request, env) {
 				}
 			}
 
-			// NOUVEAU: Stocker dans Supabase (permanent)
+			// NOUVEAU: Stocker dans Supabase table analyses (permanent)
 			if (env.SUPABASE_URL) {
 				try {
 					const supabase = getSupabaseClient(env);
@@ -1067,22 +1067,35 @@ async function handleRequest(request, env) {
 						userId = profile?.id || null;
 					}
 
-					// Sauvegarder le questionnaire
-					await supabase.from('questionnaires').insert({
-						id: questionnaireId,
+					// Sauvegarder dans table analyses avec tous les champs
+					const { error: insertError } = await supabase.from('analyses').insert({
 						user_id: userId,
-						email: email || null,
-						answers,
-						cv_data: null,
-						analysis
+						answers: answers || {},
+						passions: analysis.passions || [],
+						talents: analysis.talents || [],
+						mission: analysis.mission || [],
+						vocation: analysis.vocation || [],
+						score: analysis.score || {},
+						profile_summary: analysis.profileSummary || null,
+						ikigai_summary: analysis.ikigaiSummary || null,
+						career_recommendations: analysis.careerRecommendations || [],
+						business_ideas: analysis.businessIdeas || [],
+						trajectories: analysis.trajectories || null,
+						coherence_diagnosis: analysis.coherenceDiagnosis || null,
+						final_trajectory: analysis.finalTrajectory || null,
+						positioning: analysis.positioning || null,
+						coaching_prep: analysis.coachingPrep || null
 					});
 
-					console.log('✅ Données stockées dans Supabase');
+					if (insertError) {
+						console.error('❌ Erreur insertion Supabase:', insertError.message);
+					} else {
+						console.log('✅ Analyse sauvegardée dans Supabase table analyses');
+					}
 				} catch (e) {
 					console.warn('⚠️ Erreur stockage Supabase:', e.message);
 				}
 			}
-
 			console.log('✅ Questionnaire analysé:', questionnaireId);
 
 			return jsonResponse({

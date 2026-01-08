@@ -258,6 +258,103 @@
             color: var(--text-muted);
         }
 
+        /* Disabled state for non-published articles */
+        .related-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .related-card.disabled:hover {
+            transform: none;
+            border-color: var(--border);
+            box-shadow: none;
+        }
+
+        /* Newsletter section */
+        .newsletter-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            border: 2px solid var(--purple);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            margin-top: 4rem;
+            text-align: center;
+        }
+
+        .newsletter-section h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .newsletter-section p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            min-width: 280px;
+            padding: 0.875rem 1.25rem;
+            border-radius: 50px;
+            border: 2px solid var(--border);
+            background: var(--card-dark);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        .newsletter-button {
+            padding: 0.875rem 2rem;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .newsletter-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .newsletter-message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .newsletter-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .newsletter-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
         /* Placeholder for article without content yet */
         .coming-soon {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
@@ -424,17 +521,24 @@
 
                         const statusBadge = related.status === 'published'
                             ? '<span style="color: #22c55e;">✓ Publié</span>'
-                            : '<span style="color: #fb923c;">⏳ À venir</span>';
+                            : `<span style="color: #fb923c;">⏳ Publication le ${relatedDate}</span>`;
+
+                        // Disable link if article is not published
+                        const disabledClass = related.status !== 'published' ? 'disabled' : '';
+                        const cardElement = related.status === 'published'
+                            ? `<a href="${related.slug}.html" class="related-card ${disabledClass}">`
+                            : `<div class="related-card ${disabledClass}">`;
+                        const closeElement = related.status === 'published' ? '</a>' : '</div>';
 
                         html += `
-                            <a href="${related.slug}.html" class="related-card">
+                            ${cardElement}
                                 <h4>${related.title}</h4>
                                 <p>${related.excerpt}</p>
                                 <div class="card-meta">
                                     <span>${statusBadge}</span>
                                     <span>📖 ${related.readingTime} min</span>
                                 </div>
-                            </a>
+                            ${closeElement}
                         `;
                     }
                 });
@@ -445,7 +549,54 @@
                 `;
             }
 
+            // Newsletter subscription section
+            html += `
+                <div class="newsletter-section">
+                    <h3>🔔 Ne manquez aucun article !</h3>
+                    <p>Recevez un email à chaque nouvelle publication du blog. Un article par semaine, tous les vendredis.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input 
+                            type="email" 
+                            class="newsletter-input" 
+                            placeholder="votre@email.com" 
+                            required 
+                            id="newsletterEmail"
+                        />
+                        <button type="submit" class="newsletter-button">S'abonner</button>
+                    </form>
+                    <div id="newsletterMessage"></div>
+                </div>
+            `;
+
             container.innerHTML = html;
+
+            // Newsletter form handler
+            document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('newsletterEmail').value;
+                const messageDiv = document.getElementById('newsletterMessage');
+
+                try {
+                    // TODO: Integrate with actual email service (Brevo, Mailchimp, etc.)
+                    // For now, store in localStorage and show success message
+                    const subscribers = JSON.parse(localStorage.getItem('blogSubscribers') || '[]');
+
+                    if (subscribers.includes(email)) {
+                        messageDiv.className = 'newsletter-message error';
+                        messageDiv.textContent = '✓ Vous êtes déjà inscrit(e) !';
+                    } else {
+                        subscribers.push(email);
+                        localStorage.setItem('blogSubscribers', JSON.stringify(subscribers));
+
+                        messageDiv.className = 'newsletter-message success';
+                        messageDiv.textContent = '✅ Inscription confirmée ! Vous recevrez un email à chaque nouvelle publication.';
+                        document.getElementById('newsletterEmail').value = '';
+                    }
+                } catch (error) {
+                    messageDiv.className = 'newsletter-message error';
+                    messageDiv.textContent = '❌ Erreur lors de l\'inscription. Veuillez réessayer.';
+                }
+            });
         }
     </script>
 </body>

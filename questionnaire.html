@@ -1748,24 +1748,72 @@
                 </div>
             </div>
 
-            <!-- Upgrade CTA -->
-            <div class="upgrade-cta">
-                <div class="upgrade-content">
-                    <h3>🚀 Débloquez votre rapport complet</h3>
-                    <p>Accédez à votre analyse complète avec recommandations personnalisées et téléchargez votre rapport
-                        PDF.</p>
-                    <ul class="upgrade-features">
-                        <li>✓ Analyse approfondie de votre CV</li>
-                        <li>✓ Plan d'action personnalisé</li>
-                        <li>✓ Export PDF professionnel</li>
-                    </ul>
-                </div>
-                <div class="upgrade-pricing">
-                    <div class="upgrade-price">$29 USD</div>
-                    <div class="upgrade-period">paiement unique</div>
-                    <a href="index.html#pricing" class="btn-primary">Obtenir le rapport complet →</a>
-                </div>
+            <!-- Dynamic Upgrade CTA -->
+            <div id="upgrade-cta" class="upgrade-cta">
+                <!-- Content populated dynamically by script below -->
             </div>
+
+            <script>
+                // Populate upsell dynamically based on user plan
+                (async function() {
+                    const block = document.getElementById('upgrade-cta');
+                    if (!block) return;
+
+                    try {
+                        const { data: { user } } = await supabaseClient.auth.getUser();
+                        if (!user) { block.style.display = 'none'; return; }
+
+                        const { data: profile } = await supabaseClient
+                            .from('users')
+                            .select('subscription_plan')
+                            .eq('email', user.email)
+                            .single();
+
+                        const plan = profile?.subscription_plan || 'decouverte';
+
+                        if (plan === 'decouverte') {
+                            block.innerHTML = `
+                                <div class="upgrade-content">
+                                    <h3>✨ Passez au Plan Essentiel</h3>
+                                    <p>Débloquez les business ideas et téléchargez votre rapport PDF complet.</p>
+                                    <ul class="upgrade-features">
+                                        <li>✓ 5 idées d'entreprise personnalisées</li>
+                                        <li>✓ Analyse de viabilité</li>
+                                        <li>✓ Export PDF professionnel</li>
+                                    </ul>
+                                </div>
+                                <div class="upgrade-pricing">
+                                    <div class="upgrade-price">$19 USD</div>
+                                    <div class="upgrade-period">paiement unique</div>
+                                    <a href="index.html#pricing" class="btn-primary">Passer à Essentiel →</a>
+                                </div>
+                            `;
+                        } else if (plan === 'essentiel') {
+                            block.innerHTML = `
+                                <div class="upgrade-content">
+                                    <h3>🚀 Passez au Plan Premium</h3>
+                                    <p>Accédez au diagnostic complet, trajectoires détaillées et coaching personnalisé.</p>
+                                    <ul class="upgrade-features">
+                                        <li>✓ Diagnostic de cohérence Ikigai</li>
+                                        <li>✓ Trajectoires optimisées</li>
+                                        <li>✓ Préparation au coaching</li>
+                                    </ul>
+                                </div>
+                                <div class="upgrade-pricing">
+                                    <div class="upgrade-price">$29 USD</div>
+                                    <div class="upgrade-period">paiement unique</div>
+                                    <a href="index.html#pricing" class="btn-primary">Passer à Premium →</a>
+                                </div>
+                            `;
+                        } else {
+                            // Premium - hide upsell
+                            block.style.display = 'none';
+                        }
+                    } catch (e) {
+                        block.style.display = 'none';
+                    }
+                })();
+            </script>
             <div id="signup-modal" class="signup-modal"
                 style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999;">
                 <div class="signup-modal-content"

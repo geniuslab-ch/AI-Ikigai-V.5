@@ -3047,7 +3047,12 @@
                         recommendationsList.innerHTML = `
                             <h3>🎯 Recommandations de carrière(${ backendAnalysis.careerRecommendations.length })</h3>
                             ${ careerHTML }
-                            ${ businessHTML ? `<h3 style="margin-top: 2rem;">💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>${businessHTML}` : '' }
+                            ${ businessHTML ? `
+                                <div style="clear: both; margin-top: 2rem;">
+                                    <h3>💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>
+                                    ${businessHTML}
+                                </div>
+                            ` : '' }
                         `;
                     }
                 }

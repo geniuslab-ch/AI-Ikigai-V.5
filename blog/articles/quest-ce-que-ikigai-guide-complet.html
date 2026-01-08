@@ -18,6 +18,15 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HW43PE0EFH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-HW43PE0EFH');
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -70,6 +79,7 @@
             font-size: 1.5rem;
             font-weight: 800;
             background: linear-gradient(135deg, var(--purple) 0%, var(--pink) 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
@@ -134,6 +144,16 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        /* Featured Image */
+        .featured-image {
+            width: 100%;
+            height: auto;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin: 2rem 0 3rem;
         }
 
         /* Article Content */
@@ -475,9 +495,20 @@
                         <span>👤 ${article.author}</span>
                     </div>
                 </div>
-                
-                <div class="article-content">
-            `;
+                `
+                ;
+
+            // Article featured image (if available)
+            const imageMap = {
+                'quest-ce-que-ikigai-guide-complet': 'article-1-ikigai.png',
+                'reconversion-professionnelle-7-etapes': 'article-2-reconversion.png'
+            };
+
+            if (imageMap[article.slug]) {
+                html += `<img src="../assets/images/${imageMap[article.slug]}" alt="${article.title}" class="featured-image" />`;
+            }
+
+            html += `<div class="article-content">`;
 
             // Article content (placeholder for now)
             if (article.status === 'published') {

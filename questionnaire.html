@@ -3050,10 +3050,10 @@
                 let userEmail = null;
 
                 // Utiliser supabaseClient si disponible
-                if (supabaseClient) {
+                if (window.supabaseClient) {
                     try {
                         // Utiliser getSession() qui marche mieux que getUser() quand déjà connecté
-                        const { data: { session }, error } = await supabaseClient.auth.getSession();
+                        const { data: { session }, error } = await window.supabaseClient.auth.getSession();
                         if (session?.user && !error) {
                             userId = session.user.id;
                             userEmail = session.user.email;
@@ -3074,9 +3074,9 @@
 
                 // Get user plan
                 let userPlan = 'decouverte';
-                if (supabaseClient && userId) {
+                if (window.supabaseClient && userId) {
                     try {
-                        const { data: profile } = await supabaseClient
+                        const { data: profile } = await window.supabaseClient
                             .from('profiles')
                             .select('plan')
                             .eq('id', userId)

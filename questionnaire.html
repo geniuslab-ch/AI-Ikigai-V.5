@@ -2804,13 +2804,13 @@
 
                     // NOUVEAU: Sauvegarder immédiatement dans Supabase si user connecté (ASYNC IIFE)
                     (async () => {
-                        if (supabaseClient && finalAnalysis) {
+                        if (window.supabaseClient && finalAnalysis) {
                             try {
-                                const { data: { session } } = await supabaseClient.auth.getSession();
+                                const { data: { session } } = await window.supabaseClient.auth.getSession();
                                 if (session?.user) {
                                     console.log('💾 Sauvegarde immédiate analyse user:', session.user.email);
 
-                                    const { error: saveError } = await supabaseClient
+                                    const { error: saveError } = await window.supabaseClient
                                         .from('analyses')
                                         .insert({
                                             user_id: session.user.id,

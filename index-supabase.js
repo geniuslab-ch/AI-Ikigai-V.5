@@ -979,7 +979,7 @@ async function handleRequest(request, env) {
 			console.log('📝 POST /api/questionnaire/submit');
 
 			const body = await request.json();
-			const { answers, email } = body;
+			const { answers, email, user_plan } = body;
 
 			if (!answers || Object.keys(answers).length === 0) {
 				return errorResponse('Pas de réponses fournies');
@@ -997,34 +997,41 @@ async function handleRequest(request, env) {
 				yearsExperience: 0
 			};
 
-			// Récupérer le plan de l'utilisateur depuis Supabase si authentifié
-			let userPlan = 'decouverte'; // par défaut pour utilisateurs non authentifiés
-			const authHeader = request.headers.get('Authorization');
-			console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
+			// Utiliser user_plan du body en priorité, sinon récupérer depuis Supabase
+			let userPlan = user_plan || 'decouverte';
+			console.log('📋 User plan from body:', user_plan);
 
-			if (authHeader && env.SUPABASE_URL) {
-				try {
-					const token = authHeader.replace('Bearer ', '');
-					const supabase = getSupabaseClient(env);
-					const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+			// Si pas de plan dans body, récupérer depuis Supabase
+			if (!user_plan) {
+				const authHeader = request.headers.get('Authorization');
+				console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
 
-					console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
+				if (authHeader && env.SUPABASE_URL) {
+					try {
+						const token = authHeader.replace('Bearer ', '');
+						const supabase = getSupabaseClient(env);
+						const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
-					if (user) {
-						const { data: profile, error: profileError } = await supabase
-							.from('profiles')
-							.select('plan')
-							.eq('id', user.id)
-							.single();
+						console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
 
-						console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
-						userPlan = profile?.plan || 'decouverte';
-						console.log(`✅ Plan récupéré: ${userPlan}`);
+						if (user) {
+							const { data: profile, error: profileError } = await supabase
+								.from('profiles')
+								.select('plan')
+								.eq('id', user.id)
+								.single();
+
+							console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
+							userPlan = profile?.plan || 'decouverte';
+							console.log(`✅ Plan récupéré: ${userPlan}`);
+						}
+					} catch (error) {
+						console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);
 					}
-				} catch (error) {
-					console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);
 				}
 			}
+
+			console.log(`🎯 Final user plan for analysis: ${userPlan}`);
 
 			const analysis = await generateRecommendationsWithClaude(answers, emptyCvData, env, userPlan);
 

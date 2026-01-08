@@ -1083,7 +1083,7 @@
             // === Career Recommendations (ALL PACKS) ===
             const careerRecs = analysis.careerRecommendations || [];
             if (careerRecs.length > 0) {
-                    careerHtml += `
+                careerHtml += `
                         <div style="margin-bottom: 2rem;">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">💼 Recommandations Carrière</h3>
                             ${careerRecs.map(rec => `
@@ -1103,22 +1103,34 @@
                     `;
             }
 
- // === PACK DIRECTION: Trajectories + Business Ideas ===
+            // === PACK DIRECTION: Trajectories + Business Ideas ===
             if (packLevel === 'DIRECTION' || packLevel === 'TRANSFORMATION') {
                 const trajectories = analysis.trajectories || [];
                 if (trajectories.length > 0) {
                     careerHtml += `
                         <div style="margin-bottom: 2rem;">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--purple);">🛤️ Trajectoires Professionnelles</h3>
-                            ${trajectories.map((traj, idx) => `
-                                <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: ${idx === 0 ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'var(--dark-card)'}; border-radius: 12px; border: 2px solid ${idx === 0 ? 'var(--purple)' : 'var(--border)'};">
-                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                                        <div>
-                                            <span style="background: ${idx === 0 ? 'var(--gradient-primary)' : 'var(--gray)'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${traj.label || `Trajectoire ${traj.rank}`}</span>
-                                            <h4 style="font-size: 1.15rem; margin: 0.75rem 0 0.5rem 0; color: var(--text);">${traj.title || traj.career || traj.name || 'Trajectoire professionnelle'}</h4>
+                            ${trajectories.map((traj, idx) => {
+                        const gradients = [
+                            'linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)',
+                            'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                            'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                        ];
+                        const labels = ['Trajectoire Réaliste (6 mois)', 'Trajectoire Équilibrée (6-12 mois)', 'Trajectoire Ambitieuse (12-24 mois)'];
+                        return `
+                                <div style="position: relative; margin-bottom: 1.5rem; padding: 1.5rem; background: var(--dark-card); border-radius: 16px; border: 2px solid transparent; background-clip: padding-box; overflow: hidden;">
+                                    <!-- Gradient border effect -->
+                                    <div style="position: absolute; inset: 0; border-radius: 16px; padding: 2px; background: ${gradients[idx]}; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;"></div>
+                                    
+                                    <div style="position: relative; z-index: 1;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                            <div style="flex: 1;">
+                                                <span style="background: ${gradients[idx]}; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">${traj.label || labels[idx]}</span>
+                                                <h4 style="font-size: 1.25rem; margin: 0; color: var(--text); font-weight: 600;">${traj.title || traj.career || traj.name || 'Trajectoire professionnelle'}</h4>
+                                            </div>
+                                            <div style="background: ${gradients[idx]}; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; margin-left: 1rem;">${['🎯', '🚀', '⭐'][idx]}</div>
                                         </div>
-                                    </div>
-                                    <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6;">${traj.description || traj.justification || 'Cette trajectoire professionnelle correspond à votre profil Ikigai et offre des perspectives d\'évolution alignées avec vos passions et compétences.'}</p>
+                                        <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6; font-size: 0.95rem;">${traj.description || traj.justification || 'Cette trajectoire professionnelle correspond à votre profil Ikigai et offre des perspectives d\'évolution alignées avec vos passions et compétences.'}</p>
                                     
                                     ${traj.jobTitles && traj.jobTitles.length > 0 ? `
                                         <div style="margin-bottom: 1rem;">
@@ -1174,10 +1186,10 @@
                         <div style="margin-bottom: 2rem;">
                             <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: #ec4899;">🚀 Idées d'Entreprise</h3>
                             ${businessIdeas.map(idea => {
-                                const isString = typeof idea === 'string';
-                                const title = isString ? idea : (idea.title || idea.name || 'Idée');
-                                const desc = isString ? '' : (idea.description || '');
-                                return `
+                        const isString = typeof idea === 'string';
+                        const title = isString ? idea : (idea.title || idea.name || 'Idée');
+                        const desc = isString ? '' : (idea.description || '');
+                        return `
                                 <div style="margin-bottom: 1rem; padding: 1.5rem; background: var(--dark-card); border-radius: 12px; border: 1px solid var(--dark-border);">
                                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
                                         <h4 style="font-size: 1.1rem; margin: 0; color: var(--text);">${title}</h4>
@@ -1189,7 +1201,7 @@
                                     ${idea.whyFits ? `<div style="padding: 0.75rem; background: rgba(139, 92, 246, 0.05); border-radius: 8px; margin-top: 0.75rem;"><strong style="color: var(--purple);">✨ Pourquoi ça correspond:</strong> <span style="color: var(--text);">${idea.whyFits}</span></div>` : ''}
                                 </div>
                             `;
-                            }).join('')}
+                    }).join('')}
                         </div>
                     `;
                 }
@@ -1962,7 +1974,7 @@
             // Diagnostic Section (Premium only)
             const coherence = analysis.coherence_diagnosis || analysis.coherenceDiagnosis;
             const userPlan = dashboardData?.userPlan || dashboardData?.subscription_plan || 'decouverte';
-            
+
             if (userPlan === 'premium' && coherence) {
                 if (yPos > 200) { doc.addPage(); yPos = 20; }
 
@@ -1987,7 +1999,7 @@
                     { key: 'vocation_score', name: 'Vocation' },
                     { key: 'profession_score', name: 'Profession' }
                 ];
-                
+
                 pillars.forEach(pillar => {
                     const score = coherence[pillar.key] || coherence[pillar.key.replace('_', '')];
                     if (score) {

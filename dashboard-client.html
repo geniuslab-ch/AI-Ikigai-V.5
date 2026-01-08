@@ -900,7 +900,7 @@
         }
 
 
-        function displayRecommendations(analysis) {
+        async function displayRecommendations(analysis) {
             // Get containers for each sub-tab
             const careerContainer = document.getElementById('career-recommendations-list');
             const businessContainer = document.getElementById('business-ideas-list');
@@ -914,24 +914,24 @@
             }
 
 
-			// Récupérer le plan de l'utilisateur depuis Supabase profiles
-			let userPlan = 'decouverte';
-			if (currentUser?.id && window.supabaseClient) {
-				try {
-					const { data: profile, error } = await window.supabaseClient
-						.from('profiles')
-						.select('plan')
-						.eq('id', currentUser.id)
-						.single();
-					
-					if (profile && !error) {
-						userPlan = profile.plan || 'decouverte';
-						console.log('📋 User plan from profiles:', userPlan);
-					}
-				} catch (e) {
-					console.warn('⚠️ Could not fetch user plan, using default:', e);
-				}
-			}
+            // Récupérer le plan de l'utilisateur depuis Supabase profiles
+            let userPlan = 'decouverte';
+            if (currentUser?.id && window.supabaseClient) {
+                try {
+                    const { data: profile, error } = await window.supabaseClient
+                        .from('profiles')
+                        .select('plan')
+                        .eq('id', currentUser.id)
+                        .single();
+
+                    if (profile && !error) {
+                        userPlan = profile.plan || 'decouverte';
+                        console.log('📋 User plan from profiles:', userPlan);
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Could not fetch user plan, using default:', e);
+                }
+            }
 
             // Mapper les champs snake_case de Supabase vers camelCase pour le dashboard
             if (analysis) {

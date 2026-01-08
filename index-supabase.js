@@ -305,7 +305,14 @@ ${packLevel === 'CLARITY' ? `Generate JSON:
     }
   ]
 }
-RULES: Exactly 3 recommendations. realism 🟢/🟠/🔴. NO business ideas in CLARITY.` : packLevel === 'DIRECTION' ? `Generate JSON:
+RULES: Exactly 3 recommendations. realism 🟢/🟠/🔴. NO business ideas in CLARITY.` : packLevel === 'DIRECTION' ? `
+CRITICAL REQUIREMENT FOR TRAJECTORIES:
+- Each trajectory MUST be a complete object (NOT a string)
+- ALL fields are MANDATORY: rank, label, title, description, jobTitles (array with 2-3 items), whyIkigai, whyCV, whyMarket, existingSkills (array), skillsToDevelop (array with 5 items), actionPlan30Days (array with 3 items)
+- description must be 2-3 sentences minimum
+- NO empty strings or empty arrays for these fields
+
+Generate JSON:
 {
   "profileSummary": "6 lignes max",
   "ikigaiSummary": "Résumé",

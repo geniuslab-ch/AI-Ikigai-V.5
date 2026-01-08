@@ -414,9 +414,38 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 
 		if (jsonMatch) {
 			const analysis = JSON.parse(jsonMatch[0]);
+
+			// POST-PROCESSING: Convertir trajectories strings en objets si nécessaire
+			if (analysis.trajectories && Array.isArray(analysis.trajectories)) {
+				analysis.trajectories = analysis.trajectories.map((traj, index) => {
+					// Si déjà un objet, le garder tel quel
+					if (typeof traj === 'object' && traj !== null && traj.title) {
+						return traj;
+					}
+					// Si c'est un string, le convertir en objet
+					if (typeof traj === 'string') {
+						const labels = ['Trajectoire Réaliste (6 mois)', 'Trajectoire Équilibrée (6-12 mois)', 'Trajectoire Ambitieuse (12-24 mois)'];
+						return {
+							rank: index + 1,
+							title: traj,
+							label: labels[index] || `Trajectoire ${index + 1}`,
+							description: '',
+							jobTitles: [],
+							whyIkigai: '',
+							whyCV: '',
+							whyMarket: '',
+							existingSkills: [],
+							skillsToDevelop: [],
+							actionPlan30Days: []
+						};
+					}
+					return traj;
+				});
+			}
+
 			console.log('✅ Recommandations générées par Claude');
 			console.log('🔍 DEBUG businessIdeas:', analysis.businessIdeas ? `${analysis.businessIdeas.length} idées` : 'ABSENT');
-			console.log('🔍 DEBUG trajectories:', analysis.trajectories ? 'PRESENT' : 'ABSENT');
+			console.log('🔍 DEBUG trajectories:', analysis.trajectories ? `${analysis.trajectories.length} trajectoires` : 'ABSENT');
 			return analysis;
 		}
 

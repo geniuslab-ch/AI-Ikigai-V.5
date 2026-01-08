@@ -1060,12 +1060,12 @@ async function handleRequest(request, env) {
 						if (user) {
 							const { data: profile, error: profileError } = await supabase
 								.from('profiles')
-								.select('plan')
+								.select('subscription_plan')
 								.eq('id', user.id)
 								.single();
 
 							console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
-							userPlan = profile?.plan || 'decouverte';
+							userPlan = profile?.subscription_plan || 'decouverte';
 							console.log(`✅ Plan récupéré: ${userPlan}`);
 						}
 					} catch (error) {

@@ -1359,10 +1359,18 @@
             }
         }
 
-        function displayAllRecommendations(recommendations) {
+        function displayAllRecommendations(analysis) {
             const container = document.getElementById('all-recommendations-list');
 
+            if (!analysis) {
+                return;
+            }
+
+            // Mapper les champs snake_case -> camelCase
+            const recommendations = analysis.career_recommendations || analysis.careerRecommendations || [];
+            
             if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<p style="color: var(--text); padding: 2rem; text-align: center;">Aucune recommandation disponible</p>';
                 return;
             }
 

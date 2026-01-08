@@ -415,6 +415,8 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 		if (jsonMatch) {
 			const analysis = JSON.parse(jsonMatch[0]);
 			console.log('✅ Recommandations générées par Claude');
+			console.log('🔍 DEBUG businessIdeas:', analysis.businessIdeas ? `${analysis.businessIdeas.length} idées` : 'ABSENT');
+			console.log('🔍 DEBUG trajectories:', analysis.trajectories ? 'PRESENT' : 'ABSENT');
 			return analysis;
 		}
 

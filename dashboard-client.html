@@ -1950,6 +1950,69 @@
                 });
             }
 
+
+            // Diagnostic Section (Premium only)
+            const coherence = analysis.coherence_diagnosis || analysis.coherenceDiagnosis;
+            const userPlan = dashboardData?.userPlan || dashboardData?.subscription_plan || 'decouverte';
+            
+            if (userPlan === 'premium' && coherence) {
+                if (yPos > 200) { doc.addPage(); yPos = 20; }
+
+                doc.setFontSize(11);
+                doc.setTextColor(...primaryColor);
+                doc.text('[ DIAGNOSTIC DE COHERENCE ]', 20, yPos);
+                yPos += 6;
+
+                // Overall coherence score
+                if (coherence.overall_coherence_score || coherence.overallCoherenceScore) {
+                    const score = coherence.overall_coherence_score || coherence.overallCoherenceScore;
+                    doc.setFontSize(9);
+                    doc.setTextColor(...secondaryColor);
+                    doc.text(`Score de coherence global: ${score}%`, 20, yPos);
+                    yPos += 6;
+                }
+
+                // Four pillars scores
+                const pillars = [
+                    { key: 'passion_score', name: 'Passion' },
+                    { key: 'mission_score', name: 'Mission' },
+                    { key: 'vocation_score', name: 'Vocation' },
+                    { key: 'profession_score', name: 'Profession' }
+                ];
+                
+                pillars.forEach(pillar => {
+                    const score = coherence[pillar.key] || coherence[pillar.key.replace('_', '')];
+                    if (score) {
+                        if (yPos > 270) { doc.addPage(); yPos = 20; }
+                        doc.setFontSize(8);
+                        doc.setTextColor(...textColor);
+                        doc.text(`  ${pillar.name}: ${score}%`, 25, yPos);
+                        yPos += 4;
+                    }
+                });
+
+                yPos += 3;
+
+                // Recommendations
+                if (coherence.recommendations) {
+                    if (yPos > 250) { doc.addPage(); yPos = 20; }
+                    doc.setFontSize(8);
+                    doc.setTextColor(...secondaryColor);
+                    doc.text('Recommandations:', 20, yPos);
+                    yPos += 5;
+
+                    doc.setTextColor(...textColor);
+                    const recLines = doc.splitTextToSize(coherence.recommendations, 165);
+                    recLines.slice(0, 10).forEach(line => {
+                        if (yPos > 270) { doc.addPage(); yPos = 20; }
+                        doc.text(line, 25, yPos);
+                        yPos += 4;
+                    });
+                }
+
+                yPos += 5;
+            }
+
             // Footer
             const pageCount = doc.internal.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {

@@ -2780,9 +2780,16 @@
                     // Garder toutes les données du backend initial (businessIdeas, trajectories, etc.)
                     // Ajouter les infos CV sans écraser
                     backendResult.cvData = cvResult.cvData;
+
+                    // Préserver businessIdeas et trajectories du backend
+                    const businessIdeasBackup = backendResult.analysis.businessIdeas;
+                    const trajectoriesBackup = backendResult.analysis.trajectories;
+
                     backendResult.analysis = {
-                        ...backendResult.analysis,  // Garder business_ideas, trajectories, etc.
-                        ...cvResult.analysis        // Ajouter/mettre à jour avec données CV
+                        ...backendResult.analysis,  // Garder tous les champs du backend
+                        ...cvResult.analysis,       // Ajouter/mettre à jour avec données CV
+                        businessIdeas: businessIdeasBackup || cvResult.analysis.businessIdeas, // Priorité au backend
+                        trajectories: trajectoriesBackup || cvResult.analysis.trajectories      // Priorité au backend
                     };
                     console.log('📊 Résultat fusionné (backend + CV):', backendResult);
                 } else if (cvResult && cvResult.analysis) {

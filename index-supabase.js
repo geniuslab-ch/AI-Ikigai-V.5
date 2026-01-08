@@ -1241,19 +1241,21 @@ async function handleRequest(request, env) {
 				try {
 					const supabase = getSupabaseClient(env);
 					const { data, error } = await supabase
-						.from('questionnaires')
+						.from('analyses')
 						.select('*')
 						.eq('id', id)
 						.single();
 
 					if (error) throw error;
 
-					return jsonResponse({
-						success: true,
-						...data
-					});
+					if (data) {
+						return jsonResponse({
+							success: true,
+							analysis: data
+						});
+					}
 				} catch (e) {
-					return errorResponse('Questionnaire non trouvé', 404);
+					console.warn('⚠️ Erreur lecture Supabase:', e.message);
 				}
 			}
 

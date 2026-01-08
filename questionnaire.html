@@ -2775,8 +2775,18 @@
             // Upload CV if present and get updated analysis
             if (uploadedFile) {
                 const cvResult = await uploadCVToBackend(uploadedFile);
-                // Use CV analysis if available, otherwise keep initial
-                if (cvResult && cvResult.analysis) {
+                // FUSIONNER les données CV avec l'analyse initiale pour garder business_ideas/trajectories
+                if (cvResult && cvResult.analysis && backendResult && backendResult.analysis) {
+                    // Garder toutes les données du backend initial (businessIdeas, trajectories, etc.)
+                    // Ajouter les infos CV sans écraser
+                    backendResult.cvData = cvResult.cvData;
+                    backendResult.analysis = {
+                        ...backendResult.analysis,  // Garder business_ideas, trajectories, etc.
+                        ...cvResult.analysis        // Ajouter/mettre à jour avec données CV
+                    };
+                    console.log('📊 Résultat fusionné (backend + CV):', backendResult);
+                } else if (cvResult && cvResult.analysis) {
+                    // Fallback si pas de résultat backend
                     backendResult = cvResult;
                     console.log('📊 Résultat mis à jour (avec CV):', backendResult);
                 }

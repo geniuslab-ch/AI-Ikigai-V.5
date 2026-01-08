@@ -3011,15 +3011,18 @@
                 // Utiliser supabaseClient si disponible
                 if (supabaseClient) {
                     try {
-                        const { data: { user }, error } = await supabaseClient.auth.getUser();
-                        if (user && !error) {
-                            userId = user.id;
-                            userEmail = user.email;
-                            console.log('✅ User authenticated:', userEmail);
-                            console.log('🆔 User ID:', userId);
+                        // Utiliser getSession() qui marche mieux que getUser() quand déjà connecté
+                        const { data: { session }, error } = await supabaseClient.auth.getSession();
+                        if (session?.user && !error) {
+                            userId = session.user.id;
+                            userEmail = session.user.email;
+                            console.log('✅ User authenticated for submission:', userEmail);
+                            console.log('🆔 User ID for submission:', userId);
+                        } else {
+                            console.warn('⚠️ No session found in submitToBackend');
                         }
                     } catch (error) {
-                        console.warn('⚠️ Could not get authenticated user:', error);
+                        console.error('❌ Error getting session:', error);
                     }
                 }
 

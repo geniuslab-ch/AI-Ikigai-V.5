@@ -341,11 +341,16 @@
 
         // AuthAPI
         const AuthAPI = {
-            async signUp(email, password, name) {
+            async signUp(email, password, name, role = 'client') {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: { data: { name } }
+                    options: { 
+                        data: { 
+                            name,
+                            role // Save role in user metadata
+                        } 
+                    }
                 });
                 if (error) throw error;
                 return data;

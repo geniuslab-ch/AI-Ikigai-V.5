@@ -387,7 +387,10 @@
 <body>
     <header>
         <nav class="container">
-            <a href="../index.html" class="logo">AI-Ikigai</a>
+            <a href="../index.html" class="logo">
+                <img src="../assets/logo.svg" alt="AI-Ikigai" style="height: 40px; width: auto;"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='AI-Ikigai';">
+            </a>
             <ul class="nav-links">
                 <li><a href="../index.html">Accueil</a></li>
                 <li><a href="index.html">Blog</a></li>
@@ -459,8 +462,29 @@
                         card.onclick = () => window.location.href = `articles/${article.slug}.html`;
                     }
 
+                    // Image mapping for article cards
+                    const imageMap = {
+                        1: 'article-1-ikigai.png', 2: 'article-2-reconversion.png',
+                        3: 'article-3.png', 4: 'article-4.png', 5: 'article-5.png',
+                        6: 'article-6.png', 7: 'article-7.png', 8: 'article-8.png',
+                        9: 'article-9.png', 10: 'article-10.png', 11: 'article-11.png',
+                        12: 'article-12.png', 13: 'article-13.png', 14: 'article-14.png',
+                        15: 'article-15.png', 16: 'article-16.png', 17: 'article-17.png',
+                        18: 'article-18.png', 19: 'article-19.png', 20: 'article-20.png',
+                        21: 'article-21.png', 22: 'article-22.png', 23: 'article-23.png',
+                        24: 'article-24.png', 25: 'article-25.png', 26: 'article-26.png',
+                        27: 'article-27.png', 28: 'article-28.png', 29: 'article-29.png',
+                        30: 'article-30.png'
+                    };
+
+                    const imageSrc = imageMap[article.id]
+                        ? `assets/images/${imageMap[article.id]}`
+                        : '';
+
                     card.innerHTML = `
-                        <div class="article-image">${getHubEmoji(article.hub)}</div>
+                        <div class="article-image" style="background-image: url('${imageSrc}'); background-size: cover; background-position: center;">
+                            ${!imageSrc ? getHubEmoji(article.hub) : ''}
+                        </div>
                         <div class="article-content">
                             <div class="article-meta">
                                 <span class="article-badge badge-status ${article.status}">${statusText}</span>

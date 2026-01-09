@@ -418,7 +418,10 @@
 <body>
     <header>
         <nav>
-            <a href="../../index.html" class="logo">AI-Ikigai</a>
+            <a href="../../index.html" class="logo">
+                <img src="../../assets/logo.svg" alt="AI-Ikigai" style="height: 40px; width: auto;"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='AI-Ikigai';">
+            </a>
             <a href="../index.html" class="back-link">← Retour au blog</a>
         </nav>
     </header>
@@ -498,6 +501,9 @@
                 `
                 ;
 
+            // Featured images are now only on cards, not in article body
+            // Removed to improve UX per user request
+            /*
             // Article featured image (if available)
             const imageMap = {
                 'quest-ce-que-ikigai-guide-complet': 'article-1-ikigai.png',
@@ -535,6 +541,7 @@
             if (imageMap[article.slug]) {
                 html += `<img src="../assets/images/${imageMap[article.slug]}" alt="${article.title}" class="featured-image" />`;
             }
+            */
 
             html += `<div class="article-content">`;
 

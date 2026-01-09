@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qu'est-ce que l'Ikigai ? Guide Complet pour Trouver Votre Raison d'Être | AI-Ikigai</title>
+    <meta name="description"
+        content="Découvrez le concept japonais d'Ikigai et comment il peut transformer votre vie professionnelle et personnelle. Guide complet avec exercices pratiques.">
+
+    <!-- Google Analytics GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.7;
+            color: #1e293b;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--purple);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        article {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .meta {
+            color: #64748b;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin: 2.5rem 0 1rem;
+            color: #1e293b;
+        }
+
+        h3 {
+            font-size: 1.35rem;
+            margin: 2rem 0 1rem;
+            color: #334155;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: #475569;
+        }
+
+        .lead {
+            font-size: 1.2rem;
+            color: #334155;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        ul,
+        ol {
+            margin: 1rem 0 1.5rem 2rem;
+            color: #475569;
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border-left: 4px solid var(--purple);
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            color: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .cta-box p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn {
+            display: inline-block;
+            background: white;
+            color: var(--purple);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .related-articles {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .related-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .related-card {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 3px solid var(--purple);
+        }
+
+        .related-card h4 {
+            color: var(--purple);
+            margin-bottom: 0.5rem;
+        }
+
+        .conclusion-box {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+            border: 2px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="../../index.html" class="logo">
+                <img src="../../favicon.svg" alt="AI-Ikigai" style="height: 40px; width: auto;"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='AI-Ikigai';">
+            </a>
+            <a href="../index.html" class="back-link">← Retour au blog</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <article>
+            <h1>Qu'est-ce que l'Ikigai ? Guide Complet pour Trouver Votre Raison d'Être</h1>
+
+            <div class="meta">
+                📅 5 janvier 2024 · ⏱️ 12 min · 🏷️ AI-Ikigai
+            </div>
+
+            <p class="lead">
+                Le mot Ikigai est aujourd'hui partout. Sur les réseaux, dans les livres, dans les discours sur le sens
+                au travail. Mais derrière ce mot japonais devenu populaire, une question essentielle demeure :
+                <strong>Qu'est-ce que l'Ikigai, vraiment ?</strong>
+            </p>
+
+            <p>Dans ce guide complet, nous allons revenir à l'essentiel : la signification profonde de l'Ikigai, son
+                origine, ses piliers, ses dérives… et surtout comment l'appliquer concrètement à votre vie.</p>
+
+            <h2>🌱 Définition simple : qu'est-ce que l'Ikigai ?</h2>
+
+            <p>Le mot Ikigai (生き甲斐) peut se traduire par :</p>
+            <ul>
+                <li>"ce qui donne envie de se lever le matin"</li>
+                <li>"la raison de vivre"</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p><strong>Mais attention :</strong></p>
+                <ul>
+                    <li>l'Ikigai n'est pas forcément un métier</li>
+                    <li>ni une passion spectaculaire</li>
+                    <li>ni un objectif grandiose</li>
+                </ul>
+                <p>Au Japon, l'Ikigai est souvent <strong>discret, quotidien, profondément personnel</strong>. Il peut
+                    s'agir d'un rôle, d'une contribution, d'une manière d'être.</p>
+            </div>
+
+            <h2>🌸 L'origine japonaise de l'Ikigai (ce que l'Occident oublie souvent)</h2>
+
+            <p>Dans la culture japonaise traditionnelle :</p>
+            <ul>
+                <li>l'Ikigai n'est pas une quête urgente</li>
+                <li>il n'est pas séparé de la vie quotidienne</li>
+                <li>il n'est pas orienté "performance"</li>
+            </ul>
+
+            <p><strong>👉 On ne "trouve" pas son Ikigai. On le cultive, jour après jour.</strong></p>
+
+            <p>C'est une différence fondamentale avec la vision occidentale, souvent pressée et utilitariste.</p>
+
+            <h2>🧭 Les 4 piliers de l'Ikigai (la version la plus connue)</h2>
+
+            <p>L'Ikigai est souvent représenté par l'intersection de 4 dimensions :</p>
+
+            <ol>
+                <li><strong>🔵 Ce que vous aimez</strong></li>
+                <li><strong>🟢 Ce dans quoi vous êtes bon</strong></li>
+                <li><strong>🟡 Ce dont le monde a besoin</strong></li>
+                <li><strong>🔴 Ce pour quoi vous pouvez être payé</strong></li>
+            </ol>
+
+            <p><strong>👉 L'Ikigai se situe au croisement, pas dans un seul cercle.</strong></p>
+
+            <div class="highlight-box">
+                <p><strong>⚠️ Important :</strong> Ce schéma est une adaptation occidentale, utile mais simplifiée.
+                    L'Ikigai réel est souvent plus fluide et évolutif.</p>
+            </div>
+
+            <h2>⚠️ Les grandes confusions autour de l'Ikigai</h2>
+
+            <p>Voici les erreurs les plus fréquentes :</p>
+            <ul>
+                <li>croire que l'Ikigai est un métier parfait</li>
+                <li>penser qu'il doit rapporter beaucoup d'argent</li>
+                <li>attendre une révélation soudaine</li>
+                <li>vouloir "optimiser" son Ikigai</li>
+                <li>culpabiliser de ne pas l'avoir trouvé</li>
+            </ul>
+
+            <p><strong>👉 L'Ikigai n'est pas une injonction. C'est une relation vivante avec soi-même.</strong></p>
+
+            <h2>🌿 À quoi sert vraiment l'Ikigai dans une vie moderne ?</h2>
+
+            <p>Dans notre contexte actuel, l'Ikigai permet de :</p>
+            <ul>
+                <li>sortir du pilotage automatique</li>
+                <li>redonner du sens à ses choix</li>
+                <li>prévenir le burn-out</li>
+                <li>faire des reconversions plus conscientes</li>
+                <li>construire une vie plus cohérente</li>
+            </ul>
+
+            <p><strong>👉 Il ne supprime pas les difficultés. Il donne une direction intérieure.</strong></p>
+
+            <h2>🧠 Ikigai et travail : une relation subtile</h2>
+
+            <p>Votre Ikigai peut :</p>
+            <ul>
+                <li>inclure votre travail</li>
+                <li>s'exprimer partiellement dans votre travail</li>
+                <li>ou être complètement séparé de votre métier</li>
+            </ul>
+
+            <div class="highlight-box">
+                <p><strong>👉 Chercher à faire coïncider 100 % de son Ikigai avec son job est souvent
+                        irréaliste.</strong></p>
+                <p>L'objectif n'est pas la perfection, mais la cohérence suffisante.</p>
+            </div>
+
+            <h2>🛠️ Comment commencer à explorer votre Ikigai (sans pression)</h2>
+
+            <p>Commencez par des questions simples :</p>
+            <ul>
+                <li>Qu'est-ce qui me donne de l'énergie ?</li>
+                <li>Qu'est-ce qui m'enlève de l'énergie ?</li>
+                <li>Qu'est-ce que je fais par habitude, plus par envie ?</li>
+                <li>Qu'est-ce que je ne veux plus négocier ?</li>
+            </ul>
+
+            <p><strong>👉 L'Ikigai apparaît souvent quand on écoute ce qui insiste.</strong></p>
+
+            <h2>🧩 Exercice simple : votre première boussole Ikigai</h2>
+
+            <p>Sur une feuille, écrivez :</p>
+            <ul>
+                <li>3 activités qui vous nourrissent</li>
+                <li>3 compétences naturelles</li>
+                <li>3 problèmes humains qui vous touchent</li>
+                <li>3 limites que vous ne voulez plus dépasser</li>
+            </ul>
+
+            <p><strong>👉 Les liens entre ces éléments sont souvent révélateurs.</strong></p>
+
+            <div class="cta-box">
+                <h3>💡 Prêt à découvrir votre Ikigai ?</h3>
+                <p>Utilisez notre outil AI pour identifier votre raison d'être en quelques minutes.</p>
+                <a href="../../questionnaire.html" class="btn">Commencer le questionnaire →</a>
+            </div>
+
+            <div class="conclusion-box">
+                <h2>🎯 Conclusion : l'Ikigai n'est pas à trouver, il est à écouter</h2>
+                <p>Votre Ikigai n'est pas une destination finale. C'est un fil rouge, parfois discret, parfois évident.
+                </p>
+                <p><strong>👉 Plus vous vous écoutez honnêtement, plus il devient clair.</strong></p>
+                <p>Pas pour vous enfermer. Mais pour vous aligner.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h3>✨ Question finale</h3>
+                <p><em>Et si votre Ikigai n'était pas une réponse à obtenir… mais une relation à cultiver ?</em></p>
+            </div>
+
+            <div class="related-articles">
+                <h3>🔗 Articles complémentaires</h3>
+                <div class="related-grid">
+                    <div class="related-card">
+                        <h4>Les 4 Piliers de l'Ikigai Expliqués Simplement</h4>
+                        <p>Une exploration détaillée des 4 dimensions de l'Ikigai avec des exemples concrets.</p>
+                    </div>
+                    <div class="related-card">
+                        <h4>5 Signes que Vous N'Êtes Pas Aligné avec Votre Ikigai</h4>
+                        <p>Reconnaître les signaux de désalignement pour mieux vous réorienter.</p>
+                    </div>
+                    <div class="related-card">
+                        <h4>Test Ikigai Gratuit : 15 Questions pour Trouver Votre Raison d'Être</h4>
+                        <p>Un questionnaire pratique pour commencer votre exploration.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</body>
+
+</html>

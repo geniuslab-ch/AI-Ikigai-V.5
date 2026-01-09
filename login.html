@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - AI-Ikigai</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark: #0a0a0f;
+            --dark-card: #12121a;
+            --dark-lighter: #1a1a24;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border: #2d2d3a;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: var(--dark-lighter);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--dark-lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            background: var(--dark-card);
+            padding: 0 16px;
+            position: relative;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 24px;
+            }
+
+            .logo h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>AI-Ikigai</h1>
+            <p>Découvrez votre raison d'être professionnelle</p>
+        </div>
+
+        <div class="card">
+            <div id="error-message" class="message error"></div>
+            <div id="success-message" class="message success"></div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('login')">Connexion</button>
+                <button class="tab" onclick="switchTab('signup')">Inscription</button>
+            </div>
+
+            <!-- Formulaire de Connexion -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required placeholder="votre@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn" id="login-btn">
+                    Se connecter
+                </button>
+            </form>
+
+            <!-- Formulaire d'Inscription -->
+            <form id="signup-form" class="hidden" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signup-name">Nom complet</label>
+                    <input type="text" id="signup-name" required placeholder="Jean Dupont">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required placeholder="votre@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">Mot de passe</label>
+                    <input type="password" id="signup-password" required placeholder="••••••••" minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password-confirm">Confirmer le mot de passe</label>
+                    <input type="password" id="signup-password-confirm" required placeholder="••••••••" minlength="6">
+                </div>
+
+                <button type="submit" class="btn" id="signup-btn">
+                    Créer mon compte
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou</span>
+            </div>
+
+            <div class="link">
+                <a href="index.html">Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // Configuration et initialisation Supabase
+        const supabaseClient = window.supabase.createClient(
+            'https://wgmtujvvfnsbhudshmkh.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
+        );
+
+        // AuthAPI
+        const AuthAPI = {
+            async signUp(email, password, name) {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { name } }
+                });
+                if (error) throw error;
+                return data;
+            },
+
+            async signIn(email, password) {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                if (error) throw error;
+                return data;
+            },
+
+            async getUser() {
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+                if (error || !user) return null;
+
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                return { ...user, ...profile };
+            }
+        };
+
+        function redirectToDashboard(role) {
+            const dashboards = {
+                'client': 'dashboard-client.html',
+                'coach': 'dashboard-coach.html',
+                'admin': 'dashboard-admin.html',
+                'super_admin': 'dashboard-admin.html'
+            };
+            window.location.href = dashboards[role] || 'dashboard-client.html';
+        }
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Changer d'onglet
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            tabs.forEach(t => t.classList.remove('active'));
+
+            if (tab === 'login') {
+                tabs[0].classList.add('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            } else {
+                tabs[1].classList.add('active');
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+            }
+
+            // Réinitialiser les messages
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Vérifier si déjà connecté
+        (async () => {
+            const user = await AuthAPI.getUser();
+            if (user) {
+                // Rediriger vers le dashboard approprié
+                redirectToDashboard(user.role);
+            }
+        })();
+
+        // Gérer la connexion
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span> Connexion...';
+
+                const { user } = await AuthAPI.signIn(email, password);
+
+                showSuccess('Connexion réussie ! Redirection...');
+
+                // Récupérer le profil complet
+                const fullUser = await AuthAPI.getUser();
+
+                // Rediriger vers le dashboard approprié
+                setTimeout(() => {
+                    redirectToDashboard(fullUser.role);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                showError(error.message || 'Email ou mot de passe incorrect');
+                btn.disabled = false;
+                btn.textContent = 'Se connecter';
+            }
+        }
+
+        // Gérer l'inscription
+        async function handleSignup(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const passwordConfirm = document.getElementById('signup-password-confirm').value;
+            const btn = document.getElementById('signup-btn');
+
+            // Vérifier que les mots de passe correspondent
+            if (password !== passwordConfirm) {
+                showError('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span> Création du compte...';
+
+                await AuthAPI.signUp(email, password, name);
+
+                showSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription.');
+
+                // Réinitialiser le formulaire
+                document.getElementById('signup-form').reset();
+
+                // Basculer vers la connexion après 2 secondes
+                setTimeout(() => {
+                    switchTab('login');
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erreur d\'inscription:', error);
+                showError(error.message || 'Erreur lors de la création du compte');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Créer mon compte';
+            }
+        }
+    </script>
+</body>
+
+</html>

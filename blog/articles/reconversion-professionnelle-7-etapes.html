@@ -636,31 +636,35 @@
 
             container.innerHTML = html;
 
-            // Newsletter form handler
+            // Newsletter form handler - Cloudflare Worker Integration
             document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('newsletterEmail').value;
                 const messageDiv = document.getElementById('newsletterMessage');
 
                 try {
-                    // TODO: Integrate with actual email service (Brevo, Mailchimp, etc.)
-                    // For now, store in localStorage and show success message
-                    const subscribers = JSON.parse(localStorage.getItem('blogSubscribers') || '[]');
+                    // Call Cloudflare Worker
+                    const response = await fetch('https://newsletter-subscribe.ai-ikigai.workers.dev/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    });
 
-                    if (subscribers.includes(email)) {
-                        messageDiv.className = 'newsletter-message error';
-                        messageDiv.textContent = '✓ Vous êtes déjà inscrit(e) !';
-                    } else {
-                        subscribers.push(email);
-                        localStorage.setItem('blogSubscribers', JSON.stringify(subscribers));
+                    const result = await response.json();
 
+                    if (result.success) {
                         messageDiv.className = 'newsletter-message success';
-                        messageDiv.textContent = '✅ Inscription confirmée ! Vous recevrez un email à chaque nouvelle publication.';
+                        messageDiv.textContent = '✅ ' + result.message;
                         document.getElementById('newsletterEmail').value = '';
+                    } else {
+                        messageDiv.className = 'newsletter-message error';
+                        messageDiv.textContent = '❌ ' + (result.error || 'Erreur lors de l\'inscription.');
                     }
                 } catch (error) {
                     messageDiv.className = 'newsletter-message error';
-                    messageDiv.textContent = '❌ Erreur lors de l\'inscription. Veuillez réessayer.';
+                    messageDiv.textContent = '❌ Erreur de connexion. Veuillez réessayer.';
                 }
             });
         }

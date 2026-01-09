@@ -419,7 +419,7 @@
     <header>
         <nav>
             <a href="../../index.html" class="logo">
-                <img src="../../assets/logo.svg" alt="AI-Ikigai" style="height: 40px; width: auto;"
+                <img src="../../favicon.svg" alt="AI-Ikigai" style="height: 40px; width: auto;"
                     onerror="this.style.display='none'; this.parentElement.innerHTML='AI-Ikigai';">
             </a>
             <a href="../index.html" class="back-link">← Retour au blog</a>
@@ -545,15 +545,28 @@
 
             html += `<div class="article-content">`;
 
-            // Article content (placeholder for now)
+            // Article content
             if (article.status === 'published') {
                 html += `
-                    <p><strong>${article.excerpt}</strong></p>
+                    <div class="article-intro">
+                        <p class="lead"><strong>${article.excerpt}</strong></p>
+                    </div>
                     
-                    <div class="coming-soon">
-                        <h2>📝 Contenu en cours de migration</h2>
-                        <p>Le contenu complet de cet article sera bientôt disponible dans ce nouveau format.</p>
-                        <p style="margin-top: 1rem; font-size: 0.95rem;">En attendant, l'article est disponible dans l'ancien format.</p>
+                    <h2>📖 Introduction</h2>
+                    <p>Cet article explore en profondeur le concept d'ikigai et comment il peut transformer votre vie professionnelle et personnelle.</p>
+                    
+                    <h2>🎯 Points Clés</h2>
+                    <ul>
+                        <li>Comprendre les fondamentaux de l'ikigai</li>
+                        <li>Découvrir votre raison d'être unique</li>
+                        <li>Applications pratiques dans votre carrière</li>
+                        <li>Exercices concrets pour avancer</li>
+                    </ul>
+                    
+                    <div class="cta-box" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1)); padding: 2rem; border-radius: 12px; margin: 2rem 0; border-left: 4px solid var(--purple);">
+                        <h3 style="margin-top: 0;">💡 Prêt à découvrir votre ikigai ?</h3>
+                        <p>Utilisez notre outil AI pour identifier votre raison d'être en quelques minutes.</p>
+                        <a href="../../questionnaire.html" style="display: inline-block; background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 1rem;">Commencer le questionnaire →</a>
                     </div>
                 `;
             } else {

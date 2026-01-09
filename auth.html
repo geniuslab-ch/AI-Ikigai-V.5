@@ -258,16 +258,22 @@
     <div class="login-container">
         <div class="logo">
             <h1>AI-Ikigai</h1>
-            <p>Découvrez votre raison d'être professionnelle</p>
+            <p id="subtitle-text">Découvrez votre raison d'être professionnelle</p>
         </div>
 
         <div class="card">
+            <!-- Badge Coach -->
+            <div id="role-badge" class="hidden"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 14px;">
+                🎯 Inscription Coach
+            </div>
+
             <div id="error-message" class="message error"></div>
             <div id="success-message" class="message success"></div>
 
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('login')">Connexion</button>
-                <button class="tab" onclick="switchTab('signup')">Inscription</button>
+                <button class="tab" id="signup-tab" onclick="switchTab('signup')">Inscription</button>
             </div>
 
             <!-- Formulaire de Connexion -->
@@ -431,6 +437,21 @@
             // Réinitialiser les messages
             document.getElementById('error-message').style.display = 'none';
             document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Détecter le rôle et adapter l'interface
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRole = urlParams.get('role');
+
+        if (urlRole === 'coach') {
+            // Afficher le badge coach
+            document.getElementById('role-badge').classList.remove('hidden');
+
+            // Modifier le texte du bouton d'inscription
+            document.getElementById('signup-tab').textContent = 'Inscription Coach';
+
+            // Modifier le sous-titre
+            document.getElementById('subtitle-text').textContent = 'Plateforme dédiée aux coachs professionnels';
         }
 
         // Vérifier si déjà connecté

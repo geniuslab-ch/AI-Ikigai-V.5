@@ -345,11 +345,11 @@
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: { 
-                        data: { 
+                    options: {
+                        data: {
                             name,
                             role // Save role in user metadata
-                        } 
+                        }
                     }
                 });
                 if (error) throw error;
@@ -369,13 +369,17 @@
                 const { data: { user }, error } = await supabaseClient.auth.getUser();
                 if (error || !user) return null;
 
+                // Try to get profile from database
                 const { data: profile } = await supabaseClient
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
 
-                return { ...user, ...profile };
+                // Use role from profile if exists, otherwise from user_metadata, default to 'client'
+                const role = profile?.role || user.user_metadata?.role || 'client';
+
+                return { ...user, ...profile, role };
             }
         };
 

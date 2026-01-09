@@ -111,14 +111,15 @@ const AuthAPI = {
                     if (profileError?.code === 'PGRST116') { // Pas de résultat
                         console.log('🔧 Auto-creating missing profile...');
                         try {
+                            const userRole = user.user_metadata?.role || 'client';
                             const { error: createError } = await supabaseClient
                                 .from('profiles')
                                 .insert({
                                     id: user.id,
                                     email: user.email,
                                     name: user.user_metadata?.name || user.email?.split('@')[0],
-                                    role: 'client',
-                                    plan: 'decouverte'
+                                    role: userRole,
+                                    plan: userRole === 'coach' ? 'decouverte_coach' : 'decouverte'
                                 });
 
                             if (!createError) {
@@ -141,7 +142,7 @@ const AuthAPI = {
                 ...user,
                 email: user.email,
                 name: profileData?.name || user.user_metadata?.name || user.email?.split('@')[0],
-                role: profileData?.role || 'client' // Utiliser le rôle de la DB ou 'client' par défaut
+                role: profileData?.role || user.user_metadata?.role || 'client' // DB > metadata > 'client' par défaut
             };
 
             console.log('Final user object:', userWithRole);

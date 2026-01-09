@@ -338,83 +338,12 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Supabase Client avec AuthAPI -->
+    <script src="supabase-client.js"></script>
+
     <script>
-        // Configuration et initialisation Supabase
-        const supabaseClient = window.supabase.createClient(
-            'https://wgmtujvvfnsbhudshmkh.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc'
-        );
-
-        // AuthAPI
-        const AuthAPI = {
-            async signUp(email, password, name, role = 'client') {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: {
-                            name,
-                            role // Save role in user metadata
-                        }
-                    }
-                });
-                if (error) throw error;
-                return data;
-            },
-
-            async signIn(email, password) {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
-                if (error) throw error;
-                return data;
-            },
-
-            async getUser() {
-                const { data: { user }, error } = await supabaseClient.auth.getUser();
-                if (error || !user) return null;
-
-                // Try to get profile from database
-                const { data: profile } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
-                // Use role from profile if exists, otherwise from user_metadata, default to 'client'
-                const role = profile?.role || user.user_metadata?.role || 'client';
-
-                return { ...user, ...profile, role };
-            }
-        };
-
-        function redirectToDashboard(role) {
-            const dashboards = {
-                'client': 'dashboard-client.html',
-                'coach': 'dashboard-coach.html',
-                'admin': 'dashboard-admin.html',
-                'super_admin': 'dashboard-admin.html'
-            };
-            window.location.href = dashboards[role] || 'dashboard-client.html';
-        }
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 3000);
-        }
+        // AuthAPI et redirectToDashboard sont maintenant chargés depuis supabase-client.js
+        // showError et showSuccess sont aussi disponibles globalement depuis supabase-client.js
 
         // Changer d'onglet
         function switchTab(tab) {

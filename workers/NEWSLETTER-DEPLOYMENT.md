@@ -9,40 +9,48 @@ This protects your Brevo API key from being exposed in the frontend.
 
 ## 🚀 Deployment Steps
 
-### 1. Create Cloudflare Worker
+### 1. Navigate to Workers Directory
 
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Click **Workers & Pages** in sidebar
-3. Click **Create application** → **Create Worker**
-4. Name it: `newsletter-subscribe`
-5. Click **Deploy**
-
-### 2. Upload Code
-
-1. Click **Quick edit** button
-2. Delete default code
-3. Copy/paste content from `workers/newsletter-subscribe.js`
-4. Click **Save and deploy**
-
-### 3. Configure Environment Variables
-
-**CRITICAL:** Set the Brevo API key as an environment variable
-
-1. Go to Worker → **Settings** → **Variables**
-2. Click **Add variable**
-3. Name: `BREVO_API_KEY`
-4. Value: `YOUR_BREVO_API_KEY_HERE` (from Brevo dashboard)
-5. Type: **Secret** (encrypted)
-6. Click **Save**
-
-### 4. Get Worker URL
-
-After deployment, you'll get a URL like:
-```
-https://newsletter-subscribe.YOUR-SUBDOMAIN.workers.dev
+```bash
+cd workers
 ```
 
-Copy this URL for the next step.
+### 2. Deploy Worker
+
+```bash
+npx wrangler deploy --config wrangler.newsletter.toml
+```
+
+This will:
+- Create the worker named `newsletter-subscribe`
+- Deploy the code from `newsletter-subscribe.js`
+- Give you a worker URL like: `https://newsletter-subscribe.YOUR-SUBDOMAIN.workers.dev`
+
+### 3. Set Brevo API Key (Secret)
+
+**CRITICAL:** Set the Brevo API key as a secret
+
+```bash
+npx wrangler secret put BREVO_API_KEY --config wrangler.newsletter.toml
+```
+
+When prompted, paste your Brevo API key (get it from [Brevo → Settings → API Keys](https://app.brevo.com/settings/keys/api))
+
+### 4. Update List ID (if needed)
+In `newsletter-subscribe.js`, line 12:
+```javascript
+const LIST_ID = 2; // Update to your Brevo list ID
+```
+
+To find your List ID:
+1. Go to [Brevo Contacts](https://app.brevo.com/contact/list)
+2. Click on your list
+3. The ID is in the URL: `.../list/ID`
+
+**After updating, redeploy:**
+```bash
+npx wrangler deploy --config wrangler.newsletter.toml
+```
 
 ### 5. Update Frontend
 
@@ -82,7 +90,9 @@ To find your List ID:
 2. Click on your list
 3. The ID is in the URL: `.../list/ID`
 
-### 7. Test
+### 6. Test the Deployment
+
+From the `workers` directory:
 
 ```bash
 curl -X POST https://newsletter-subscribe.YOUR-SUBDOMAIN.workers.dev \
@@ -118,8 +128,9 @@ Cloudflare Workers Free Tier:
 
 ## 🔄 Updates
 
-To update the worker:
+To update the worker code:
 1. Edit `workers/newsletter-subscribe.js`
-2. Go to Cloudflare Worker → **Quick edit**
-3. Paste new code
-4. Click **Save and deploy**
+2. From the `workers` directory, run:
+   ```bash
+   npx wrangler deploy --config wrangler.newsletter.toml
+   ```

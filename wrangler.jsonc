@@ -1,0 +1,13 @@
+{
+    "name": "ai-ikigai-blog",
+    "main": "index.html",
+    "compatibility_date": "2026-01-09",
+    "send_metrics": false,
+    "assets": {
+        "directory": ".",
+        "binding": "ASSETS"
+    },
+    "build": {
+        "command": ""
+    }
+}

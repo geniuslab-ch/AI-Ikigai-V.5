@@ -999,6 +999,66 @@
         .animate-in {
             animation: fadeInUp 0.6s ease;
         }
+
+        /* =============================================
+           Form Styles
+           ============================================= */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--light);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: var(--gray);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid var(--dark-border);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--gray);
+            color: var(--light);
+        }
     </style>
 </head>
 
@@ -1227,6 +1287,47 @@
             </table>
         </div>
     </main>
+
+    <!-- Modal Nouveau Client -->
+    <div class="modal" id="addClientModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Ajouter un Nouveau Client</h2>
+                <button class="modal-close" onclick="closeAddClientModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="handleAddNewClient(event)" id="addClientForm">
+                    <div class="form-group">
+                        <label for="newClientName">Nom complet *</label>
+                        <input type="text" id="newClientName" class="form-control" required
+                            placeholder="Ex: Marie Dupont">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newClientEmail">Email *</label>
+                        <input type="email" id="newClientEmail" class="form-control" required
+                            placeholder="marie.dupont@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newClientMessage">Message personnalisé (optionnel)</label>
+                        <textarea id="newClientMessage" class="form-control" rows="4"
+                            placeholder="Ajoutez un message personnel pour accompagner l'invitation..."></textarea>
+                        <small style="color: var(--gray); font-size: 0.85rem; margin-top: 0.5rem; display: block;">
+                            Ce message sera inclus dans l'email d'invitation envoyé au client.
+                        </small>
+                    </div>
+
+                    <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" class="btn-cancel" onclick="closeAddClientModal()">Annuler</button>
+                        <button type="submit" class="btn-primary" id="submitClientBtn">
+                            ➕ Ajouter et envoyer l'invitation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal for Client Profile (Dashboard client intégré) -->
     <div class="modal" id="clientModal">

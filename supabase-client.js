@@ -27,27 +27,9 @@ const AuthAPI = {
 
         if (error) throw error;
 
-        // Créer le profil avec le bon rôle immédiatement après signup
-        if (data.user) {
-            try {
-                const { error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .insert({
-                        id: data.user.id,
-                        email: email,
-                        name: name || email.split('@')[0],
-                        role: role, // Utiliser le rôle passé en paramètre
-                        plan: role === 'coach' ? 'decouverte_coach' : 'decouverte'
-                    });
-
-                if (profileError) {
-                    console.error('⚠️ Could not create profile:', profileError);
-                    // Ne pas bloquer le signup pour autant
-                }
-            } catch (profileErr) {
-                console.error('⚠️ Profile creation failed:', profileErr);
-            }
-        }
+        // ✅ Le trigger Supabase 'on_auth_user_created' crée automatiquement le profil
+        // avec le bon rôle depuis user_metadata. Pas besoin d'insertion manuelle ici.
+        console.log('✅ User created, profile will be auto-created by trigger');
 
         return data;
     },
@@ -91,6 +73,7 @@ const AuthAPI = {
             }
 
             console.log('✅ User found:', user.email);
+            console.log('📋 User metadata:', user.user_metadata);
 
             // Essayer de récupérer le profil depuis la table profiles
             let profileData = null;
@@ -104,14 +87,19 @@ const AuthAPI = {
                 if (!profileError && data) {
                     profileData = data;
                     console.log('✅ Profile fetched from database:', profileData);
+                    console.log('🎯 Role from database:', profileData.role);
                 } else {
                     console.warn('⚠️ Could not fetch profile:', profileError);
+                    console.log('🔍 Error code:', profileError?.code);
+                    console.log('🔍 Error message:', profileError?.message);
 
                     // AUTO-FIX: Créer le profil s'il n'existe pas
                     if (profileError?.code === 'PGRST116') { // Pas de résultat
                         console.log('🔧 Auto-creating missing profile...');
                         try {
                             const userRole = user.user_metadata?.role || 'client';
+                            console.log('🎯 Role to create:', userRole);
+
                             const { error: createError } = await supabaseClient
                                 .from('profiles')
                                 .insert({
@@ -127,6 +115,8 @@ const AuthAPI = {
                                 // Recharger la page pour récupérer le profil
                                 window.location.reload();
                                 return null;
+                            } else {
+                                console.error('❌ Profile creation failed:', createError);
                             }
                         } catch (createErr) {
                             console.error('❌ Could not auto-create profile:', createErr);
@@ -145,7 +135,8 @@ const AuthAPI = {
                 role: profileData?.role || user.user_metadata?.role || 'client' // DB > metadata > 'client' par défaut
             };
 
-            console.log('Final user object:', userWithRole);
+            console.log('🎯 Final user object:', userWithRole);
+            console.log('🎯 Final role:', userWithRole.role);
             return userWithRole;
 
         } catch (error) {

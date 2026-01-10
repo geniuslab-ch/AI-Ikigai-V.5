@@ -227,15 +227,24 @@ function calculateAverageScore(clients) {
 function updateStatValue(elementId, value) {
     const element = document.getElementById(elementId);
     if (element) {
-        // Animer le compteur
-        animateCounter(element, 0, value, 1000);
+        // Effacer le contenu actuel avant l'animation
+        const currentValue = 0; // Toujours partir de 0 pour l'animation
+        animateCounter(element, currentValue, value, 1000);
     }
 }
 
 function animateCounter(element, start, end, duration) {
-    const range = end - start;
+    if (start === end) {
+        const displayValue = element.id === 'avgScore'
+            ? `${end}<span style="font-size: 1.5rem; opacity: 0.7;">%</span>`
+            : end;
+        element.innerHTML = displayValue;
+        return;
+    }
+
+    const range = Math.abs(end - start);
     const increment = end > start ? 1 : -1;
-    const stepTime = Math.abs(Math.floor(duration / range));
+    const stepTime = Math.max(Math.floor(duration / range), 10); // Minimum 10ms par step
     let current = start;
 
     const timer = setInterval(() => {
@@ -417,6 +426,9 @@ function filterClients() {
 
         return matchesSearch && matchesStatus && matchesScore;
     });
+
+    // Sauvegarder les clients filtrés pour l'export
+    CoachDashboard.filteredClients = filtered;
 
     // Réafficher la table
     renderClientsTable(filtered);
@@ -674,7 +686,8 @@ function addNewClient() {
 }
 
 function exportClients() {
-    const clients = CoachDashboard.clients;
+    // Utiliser les clients filtrés si disponibles, sinon tous les clients
+    const clients = CoachDashboard.filteredClients || CoachDashboard.clients;
 
     if (clients.length === 0) {
         alert('Aucun client à exporter');

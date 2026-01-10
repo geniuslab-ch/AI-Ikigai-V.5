@@ -198,10 +198,13 @@ export default {
 </html>
             `;
 
-            // Envoyer via MailChannels (gratuit sur Cloudflare Workers)
+            // Envoyer via MailChannels avec API Key
             const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': env.MAILCHANNELS_API_KEY || 'OiJ6huSHF42Vp6ISqhFSnWnSO9NmmL4w'
+                },
                 body: JSON.stringify({
                     personalizations: [{
                         to: [{ email: to, name: clientName }]

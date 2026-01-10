@@ -1011,6 +1011,17 @@ document.addEventListener('click', (e) => {
 });
 
 // =============================================
+// Acheter plus de séances
+// =============================================
+
+function buyMoreSessions() {
+    alert('💳 Réservation de séances supplémentaires\n\nFonctionnalité à venir : Page de paiement pour acheter des crédits de séances supplémentaires.');
+
+    // TODO: Rediriger vers page de paiement Stripe/autre
+    // window.location.href = '/pricing-coach.html';
+}
+
+// =============================================
 // Export global
 // =============================================
 

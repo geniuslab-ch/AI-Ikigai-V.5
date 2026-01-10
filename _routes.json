@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "route": "/*",
+      "destination": "/:splat"
+    }
+  ],
+  "headers": [
+    {
+      "route": "/*",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      }
+    },
+    {
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/css/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/js/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    }
+  ],
+  "redirects": [
+    {
+      "from": "/home",
+      "to": "/",
+      "status": 301
+    }
+  ]
+}

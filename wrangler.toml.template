@@ -1,0 +1,82 @@
+# ============================================
+# AI-IKIGAI Backend - Cloudflare Worker Config
+# ============================================
+
+name = "ai-ikagai"
+main = "src/index-standalone.js"
+compatibility_date = "2024-01-01"
+
+# ============================================
+# Environment Variables (à configurer dans le dashboard)
+# ============================================
+# Ces variables doivent être configurées via:
+# - Cloudflare Dashboard > Workers & Pages > ai-ikigai-api > Settings > Variables
+# - Ou via: wrangler secret put <NOM_VARIABLE>
+
+# Variables requises:
+# - JWT_SECRET: Clé secrète pour les tokens JWT
+# - ANTHROPIC_API_KEY: Clé API Claude AI
+# - STRIPE_SECRET_KEY: Clé secrète Stripe
+# - STRIPE_PRICE_ESSENTIAL: ID du prix Stripe pour l'offre Essentiel
+# - STRIPE_PRICE_PREMIUM: ID du prix Stripe pour l'offre Premium
+# - RESEND_API_KEY: Clé API Resend pour les emails
+# - EMAIL_FROM: Adresse email expéditeur
+# - FRONTEND_URL: URL du frontend (ex: https://ai-ikigai.com)
+# - SUPABASE_SERVICE_ROLE_KEY: Clé secrète Supabase (à configurer via wrangler secret put)
+
+[vars]
+# ⚠️ IMPORTANT: DO NOT COMMIT REAL CREDENTIALS TO GIT
+# Configure these via Cloudflare Dashboard or wrangler secrets
+SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"
+SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE"
+
+
+# ============================================
+# D1 Database Binding
+# ============================================
+# Désactivé temporairement - utilise Supabase à la place
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "ai-ikigai-db"
+# database_id = "a7b77a8d-250f-4015-b364-4ff055307106"
+
+# ============================================
+# R2 Storage Binding (pour les CVs)
+# ============================================
+# Désactivé temporairement - activer R2 dans le dashboard Cloudflare
+# [[r2_buckets]]
+# binding = "CV_BUCKET"
+# bucket_name = "ai-ikigai-cvs"
+
+# ============================================
+# Environment-specific settings
+# ============================================
+
+# Production
+[env.production]
+name = "ai-ikigai-api"
+routes = [
+  { pattern = "api.ai-ikigai.com/*", zone_name = "ai-ikigai.com" }
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+# Staging
+[env.staging]
+name = "ai-ikigai-api-staging"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+
+# ============================================
+# Build settings
+# ============================================
+[build]
+command = ""
+
+# ============================================
+# Observability
+# ============================================
+[observability]
+enabled = true

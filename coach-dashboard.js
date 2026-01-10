@@ -872,8 +872,32 @@ function downloadClientReport(clientId) {
     const client = CoachDashboard.clients.find(c => c.id === clientId);
     if (!client) return;
 
-    // TODO: Générer et télécharger le PDF via API backend
-    alert(`📥 Téléchargement du rapport Ikigai pour ${client.name}\n\nFonctionnalité à venir : génération PDF automatique avec résultats d'analyse`);
+    // Ouvrir le rapport PDF dans nouvelle fenêtre
+    const url = `https://ai-ikigai.ai-ikigai.workers.dev/api/generate-pdf`;
+
+    // Créer formulaire pour POST
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.target = '_blank';
+
+    const clientInput = document.createElement('input');
+    clientInput.type = 'hidden';
+    clientInput.name = 'clientId';
+    clientInput.value = clientId;
+    form.appendChild(clientInput);
+
+    const coachInput = document.createElement('input');
+    coachInput.type = 'hidden';
+    coachInput.name = 'coachId';
+    coachInput.value = CoachDashboard.coachData.id;
+    form.appendChild(coachInput);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+
+    console.log(`📥 Génération rapport pour ${client.name}`);
 }
 
 function scheduleSession(clientId) {

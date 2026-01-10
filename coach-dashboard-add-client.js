@@ -33,11 +33,10 @@ async function handleAddNewClient(event) {
     const originalText = submitBtn.innerHTML;
 
     try {
-        // Désactiver le bouton
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<div class="loading" style="display: inline-block;"></div> Envoi en cours...';
+        submitBtn.innerHTML = '<div class="loading" style="display: inline-block;"></div> Envoi...';
 
-        // Générer un token unique
+        // Générer token d'invitation
         const invitationToken = generateInvitationToken();
 
         // Créer l'invitation dans Supabase
@@ -56,19 +55,15 @@ async function handleAddNewClient(event) {
 
         if (error) throw error;
 
-        // Envoyer l'email d'invitation
+        // Envoyer l'email
         const inviteLink = `${window.location.origin}/auth.html?invite=${invitationToken}`;
         await sendClientInvitation(email, name, message, inviteLink);
 
-        // Succès
-        alert(`✅ Invitation envoyée avec succès à ${email} !`);
+        alert(`✅ Invitation envoyée à ${email} !`);
         closeAddClientModal();
 
-        // Optionnel : recharger la liste des clients
-        // await loadDashboardData();
-
     } catch (error) {
-        console.error('Erreur lors de l\'ajout du client:', error);
+        console.error('Erreur:', error);
         alert(`❌ Erreur : ${error.message}`);
     } finally {
         submitBtn.disabled = false;
@@ -77,44 +72,35 @@ async function handleAddNewClient(event) {
 }
 
 function generateInvitationToken() {
-    // Générer un token aléatoire sécurisé
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 async function sendClientInvitation(email, clientName, personalMessage, inviteLink) {
-    // TODO: Appel API backend pour envoyer l'email via Cloudflare Workers
-    // Pour l'instant, on simule l'envoi
-    console.log('📧 Envoi invitation email:', {
-        to: email,
-        clientName,
-        coachName: CoachDashboard.coachData.name,
-        personalMessage,
-        inviteLink
-    });
+    try {
+        const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/send-invitation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                to: email,
+                clientName,
+                coachName: CoachDashboard.coachData?.name || 'Votre Coach',
+                personalMessage,
+                inviteLink
+            })
+        });
 
-    // Dans une vraie implémentation :
-    /*
-    const response = await fetch('https://ai-ikigai.workers.dev/api/send-invitation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            to: email,
-            clientName,
-            coachName: CoachDashboard.coachData.name,
-            personalMessage,
-            inviteLink
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error('Échec envoi email');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Échec envoi email');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erreur envoi:', error);
+        throw error;
     }
-    */
-
-    // Simulation réussie
-    return Promise.resolve();
 }
 
 // Exporter les fonctions

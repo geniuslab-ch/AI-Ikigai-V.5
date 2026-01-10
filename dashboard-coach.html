@@ -651,6 +651,59 @@
             color: var(--light);
         }
 
+        .action-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .action-dropdown.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .action-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--light);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .action-dropdown-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .action-dropdown-item:not(:last-child) {
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .action-dropdown-item .icon {
+            font-size: 1.1rem;
+        }
+
         /* =============================================
            Credits & Savings
            ============================================= */

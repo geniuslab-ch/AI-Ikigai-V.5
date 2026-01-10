@@ -734,18 +734,79 @@ function formatDateForCSV(dateString) {
 }
 
 function showActionMenu(clientId) {
-    alert(`Menu d'actions pour le client ${clientId}`);
-    // TODO: Afficher un menu contextuel avec les options
+    event.stopPropagation(); // Empêcher la propagation au clic sur la ligne
+
+    const client = CoachDashboard.clients.find(c => c.id === clientId);
+    if (!client) return;
+
+    // Fermer tous les menus ouverts
+    closeAllActionMenus();
+
+    // Créer le menu dropdown
+    const dropdown = document.createElement('div');
+    dropdown.className = 'action-dropdown';
+    dropdown.id = `actionMenu-${clientId}`;
+
+    dropdown.innerHTML = `
+        <button class="action-dropdown-item" onclick="downloadClientReport(${clientId}); closeAllActionMenus();">
+            <span class="icon">📥</span>
+            <span>Télécharger rapport PDF</span>
+        </button>
+        <button class="action-dropdown-item" onclick="scheduleSession(${clientId}); closeAllActionMenus();">
+            <span class="icon">📅</span>
+            <span>Planifier une séance</span>
+        </button>
+        <button class="action-dropdown-item" onclick="sendEmail(${clientId}); closeAllActionMenus();">
+            <span class="icon">✉️</span>
+            <span>Envoyer un email</span>
+        </button>
+        <button class="action-dropdown-item" onclick="openClientProfile(${clientId}); closeAllActionMenus();">
+            <span class="icon">👁️</span>
+            <span>Voir profil complet</span>
+        </button>
+    `;
+
+    // Trouver le bouton parent
+    const actionMenu = event.target.closest('.action-menu');
+    if (actionMenu) {
+        actionMenu.style.position = 'relative';
+        actionMenu.appendChild(dropdown);
+
+        // Activer le dropdown après un court délai pour l'animation
+        setTimeout(() => {
+            dropdown.classList.add('active');
+        }, 10);
+    }
 }
 
+function closeAllActionMenus() {
+    document.querySelectorAll('.action-dropdown').forEach(menu => {
+        menu.classList.remove('active');
+        setTimeout(() => menu.remove(), 300);
+    });
+}
+
+// Fermer les menus en cliquant ailleurs
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.action-menu')) {
+        closeAllActionMenus();
+    }
+});
+
 function downloadClientReport(clientId) {
-    alert(`📥 Téléchargement du rapport pour le client ${clientId}`);
-    // TODO: Générer et télécharger le PDF
+    const client = CoachDashboard.clients.find(c => c.id === clientId);
+    if (!client) return;
+
+    // TODO: Générer et télécharger le PDF via API backend
+    alert(`📥 Téléchargement du rapport Ikigai pour ${client.name}\n\nFonctionnalité à venir : génération PDF automatique avec résultats d'analyse`);
 }
 
 function scheduleSession(clientId) {
-    alert(`📅 Planification d'une séance pour le client ${clientId}`);
-    // TODO: Ouvrir un calendrier ou formulaire
+    const client = CoachDashboard.clients.find(c => c.id === clientId);
+    if (!client) return;
+
+    // TODO: Ouvrir un calendrier ou formulaire de planification
+    alert(`📅 Planification d'une séance pour ${client.name}\n\nFonctionnalité à venir : intégration avec Google Calendar ou Calendly`);
 }
 
 function sendEmail(clientId) {
@@ -861,6 +922,7 @@ window.filterClients = filterClients;
 window.addNewClient = addNewClient;
 window.exportClients = exportClients;
 window.showActionMenu = showActionMenu;
+window.closeAllActionMenus = closeAllActionMenus;
 window.downloadClientReport = downloadClientReport;
 window.scheduleSession = scheduleSession;
 window.sendEmail = sendEmail;

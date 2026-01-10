@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tableau de bord Coach - Gérez vos clients et leurs analyses Ikigai">
     <title>Tableau de Bord Coach | AI-Ikigai</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <style>
         /* =============================================
            CSS Variables - Matching AI-Ikigai Design
@@ -973,7 +976,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* =============================================
@@ -984,6 +989,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -995,37 +1001,40 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav id="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2"/>
-                    <path d="M20 10 L20 30 M10 20 L30 20" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round"/>
+                <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2" />
+                    <path d="M20 10 L20 30 M10 20 L30 20" stroke="url(#logoGradient)" stroke-width="2"
+                        stroke-linecap="round" />
                     <defs>
                         <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00d4ff"/>
-                            <stop offset="50%" style="stop-color:#8b5cf6"/>
-                            <stop offset="100%" style="stop-color:#ec4899"/>
+                            <stop offset="0%" style="stop-color:#00d4ff" />
+                            <stop offset="50%" style="stop-color:#8b5cf6" />
+                            <stop offset="100%" style="stop-color:#ec4899" />
                         </linearGradient>
                     </defs>
                 </svg>
                 <span>AI-Ikigai</span>
             </a>
-            
+
             <div class="nav-center">
                 <a href="#overview" class="nav-link active">Vue d'ensemble</a>
                 <a href="#clients" class="nav-link">Mes clients</a>
                 <a href="#analytics" class="nav-link">Analyses</a>
                 <a href="#settings" class="nav-link">Paramètres</a>
             </div>
-            
+
             <div class="nav-actions">
                 <div class="credits-badge">
-                    <span>⚡</span>
-                    <span class="credits-number" id="navCredits">47</span>
-                    <span>crédits</span>
+                    <span>📅</span>
+                    <span class="credits-number" id="navSessions">47</span>
+                    <span>séances</span>
                 </div>
                 <div class="user-menu">
                     <div class="user-avatar">SB</div>
@@ -1108,25 +1117,25 @@
 
         <!-- Credits & Savings -->
         <div class="credits-savings-grid">
-            <!-- Credits Card -->
+            <!-- Sessions Card -->
             <div class="credits-card">
                 <div class="credits-header">
-                    <div class="credits-icon">⚡</div>
+                    <div class="credits-icon">📅</div>
                     <div>
-                        <h3 class="credits-title">Crédits d'Analyse</h3>
+                        <h3 class="credits-title">Séances de Coaching</h3>
                     </div>
                 </div>
-                <div class="credits-amount" id="creditsRemaining">47</div>
-                <div class="credits-label">Crédits restants</div>
+                <div class="credits-amount" id="sessionsRemaining">47</div>
+                <div class="credits-label">Séances restantes</div>
                 <div class="credits-progress">
-                    <div class="credits-progress-fill" style="width: 47%" id="creditsProgressBar"></div>
+                    <div class="credits-progress-fill" style="width: 47%" id="sessionsProgressBar"></div>
                 </div>
-                <div class="credits-details">
-                    <span>47 / 100 crédits</span>
-                    <span>53 utilisés</span>
+                <div class="credits-details" id="sessionsDetails">
+                    <span>47 / 100 séances</span>
+                    <span>53 utilisées</span>
                 </div>
-                <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="buyMoreCredits()">
-                    💳 Acheter plus de crédits
+                <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="buyMoreSessions()">
+                    💳 Réserver plus de séances
                 </button>
             </div>
 
@@ -1154,7 +1163,8 @@
                         <span class="comparison-value" style="color: var(--success);">3 840€</span>
                     </div>
                 </div>
-                <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(139, 92, 246, 0.05); border-radius: 8px; font-size: 0.85rem; color: var(--gray);">
+                <div
+                    style="margin-top: 1rem; padding: 0.75rem; background: rgba(139, 92, 246, 0.05); border-radius: 8px; font-size: 0.85rem; color: var(--gray);">
                     💡 Temps économisé : ~265 heures
                 </div>
             </div>
@@ -1181,7 +1191,8 @@
             <div class="filters-bar">
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Rechercher un client..." id="searchInput" onkeyup="filterClients()">
+                    <input type="text" class="search-input" placeholder="Rechercher un client..." id="searchInput"
+                        onkeyup="filterClients()">
                 </div>
                 <select class="filter-select" id="statusFilter" onchange="filterClients()">
                     <option value="all">Tous les statuts</option>
@@ -1235,4 +1246,5 @@
     <script src="supabase-client.js"></script>
     <script src="coach-dashboard.js"></script>
 </body>
+
 </html>

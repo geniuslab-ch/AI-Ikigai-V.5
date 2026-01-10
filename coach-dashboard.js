@@ -188,8 +188,11 @@ function updateStats(clients) {
     const avgScore = calculateAverageScore(clients);
     updateStatValue('avgScore', avgScore);
 
-    // Crédits
-    updateCreditsDisplay(47, 100); // TODO: Récupérer depuis l'API
+    // Séances (remplace crédits)
+    const sessionsTotal = CoachDashboard.coachData?.sessions_total || 100;
+    const sessionsUsed = CoachDashboard.coachData?.sessions_used || 53;
+    const sessionsRemaining = sessionsTotal - sessionsUsed;
+    updateSessionsDisplay(sessionsRemaining, sessionsTotal);
 }
 
 function countWeekSessions(clients) {
@@ -247,26 +250,36 @@ function animateCounter(element, start, end, duration) {
     }, stepTime);
 }
 
-function updateCreditsDisplay(remaining, total) {
-    // Mettre à jour les crédits dans la nav
-    const navCredits = document.getElementById('navCredits');
-    if (navCredits) {
-        navCredits.textContent = remaining;
+function updateSessionsDisplay(remaining, total) {
+    // Mettre à jour les séances dans la nav
+    const navSessions = document.getElementById('navSessions');
+    if (navSessions) {
+        navSessions.textContent = remaining;
     }
 
-    // Mettre à jour la carte de crédits
-    const creditsRemaining = document.getElementById('creditsRemaining');
-    if (creditsRemaining) {
-        animateCounter(creditsRemaining, 0, remaining, 1000);
+    // Mettre à jour la carte de séances
+    const sessionsRemaining = document.getElementById('sessionsRemaining');
+    if (sessionsRemaining) {
+        animateCounter(sessionsRemaining, 0, remaining, 1000);
     }
 
     // Mettre à jour la barre de progression
-    const progressBar = document.getElementById('creditsProgressBar');
+    const progressBar = document.getElementById('sessionsProgressBar');
     if (progressBar) {
         const percentage = (remaining / total) * 100;
         setTimeout(() => {
             progressBar.style.width = `${percentage}%`;
         }, 300);
+    }
+
+    // Mettre à jour les détails
+    const sessionsDetails = document.getElementById('sessionsDetails');
+    if (sessionsDetails) {
+        const used = total - remaining;
+        sessionsDetails.innerHTML = `
+            <span>${remaining} / ${total} séances</span>
+            <span>${used} utilisées</span>
+        `;
     }
 }
 
@@ -661,8 +674,50 @@ function addNewClient() {
 }
 
 function exportClients() {
-    alert('📥 Export de la liste des clients en cours...');
-    // TODO: Générer et télécharger un CSV/Excel
+    const clients = CoachDashboard.clients;
+
+    if (clients.length === 0) {
+        alert('Aucun client à exporter');
+        return;
+    }
+
+    // Headers CSV
+    const headers = ['Nom', 'Email', 'Score Ikigai', 'Dernière Analyse', 'Prochaine Séance', 'Statut'];
+
+    // Convertir les clients en lignes CSV
+    const rows = clients.map(client => [
+        `"${client.name || ''}"`,
+        `"${client.email || ''}"`,
+        client.score || 0,
+        `"${formatDateForCSV(client.lastAnalysis)}"`,
+        `"${formatDateForCSV(client.nextSession)}"`,
+        `"${getStatusLabel(client.status)}"`
+    ]);
+
+    // Créer le contenu CSV
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    // Créer et télécharger le fichier
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `clients_ai-ikigai_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function formatDateForCSV(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR');
 }
 
 function showActionMenu(clientId) {
@@ -796,6 +851,6 @@ window.showActionMenu = showActionMenu;
 window.downloadClientReport = downloadClientReport;
 window.scheduleSession = scheduleSession;
 window.sendEmail = sendEmail;
-window.buyMoreCredits = buyMoreCredits;
+window.buyMoreSessions = buyMoreSessions;
 
 console.log('🎯 Coach Dashboard JS loaded successfully');

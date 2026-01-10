@@ -79,9 +79,80 @@ async function loadDashboardData() {
 }
 
 async function loadClients() {
-    // TODO: Appel API réel
-    // const clients = await ApiClient.get('/api/coach/clients');
+    try {
+        // Charger les relations coach-client
+        const { data: relations, error: relError } = await supabaseClient
+            .from('coach_clients')
+            .select('id, status, added_at, notes, client_id')
+            .eq('coach_id', CoachDashboard.coachData.id);
 
+        if (relError) {
+            console.warn('Pas de relations coach-client trouvées, utilisation données mockées');
+            return getMockClients();
+        }
+
+        if (!relations || relations.length === 0) {
+            console.log('Aucun client, utilisation données mockées');
+            return getMockClients();
+        }
+
+        // Récupérer IDs clients
+        const clientIds = relations.map(r => r.client_id);
+
+        // Charger profils clients
+        const { data: clientProfiles } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .in('id', clientIds);
+
+        // Charger questionnaires Ikigai
+        const { data: questionnaires } = await supabaseClient
+            .from('questionnaires')
+            .select('*')
+            .in('user_id', clientIds)
+            .eq('completed', true)
+            .order('completed_at', { ascending: false });
+
+        // Charger séances planifiées
+        const { data: sessions } = await supabaseClient
+            .from('coaching_sessions')
+            .select('*')
+            .eq('coach_id', CoachDashboard.coachData.id)
+            .eq('status', 'scheduled')
+            .order('session_date', { ascending: true });
+
+        // Merger toutes les données
+        const clients = relations.map(rel => {
+            const profile = clientProfiles?.find(p => p.id === rel.client_id) || {};
+            const clientQ = questionnaires?.filter(q => q.user_id === rel.client_id) || [];
+            const latestQ = clientQ[0];
+            const nextSession = sessions?.find(s =>
+                s.client_id === rel.client_id &&
+                new Date(s.session_date) > new Date()
+            );
+
+            return {
+                id: rel.client_id,
+                name: profile.name || 'Client',
+                email: profile.email || '',
+                score: latestQ?.ikigai_score || 0,
+                avatar: (profile.name || '?').charAt(0).toUpperCase(),
+                lastAnalysis: latestQ?.completed_at || null,
+                nextSession: nextSession?.session_date || null,
+                status: rel.status || 'active'
+            };
+        });
+
+        console.log(`✅ ${clients.length} clients chargés depuis Supabase`);
+        return clients;
+
+    } catch (error) {
+        console.error('Erreur chargement clients:', error);
+        return getMockClients();
+    }
+}
+
+function getMockClients() {
     // Données de démonstration
     return [
         {
@@ -193,6 +264,10 @@ function updateStats(clients) {
     const sessionsUsed = CoachDashboard.coachData?.sessions_used || 53;
     const sessionsRemaining = sessionsTotal - sessionsUsed;
     updateSessionsDisplay(sessionsRemaining, sessionsTotal);
+
+    // Calcul économies réalisées
+    const savings = calculateSavings(clients);
+    updateSavingsDisplay(savings);
 }
 
 function countWeekSessions(clients) {

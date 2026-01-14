@@ -307,13 +307,96 @@
         </div>
     </main>
 
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Scripts -->
+    <script src="supabase-client.js"></script>
+    <script src="coach-dashboard-google.js"></script>
+
     <script>
-        function saveProfile() {
-            alert('✅ Profil enregistré avec succès !');
+        let currentUser = null;
+
+        // Initialisation de la page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎯 Settings page initialization...');
+
+            // Vérifier l'authentification
+            currentUser = await checkAuth('coach');
+            if (!currentUser) {
+                console.log('User not authenticated');
+                return;
+            }
+
+            // Charger le profil
+            await loadProfile();
+
+            // Charger le statut Google Calendar
+            await loadGoogleConnectionStatus();
+        });
+
+        // Charger les données du profil
+        async function loadProfile() {
+            try {
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (error) throw error;
+
+                if (profile) {
+                    // Remplir le formulaire
+                    document.querySelector('input[type="text"]').value = profile.name || '';
+                    document.querySelector('input[type="email"]').value = profile.email || '';
+                    document.querySelector('input[type="tel"]').value = profile.phone || '';
+                    document.querySelector('textarea').value = profile.bio || '';
+                }
+            } catch (error) {
+                console.error('Erreur chargement profil:', error);
+            }
         }
-        function connectGoogleCalendar() {
-            alert('📅 Redirection vers Google Calendar OAuth...\n\nFonctionnalité bientôt disponible.');
+
+        // Sauvegarder le profil
+        async function saveProfile() {
+            try {
+                const name = document.querySelector('input[type="text"]').value;
+                const email = document.querySelector('input[type="email"]').value;
+                const phone = document.querySelector('input[type="tel"]').value;
+                const bio = document.querySelector('textarea').value;
+
+                if (!name || !email) {
+                    alert('⚠️ Le nom et l\'email sont obligatoires');
+                    return;
+                }
+
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({
+                        name,
+                        email,
+                        phone,
+                        bio
+                    })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                alert('✅ Profil enregistré avec succès !');
+
+                // Mettre à jour l'objet user
+                currentUser.name = name;
+                currentUser.email = email;
+
+            } catch (error) {
+                console.error('Erreur sauvegarde profil:', error);
+                alert('❌ Erreur lors de la sauvegarde : ' + error.message);
+            }
         }
+
+        // La fonction connectGoogleCalendar est déjà définie dans coach-dashboard-google.js
+        // Elle est exportée globalement via window.connectGoogleCalendar
     </script>
 </body>
 

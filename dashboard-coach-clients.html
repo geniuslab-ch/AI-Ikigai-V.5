@@ -435,10 +435,36 @@
         </div>
     </main>
 
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Scripts -->
+    <script src="supabase-client.js"></script>
+    <script src="coach-dashboard.js"></script>
+
     <script>
-        function filterClients() {
-            console.log('Filtrage des clients...');
-        }
+        // Vérifier l'authentification au chargement
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('coach');
+            if (!user) {
+                console.log('User not authenticated');
+                return;
+            }
+            
+            // Charger les données initiales
+            await loadDashboardData();
+            
+            // Écouter le bouton "Nouveau client"
+            const addClientBtn = document.querySelector('.btn-primary');
+            if (addClientBtn) {
+                addClientBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addNewClient();
+                });
+            }
+        });
+        
+        // La fonction filterClients est déjà définie dans coach-dashboard.js
     </script>
 </body>
 

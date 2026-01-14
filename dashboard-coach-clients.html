@@ -312,7 +312,7 @@
     <main class="dashboard">
         <div class="dashboard-header">
             <h1>Mes <span class="gradient">Clients</span></h1>
-            <a href="dashboard-coach.html" class="btn-primary">➕ Nouveau client</a>
+            <button class="btn-primary" onclick="addNewClient()">➕ Nouveau client</button>
         </div>
 
         <div class="card">
@@ -350,7 +350,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr onclick="window.location.href='dashboard-coach.html'">
+                    <tr onclick="openClientProfile(1)">
                         <td>
                             <div class="client-info">
                                 <div class="client-avatar">MD</div>
@@ -366,7 +366,7 @@
                         <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
                         <td><button class="action-dots">⋮</button></td>
                     </tr>
-                    <tr onclick="window.location.href='dashboard-coach.html'">
+                    <tr onclick="openClientProfile(1)">
                         <td>
                             <div class="client-info">
                                 <div class="client-avatar">TM</div>
@@ -382,7 +382,7 @@
                         <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
                         <td><button class="action-dots">⋮</button></td>
                     </tr>
-                    <tr onclick="window.location.href='dashboard-coach.html'">
+                    <tr onclick="openClientProfile(1)">
                         <td>
                             <div class="client-info">
                                 <div class="client-avatar">SB</div>
@@ -398,7 +398,7 @@
                         <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
                         <td><button class="action-dots">⋮</button></td>
                     </tr>
-                    <tr onclick="window.location.href='dashboard-coach.html'">
+                    <tr onclick="openClientProfile(1)">
                         <td>
                             <div class="client-info">
                                 <div class="client-avatar">LD</div>
@@ -414,7 +414,7 @@
                         <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
                         <td><button class="action-dots">⋮</button></td>
                     </tr>
-                    <tr onclick="window.location.href='dashboard-coach.html'">
+                    <tr onclick="openClientProfile(1)">
                         <td>
                             <div class="client-info">
                                 <div class="client-avatar">EP</div>
@@ -450,10 +450,10 @@
                 console.log('User not authenticated');
                 return;
             }
-            
+
             // Charger les données initiales
             await loadDashboardData();
-            
+
             // Écouter le bouton "Nouveau client"
             const addClientBtn = document.querySelector('.btn-primary');
             if (addClientBtn) {
@@ -463,7 +463,7 @@
                 });
             }
         });
-        
+
         // La fonction filterClients est déjà définie dans coach-dashboard.js
     </script>
 </body>

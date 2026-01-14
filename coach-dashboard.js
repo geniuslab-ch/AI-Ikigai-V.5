@@ -904,14 +904,37 @@ function scheduleSession(clientId) {
     const client = CoachDashboard.clients.find(c => c.id === clientId);
     if (!client) return;
 
-    // TODO: Ouvrir un calendrier ou formulaire de planification
-    alert(`📅 Planification d'une séance pour ${client.name}\n\nFonctionnalité à venir : intégration avec Google Calendar ou Calendly`);
+    // Ouvrir Google Calendar avec événement pré-rempli
+    const title = `Séance Coaching Ikigai - ${client.name}`;
+    const details = `Séance de coaching avec ${client.name}\nEmail: ${client.email}\nScore Ikigai actuel: ${client.score}%`;
+    const location = 'Visio (lien à ajouter)';
+
+    // Créer URL Google Calendar
+    const baseUrl = 'https://calendar.google.com/calendar/render';
+    const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: title,
+        details: details,
+        location: location
+    });
+
+    window.open(`${baseUrl}?${params.toString()}`, '_blank');
+    console.log(`📅 Ouverture Google Calendar pour ${client.name}`);
 }
 
 function sendEmail(clientId) {
     const client = CoachDashboard.clients.find(c => c.id === clientId);
-    if (client) {
-        window.location.href = `mailto:${client.email}`;
+    if (!client) return;
+
+    // Confirmation avant ouverture
+    const confirmed = confirm(
+        `Ouvrir votre client email pour envoyer un message à ${client.name} ?\n\nEmail: ${client.email}`
+    );
+
+    if (confirmed) {
+        const subject = encodeURIComponent('Suivi coaching Ikigai');
+        const body = encodeURIComponent(`Bonjour ${client.name},\n\n`);
+        window.location.href = `mailto:${client.email}?subject=${subject}&body=${body}`;
     }
 }
 

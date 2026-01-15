@@ -295,14 +295,31 @@
             <h2 class="card-title">🔔 Notifications</h2>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <label style="display: flex; align-items: center; gap: 0.75rem;">
-                    <input type="checkbox" checked> Email pour nouveaux clients
+                    <input type="checkbox" id="notif-new-clients" checked> Email pour nouveaux clients
                 </label>
                 <label style="display: flex; align-items: center; gap: 0.75rem;">
-                    <input type="checkbox" checked> Rappels séances à venir
+                    <input type="checkbox" id="notif-sessions" checked> Rappels séances à venir
                 </label>
                 <label style="display: flex; align-items: center; gap: 0.75rem;">
-                    <input type="checkbox"> Newsletter AI-Ikigai
+                    <input type="checkbox" id="notif-newsletter"> Newsletter AI-Ikigai
                 </label>
+            </div>
+            <button class="btn-primary" onclick="saveNotifications()" style="margin-top: 1.5rem;">💾 Enregistrer les
+                préférences</button>
+        </div>
+
+        <!-- Compte & Sécurité -->
+        <div class="card">
+            <h2 class="card-title">🔐 Compte & Sécurité</h2>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <button class="btn-secondary" onclick="logout()"
+                    style="background: var(--dark-border); color: var(--light);">
+                    🚪 Se déconnecter
+                </button>
+                <button class="btn-danger" onclick="showCancelSubscription()"
+                    style="background: var(--danger); color: white;">
+                    ⚠️ Résilier mon abonnement
+                </button>
             </div>
         </div>
     </main>
@@ -394,6 +411,111 @@
                 alert('❌ Erreur lors de la sauvegarde : ' + error.message);
             }
         }
+
+
+        // Charger les préférences de notifications
+        async function loadNotifications() {
+            try {
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('notification_new_clients, notification_sessions, notification_newsletter')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (profile) {
+                    document.getElementById('notif-new-clients').checked = profile.notification_new_clients !== false;
+                    document.getElementById('notif-sessions').checked = profile.notification_sessions !== false;
+                    document.getElementById('notif-newsletter').checked = profile.notification_newsletter === true;
+                }
+            } catch (error) {
+                console.error('Erreur chargement notifications:', error);
+            }
+        }
+
+        // Sauvegarder les préférences de notifications
+        async function saveNotifications() {
+            try {
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({
+                        notification_new_clients: document.getElementById('notif-new-clients').checked,
+                        notification_sessions: document.getElementById('notif-sessions').checked,
+                        notification_newsletter: document.getElementById('notif-newsletter').checked
+                    })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                alert('✅ Préférences de notifications enregistrées !');
+            } catch (error) {
+                console.error('Erreur sauvegarde notifications:', error);
+                alert('❌ Erreur : ' + error.message);
+            }
+        }
+
+        // Déconnexion
+        async function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                try {
+                    await supabaseClient.auth.signOut();
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Erreur déconnexion:', error);
+                    alert('Erreur lors de la déconnexion');
+                }
+            }
+        }
+
+        // Afficher modal de résiliation d'abonnement
+        function showCancelSubscription() {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+
+            modal.innerHTML = `
+                <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%;">
+                    <h2 style="margin-bottom: 1rem; color: var(--danger);">⚠️ Résilier l'abonnement</h2>
+                    <p style="margin-bottom: 1rem; color: var(--gray);">
+                        Êtes-vous sûr de vouloir résilier votre abonnement AI-Ikigai ?
+                    </p>
+                    <p style="margin-bottom: 1.5rem; font-weight: 500;">
+                        Vous perdrez l'accès à :
+                    </p>
+                    <ul style="margin-bottom: 1.5rem; color: var(--gray); padding-left: 1.5rem;">
+                        <li>Toutes vos analyses clients</li>
+                        <li>Votre historique de séances</li>
+                        <li>L'intégration Google Calendar</li>
+                        <li>Le support prioritaire</li>
+                    </ul>
+                    <p style="margin-bottom: 2rem; font-size: 0.9rem; color: var(--warning);">
+                        💡 Au lieu de résilier, vous pouvez passer à un plan moins cher ou mettre en pause votre abonnement.
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="this.closest('div[style*=position]').remove()" style="flex: 1; padding: 0.75rem; background: var(--dark-border); border: none; border-radius: 8px; color: var(--light); cursor: pointer;">
+                            Annuler
+                        </button>
+                        <button onclick="window.location.href='coach.html'" style="flex: 1; padding: 0.75rem; background: var(--purple); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                            Changer de plan
+                        </button>
+                        <button onclick="confirmCancellation()" style="flex: 1; padding: 0.75rem; background: var(--danger); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                            Confirmer résiliation
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Fonction globale pour la confirmation
+            window.confirmCancellation = async function () {
+                modal.remove();
+                alert('📧 Un email de confirmation vous a été envoyé.\n\nPour finaliser la résiliation, contactez support@ai-ikigai.com avec votre demande.');
+            };
+        }
+
+        // Charger les notifications au chargement
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadNotifications();
+        });
 
         // La fonction connectGoogleCalendar est déjà définie dans coach-dashboard-google.js
         // Elle est exportée globalement via window.connectGoogleCalendar

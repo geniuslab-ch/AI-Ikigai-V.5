@@ -349,87 +349,8 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr onclick="openClientProfile(1)">
-                        <td>
-                            <div class="client-info">
-                                <div class="client-avatar">MD</div>
-                                <div>
-                                    <div class="client-name">Marie Dupont</div>
-                                    <div class="client-email">marie.dupont@email.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="score-badge score-excellent">82%</span></td>
-                        <td>12 déc. 2024</td>
-                        <td>16 déc. 2024</td>
-                        <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
-                        <td><button class="action-dots">⋮</button></td>
-                    </tr>
-                    <tr onclick="openClientProfile(1)">
-                        <td>
-                            <div class="client-info">
-                                <div class="client-avatar">TM</div>
-                                <div>
-                                    <div class="client-name">Thomas Martin</div>
-                                    <div class="client-email">thomas.m@email.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="score-badge score-good">75%</span></td>
-                        <td>8 déc. 2024</td>
-                        <td>20 déc. 2024</td>
-                        <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
-                        <td><button class="action-dots">⋮</button></td>
-                    </tr>
-                    <tr onclick="openClientProfile(1)">
-                        <td>
-                            <div class="client-info">
-                                <div class="client-avatar">SB</div>
-                                <div>
-                                    <div class="client-name">Sophie Bernard</div>
-                                    <div class="client-email">sophie.bernard@aiikigai.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="score-badge score-good">68%</span></td>
-                        <td>5 déc. 2024</td>
-                        <td>22 déc. 2024</td>
-                        <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
-                        <td><button class="action-dots">⋮</button></td>
-                    </tr>
-                    <tr onclick="openClientProfile(1)">
-                        <td>
-                            <div class="client-info">
-                                <div class="client-avatar">LD</div>
-                                <div>
-                                    <div class="client-name">Lucas Dubois</div>
-                                    <div class="client-email">lucas.dubois@email.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="score-badge score-good">71%</span></td>
-                        <td>11 déc. 2024</td>
-                        <td>17 déc. 2024</td>
-                        <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
-                        <td><button class="action-dots">⋮</button></td>
-                    </tr>
-                    <tr onclick="openClientProfile(1)">
-                        <td>
-                            <div class="client-info">
-                                <div class="client-avatar">EP</div>
-                                <div>
-                                    <div class="client-name">Emma Petit</div>
-                                    <div class="client-email">emma.petit@email.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="score-badge score-average">58%</span></td>
-                        <td>1 déc. 2024</td>
-                        <td><span style="color: var(--gray);">Non planifiée</span></td>
-                        <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
-                        <td><button class="action-dots">⋮</button></td>
-                    </tr>
+                <tbody id="clientsList">
+                    <!-- Les clients seront chargés dynamiquement -->
                 </tbody>
             </table>
         </div>
@@ -442,6 +363,7 @@
     <script src="supabase-client.js"></script>
     <script src="coach-dashboard-savings.js"></script>
     <script src="coach-dashboard.js"></script>
+    <script src="coach-dashboard-add-client.js"></script>
 
     <script>
         // Vérifier l'authentification au chargement
@@ -455,15 +377,52 @@
             // Charger les données initiales
             await loadDashboardData();
 
-            // Écouter le bouton "Nouveau client"
-            const addClientBtn = document.querySelector('.btn-primary');
-            if (addClientBtn) {
-                addClientBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    addNewClient();
-                });
-            }
+            // Charger et afficher les clients
+            const clients = await loadClients();
+            displayClientsTable(clients);
         });
+
+        function displayClientsTable(clients) {
+            const tbody = document.getElementById('clientsList');
+
+            if (!clients || clients.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--gray);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                            <div>Aucun client pour le moment</div>
+                            <div style="font-size: 0.9rem; margin-top: 0.5rem;">Cliquez sur "Nouveau client" pour commencer</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = clients.map(client => `
+                <tr onclick="openClientProfiledetails('${client.id}')">
+                    <td>
+                        <div class="client-info">
+                            <div class="client-avatar">${client.avatar}</div>
+                            <div>
+                                <div class="client-name">${client.name}</div>
+                                <div class="client-email">${client.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="score-badge ${client.score >= 70 ? 'score-excellent' : 'score-good'}">${client.score}%</span></td>
+                    <td>${client.lastAnalysis ? new Date(client.lastAnalysis).toLocaleDateString('fr-FR') : '-'}</td>
+                    <td>${client.nextSession ? new Date(client.nextSession).toLocaleDateString('fr-FR') : '<span style="color: var(--gray);">Non planifiée</span>'}</td>
+                    <td><span class="status-badge status-active"><span class="status-dot"></span> Actif</span></td>
+                    <td><button class="action-dots" onclick="event.stopPropagation();">⋮</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function openClientProfile(clientId) {
+            // Placeholder pour ouverture profil client
+            console.log('Opening client profile:', clientId);
+            alert('Fonctionnalité en développement - Profil client #' + clientId);
+        }
 
         // La fonction filterClients est déjà définie dans coach-dashboard.js
     </script>

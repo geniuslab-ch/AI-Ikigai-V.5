@@ -356,6 +356,52 @@
         </div>
     </main>
 
+    <!-- Modal Nouveau Client -->
+    <div class="modal" id="addClientModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+        <div
+            style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 600px; width: 90%; position: relative;">
+            <button onclick="closeAddClientModal()"
+                style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer;">✕</button>
+
+            <h2 style="margin-bottom: 1.5rem;">➕ Ajouter un Nouveau Client</h2>
+
+            <form onsubmit="handleAddNewClient(event)" id="addClientForm">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nom complet *</label>
+                    <input type="text" id="newClientName" required placeholder="Ex: Marie Dupont"
+                        style="width: 100%; padding: 0.75rem; background: var(--dark); border: 1px solid var(--dark-border); border-radius: 8px; color: var(--light);">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email *</label>
+                    <input type="email" id="newClientEmail" required placeholder="marie.dupont@email.com"
+                        style="width: 100%; padding: 0.75rem; background: var(--dark); border: 1px solid var(--dark-border); border-radius: 8px; color: var(--light);">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Message personnalisé
+                        (optionnel)</label>
+                    <textarea id="newClientMessage" rows="4" placeholder="Ajoutez un message personnel..."
+                        style="width: 100%; padding: 0.75rem; background: var(--dark); border: 1px solid var(--dark-border); border-radius: 8px; color: var(--light);"></textarea>
+                    <small style="color: var(--gray); font-size: 0.85rem;">Ce message sera inclus dans l'email
+                        d'invitation.</small>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" onclick="closeAddClientModal()"
+                        style="flex: 1; padding: 0.75rem; background: transparent; border: 2px solid var(--dark-border); border-radius: 8px; color: var(--gray); cursor: pointer;">
+                        Annuler
+                    </button>
+                    <button type="submit" id="submitClientBtn"
+                        style="flex: 1; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                        ➕ Ajouter et envoyer l'invitation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

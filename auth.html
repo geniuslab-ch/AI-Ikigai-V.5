@@ -440,15 +440,62 @@
                 return;
             }
 
-            // Détecter le rôle à partir de l'URL
+            // Détecter le rôle et le token d'invitation à partir de l'URL
             const urlParams = new URLSearchParams(window.location.search);
             const role = urlParams.get('role') || 'client'; // Par défaut 'client'
+            const inviteToken = urlParams.get('invite'); // Token d'invitation
 
             try {
                 btn.disabled = true;
                 btn.innerHTML = '<span class="loading"></span> Création du compte...';
 
                 await AuthAPI.signUp(email, password, name, role); // Passer le rôle à signUp
+
+                // Si inscription via invitation, créer la relation coach-client
+                if (inviteToken && role === 'client') {
+                    try {
+                        // Se connecter automatiquement pour obtenir l'ID utilisateur
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Attendre que Supabase crée le profil
+                        const { user: signedInUser } = await AuthAPI.signIn(email, password);
+
+                        // Récupérer l'invitation
+                        const { data: invitation } = await supabaseClient
+                            .from('client_invitations')
+                            .select('*')
+                            .eq('invitation_token', inviteToken)
+                            .eq('status', 'pending')
+                            .single();
+
+                        if (invitation) {
+                            // Créer la relation coach-client
+                            await supabaseClient
+                                .from('coach_clients')
+                                .insert({
+                                    coach_id: invitation.coach_id,
+                                    client_id: signedInUser.id,
+                                    status: 'active'
+                                });
+
+                            // Marquer l'invitation comme acceptée
+                            await supabaseClient
+                                .from('client_invitations')
+                                .update({
+                                    status: 'accepted',
+                                    accepted_at: new Date().toISOString()
+                                })
+                                .eq('id', invitation.id);
+
+                            showSuccess('✅ Compte créé et lié à votre coach ! Redirection...');
+                            setTimeout(() => {
+                                redirectToDashboard(role);
+                            }, 1500);
+                            return;
+                        }
+                    } catch (inviteErr) {
+                        console.error('Erreur traitement invitation:', inviteErr);
+                        // Ne pas bloquer l'inscription si l'invitation échoue
+                    }
+                }
 
                 showSuccess('Compte créé ! Vérifiez votre email pour confirmer votre inscription.');
 

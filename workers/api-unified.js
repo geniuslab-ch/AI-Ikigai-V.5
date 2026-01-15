@@ -219,7 +219,7 @@ async function handleGeneratePDF(request, env, corsHeaders) {
 function handleGoogleOAuthInit(env) {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${env.GOOGLE_CLIENT_ID}` +
-        `&redirect_uri=${encodeURIComponent('https://ai-ikigai.com/auth/google/callback')}` +
+        `&redirect_uri=${encodeURIComponent('https://ai-ikigai.ai-ikigai.workers.dev/auth/google/callback')}` +
         `&response_type=code` +
         `&scope=${encodeURIComponent('https://www.googleapis.com/auth/calendar.events')}` +
         `&access_type=offline` +
@@ -247,7 +247,7 @@ async function handleGoogleOAuthCallback(request, env) {
             code,
             client_id: env.GOOGLE_CLIENT_ID,
             client_secret: env.GOOGLE_CLIENT_SECRET,
-            redirect_uri: 'https://ai-ikigai.com/auth/google/callback',
+            redirect_uri: 'https://ai-ikigai.ai-ikigai.workers.dev/auth/google/callback',
             grant_type: 'authorization_code'
         })
     });

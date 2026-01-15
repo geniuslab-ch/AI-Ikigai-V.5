@@ -51,8 +51,8 @@ async function loadAnalyses(coachId) {
             .eq('coach_id', coachId);
 
         if (relError || !relations || relations.length === 0) {
-            console.warn('Pas de clients trouvés, utilisation de données mockées');
-            AnalysesDashboard.analyses = getMockAnalyses();
+            console.warn('Pas de clients trouvés');
+            AnalysesDashboard.analyses = [];
             return;
         }
 
@@ -73,8 +73,8 @@ async function loadAnalyses(coachId) {
             .order('completed_at', { ascending: false });
 
         if (qError || !questionnaires) {
-            console.warn('Erreur chargement questionnaires, utilisation de données mockées');
-            AnalysesDashboard.analyses = getMockAnalyses();
+            console.warn('Erreur chargement questionnaires');
+            AnalysesDashboard.analyses = [];
             return;
         }
 

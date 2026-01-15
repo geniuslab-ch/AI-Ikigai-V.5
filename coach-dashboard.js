@@ -756,8 +756,43 @@ function initClientDashboardInteractions(client) {
 // =============================================
 
 function addNewClient() {
-    alert('🆕 Fonctionnalité "Ajouter un client" à implémenter');
-    // TODO: Ouvrir un formulaire ou rediriger vers une page d'ajout
+    // TODO: Open modal or form to add a new client
+    alert('🆕 Fonctionnalité "Ajouter un client" en cours de développement');
+}
+
+function submitNewClient() {
+    // TODO: Handle new client submission
+    alert('✅ Fonctionnalité "Soumettre nouveau client" en cours de développement');
+}
+
+function closeAddClientModal() {
+    // TODO: Close add client modal if exists
+    const modal = document.getElementById('addClientModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+function calculateSavings(clients) {
+    // Calculate total savings based on clients
+    // Assuming average coaching session cost of 150€ and that each client saves time/money
+    const activeClients = clients.filter(c => c.status === 'active').length;
+    const estimatedSavingsPerClient = 150; // Average savings per client per month
+    return activeClients * estimatedSavingsPerClient;
+}
+
+function updateSavingsDisplay(savings) {
+    // Update the savings display if the element exists
+    const savingsElement = document.getElementById('savingsAmount');
+    if (savingsElement) {
+        animateCounter(savingsElement, 0, savings, 1000);
+    }
+
+    const savingsDetails = document.getElementById('savingsDetails');
+    if (savingsDetails) {
+        savingsDetails.textContent = `Économies réalisées ce mois`;
+    }
 }
 
 function exportClients() {
@@ -868,36 +903,56 @@ document.addEventListener('click', (e) => {
     }
 });
 
-function downloadClientReport(clientId) {
+async function downloadClientReport(clientId) {
     const client = CoachDashboard.clients.find(c => c.id === clientId);
     if (!client) return;
 
-    // Ouvrir le rapport PDF dans nouvelle fenêtre
-    const url = `https://ai-ikigai.ai-ikigai.workers.dev/api/generate-pdf`;
+    try {
+        console.log(`📥 Génération rapport pour ${client.name}`);
 
-    // Créer formulaire pour POST
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
-    form.target = '_blank';
+        // Show loading state
+        const loadingMsg = alert('⏳ Génération du rapport PDF en cours...');
 
-    const clientInput = document.createElement('input');
-    clientInput.type = 'hidden';
-    clientInput.name = 'clientId';
-    clientInput.value = clientId;
-    form.appendChild(clientInput);
+        // Send JSON request to the API
+        const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/generate-pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                clientId: clientId,
+                coachId: CoachDashboard.coachData.id
+            })
+        });
 
-    const coachInput = document.createElement('input');
-    coachInput.type = 'hidden';
-    coachInput.name = 'coachId';
-    coachInput.value = CoachDashboard.coachData.id;
-    form.appendChild(coachInput);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erreur lors de la génération du PDF');
+        }
 
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+        // Get the PDF blob
+        const blob = await response.blob();
 
-    console.log(`📥 Génération rapport pour ${client.name}`);
+        // Create a download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `rapport-ikigai-${client.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log(`✅ Rapport généré pour ${client.name}`);
+
+    } catch (error) {
+        console.error('Erreur génération PDF:', error);
+        alert(`❌ Erreur lors de la génération du rapport: ${error.message}`);
+    }
 }
 
 function scheduleSession(clientId) {

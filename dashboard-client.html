@@ -896,37 +896,85 @@
 
         async function loadDashboardData() {
             try {
-                dashboardData = await DashboardAPI.getClientDashboard();
-                console.log('Dashboard data:', dashboardData);
+                console.log('📊 Loading dashboard data for user:', currentUser.id);
+
+                // Charger directement les questionnaires depuis Supabase
+                const { data: questionnaires, error } = await supabaseClient
+                    .from('questionnaires')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .eq('completed', true)
+                    .order('completed_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Error loading questionnaires:', error);
+                    throw error;
+                }
+
+                console.log(`✅ ${questionnaires?.length || 0} questionnaires trouvés`);
+
+                if (!questionnaires || questionnaires.length === 0) {
+                    console.log('ℹ️ Aucune analyse complétée');
+                    // Afficher état vide
+                    document.getElementById('total-analyses').textContent = '0';
+                    document.getElementById('score-passion').textContent = '-';
+                    document.getElementById('score-mission').textContent = '-';
+                    document.getElementById('score-vocation').textContent = '-';
+                    return;
+                }
+
+                // Prendre la dernière analyse
+                const latestAnalysis = questionnaires[0];
 
                 // Mettre à jour les stats
-                document.getElementById('total-analyses').textContent = dashboardData.totalAnalyses || 0;
+                document.getElementById('total-analyses').textContent = questionnaires.length;
+
+                // Afficher les scores si disponibles
+                if (latestAnalysis.ikigai_dimensions) {
+                    const dims = latestAnalysis.ikigai_dimensions;
+                    document.getElementById('score-passion').textContent = dims.passion_score || '-';
+                    document.getElementById('score-mission').textContent = dims.mission_score || '-';
+                    document.getElementById('score-vocation').textContent = dims.vocation_score || '-';
+                }
+
+                console.log('✅ Dashboard data loaded successfully');
+
+                // Now, populate dashboardData for other functions that rely on it
+                dashboardData = {
+                    totalAnalyses: questionnaires.length,
+                    latestAnalysis: latestAnalysis,
+                    analyses: questionnaires // Pass all analyses for history
+                };
 
                 if (dashboardData.latestAnalysis) {
-                    const scores = dashboardData.latestAnalysis.score;
-                    document.getElementById('score-passion').textContent = scores.passion || 0;
-                    document.getElementById('score-mission').textContent = scores.mission || 0;
-                    document.getElementById('score-vocation').textContent = scores.vocation || 0;
+                    const scores = dashboardData.latestAnalysis.ikigai_dimensions; // Use ikigai_dimensions
+                    document.getElementById('score-passion').textContent = scores.passion_score || 0;
+                    document.getElementById('score-mission').textContent = scores.mission_score || 0;
+                    document.getElementById('score-vocation').textContent = scores.vocation_score || 0;
 
-                    // Créer le graphique Ikigai
-                    createIkigaiChart(scores);
+                    // Create the Ikigai chart
+                    createIkigaiChart({
+                        passion: scores.passion_score,
+                        profession: scores.profession_score,
+                        mission: scores.mission_score,
+                        vocation: scores.vocation_score
+                    });
 
-                    // Afficher les recommandations
+                    // Display recommendations
                     displayRecommendations(dashboardData.latestAnalysis);
 
-                    // Afficher les insights
+                    // Display insights
                     displayInsights(dashboardData.latestAnalysis);
 
                     // Check if first visit and show guide
                     checkFirstVisit();
                 }
 
-                // Afficher l'historique
+                // Display history
                 displayHistory(dashboardData.analyses);
 
             } catch (error) {
                 console.error('Erreur chargement dashboard:', error);
-                // showError('Erreur lors du chargement des données');
                 // Note: Backend pas encore configuré, c'est normal
             }
         }

@@ -910,9 +910,6 @@ async function downloadClientReport(clientId) {
     try {
         console.log(`📥 Génération rapport pour ${client.name}`);
 
-        // Show loading state
-        const loadingMsg = alert('⏳ Génération du rapport PDF en cours...');
-
         // Send JSON request to the API
         const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/generate-pdf', {
             method: 'POST',

@@ -87,13 +87,13 @@ async function loadClients() {
             .eq('coach_id', CoachDashboard.coachData.id);
 
         if (relError) {
-            console.warn('Pas de relations coach-client trouvées, utilisation données mockées');
-            return getMockClients();
+            console.warn('Pas de relations coach-client trouvées');
+            return []; // Retourner tableau vide au lieu de données mockées
         }
 
         if (!relations || relations.length === 0) {
-            console.log('Aucun client, utilisation données mockées');
-            return getMockClients();
+            console.log('Aucun client trouvé');
+            return []; // Retourner tableau vide au lieu de données mockées
         }
 
         // Récupérer IDs clients
@@ -148,7 +148,7 @@ async function loadClients() {
 
     } catch (error) {
         console.error('Erreur chargement clients:', error);
-        return getMockClients();
+        return []; // Retourner tableau vide en cas d'erreur
     }
 }
 

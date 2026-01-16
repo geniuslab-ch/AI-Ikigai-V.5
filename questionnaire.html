@@ -1755,7 +1755,7 @@
 
             <script>
                 // Populate upsell dynamically based on user plan
-                (async function() {
+                (async function () {
                     const block = document.getElementById('upgrade-cta');
                     if (!block) return;
 
@@ -2034,58 +2034,119 @@
         // ============================================
 
         const QuestionnaireAPI = {
-            // Soumettre les réponses
-            async submit(answers, email = null, userId = null, userPlan = 'decouverte') {
-                const body = { answers };
-                if (email) {
-                    body.email = email;
-                }
-                if (userId) {
-                    body.user_id = userId;
-                }
-                if (userPlan) {
-                    body.user_plan = userPlan;
-                }
-                const data = await ApiClient.post('/api/questionnaire/submit', body);
+            /**
+             * Submit questionnaire answers to Supabase
+             */
+            async submit(answers, userEmail = null) {
+                try {
+                    console.log('📝 Submitting questionnaire to Supabase...');
 
-                // Sauvegarder l'ID du questionnaire
-                if (data.questionnaireId) {
-                    localStorage.setItem('ai-ikigai-questionnaire-id', data.questionnaireId);
-                }
+                    // Get current authenticated user
+                    const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
 
-                return data;
-            },
-
-            // Upload CV
-            async uploadCV(file, questionnaireId = null) {
-                const formData = new FormData();
-                formData.append('cv', file);
-
-                if (questionnaireId) {
-                    formData.append('questionnaireId', questionnaireId);
-                } else {
-                    const savedId = localStorage.getItem('ai-ikigai-questionnaire-id');
-                    if (savedId) {
-                        formData.append('questionnaireId', savedId);
+                    if (authError || !user) {
+                        console.error('❌ User not authenticated');
+                        throw new Error('Vous devez être connecté pour soumettre le questionnaire');
                     }
+
+                    console.log('✅ User authenticated:', user.email);
+
+                    // Check if user was invited by a coach
+                    let coachId = null;
+                    const { data: coachRelation } = await window.supabaseClient
+                        .from('coach_clients')
+                        .select('coach_id')
+                        .eq('client_id', user.id)
+                        .single();
+
+                    if (coachRelation) {
+                        coachId = coachRelation.coach_id;
+                        console.log('👨‍🏫 User has coach:', coachId);
+                    }
+
+                    // Prepare analysis data
+                    const analysisData = {
+                        user_id: user.id,
+                        coach_id: coachId,
+                        user_email: user.email,
+                        answers: answers,
+                        status: 'completed',
+                        created_at: new Date().toISOString()
+                    };
+
+                    // Insert into analyses table
+                    const { data: analysis, error: insertError } = await window.supabaseClient
+                        .from('analyses')
+                        .insert(analysisData)
+                        .select()
+                        .single();
+
+                    if (insertError) {
+                        console.error('❌ Error inserting analysis:', insertError);
+                        throw insertError;
+                    }
+
+                    console.log('✅ Analysis saved to Supabase:', analysis.id);
+
+                    return {
+                        success: true,
+                        analysisId: analysis.id,
+                        questionnaireId: analysis.id,
+                        analysis: analysis
+                    };
+
+                } catch (error) {
+                    console.error('❌ Questionnaire submission error:', error);
+                    return {
+                        success: false,
+                        error: error.message
+                    };
                 }
-
-                return ApiClient.postForm('/api/questionnaire/upload-cv', formData);
             },
 
-            // Récupérer un questionnaire
-            async get(id) {
-                return ApiClient.get(`/api/questionnaire/${id}`);
-            },
+            /**
+             * Upload CV file to Supabase Storage
+             */
+            async uploadCV(file) {
+                try {
+                    console.log('📄 Uploading CV to Supabase...');
 
-            // Récupérer le questionnaire sauvegardé
-            async getCurrent() {
-                const id = localStorage.getItem('ai-ikigai-questionnaire-id');
-                if (!id) {
-                    return null;
+                    const { data: { user } } = await window.supabaseClient.auth.getUser();
+                    if (!user) throw new Error('User not authenticated');
+
+                    // Generate unique filename
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+                    // Upload to Supabase Storage
+                    const { data, error } = await window.supabaseClient.storage
+                        .from('cvs')
+                        .upload(fileName, file);
+
+                    if (error) throw error;
+
+                    console.log('✅ CV uploaded:', data.path);
+
+                    // Update user profile with CV path
+                    await window.supabaseClient
+                        .from('profiles')
+                        .update({ cv_path: data.path })
+                        .eq('id', user.id);
+
+                    return {
+                        success: true,
+                        cvPath: data.path,
+                        cvData: { path: data.path }
+                    };
+
+                } catch (error) {
+                    console.error('❌ CV upload error:', error);
+                    return {
+                        success: false,
+                        error: error.message
+                    };
                 }
-                return this.get(id);
-            },
+            }
         };
 
         // ============================================
@@ -3092,14 +3153,14 @@
                             : '<div class="empty-state"><p>Débloquez les idées business avec le plan Essentiel</p></div>';
 
                         recommendationsList.innerHTML = `
-                            <h3>🎯 Recommandations de carrière(${ backendAnalysis.careerRecommendations.length })</h3>
-                            ${ careerHTML }
-                            ${ businessHTML ? `
+                            <h3>🎯 Recommandations de carrière(${backendAnalysis.careerRecommendations.length})</h3>
+                            ${careerHTML}
+                            ${businessHTML ? `
                                 <div style="clear: both; margin-top: 2rem;">
                                     <h3>💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>
                                     ${businessHTML}
                                 </div>
-                            ` : '' }
+                            ` : ''}
                         `;
                     }
                 }
@@ -3263,187 +3324,187 @@
                 // If not in localStorage, fetch from backend
                 try {
                     const response = await fetch(`https://ai-ikigai.ai-ikigai.workers.dev/api/questionnaire/${resultId}`);
-                        const data = await response.json();
+                    const data = await response.json();
 
-                        if (data.success && data.analysis) {
-                            console.log('✅ Analysis loaded from backend');
-                            showResults(data.analysis);
-                        } else {
-                            console.error('❌ Analysis not found');
-                            alert('Analyse introuvable');
-                        }
-                    } catch (error) {
-                        console.error('❌ Error loading analysis:', error);
-                        alert('Erreur lors du chargement de l\'analyse');
+                    if (data.success && data.analysis) {
+                        console.log('✅ Analysis loaded from backend');
+                        showResults(data.analysis);
+                    } else {
+                        console.error('❌ Analysis not found');
+                        alert('Analyse introuvable');
                     }
+                } catch (error) {
+                    console.error('❌ Error loading analysis:', error);
+                    alert('Erreur lors du chargement de l\'analyse');
                 }
             }
+        }
 
-            // ========================================
-            // MODAL SIGNUP OBLIGATOIRE
-            // ========================================
+        // ========================================
+        // MODAL SIGNUP OBLIGATOIRE
+        // ========================================
 
-            // Gestion du formulaire signup
-            document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
-                e.preventDefault();
+        // Gestion du formulaire signup
+        document.getElementById('signup-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-                const email = document.getElementById('signup-email').value;
-                const password = document.getElementById('signup-password').value;
-                const errorDiv = document.getElementById('signup-error');
-                const submitBtn = e.target.querySelector('button[type="submit"]');
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorDiv = document.getElementById('signup-error');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
 
-                try {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Création...';
-                    errorDiv.style.display = 'none';
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Création...';
+                errorDiv.style.display = 'none';
 
-                    // Créer compte avec Supabase
-                    const { data, error } = await window.supabaseClient.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            data: { name: email.split('@')[0] }
-                        }
-                    });
-
-                    if (error) throw error;
-
-                    console.log('✅ Compte créé:', data.user.email);
-
-                    // 🔧 FIX: Sauvegarder l'analyse dans Supabase avec le user_id
-                    if (window.pendingAnalysis && data.user) {
-                        console.log('💾 Sauvegarde de l\'analyse dans Supabase pour user:', data.user.id);
-
-                        try {
-                            const { data: insertData, error: insertError } = await window.supabaseClient
-                                .from('analyses')
-                                .insert({
-                                    user_id: data.user.id,
-                                    answers: window.pendingAnalysis.answers || {},
-                                    passions: window.pendingAnalysis.passions || [],
-                                    talents: window.pendingAnalysis.talents || [],
-                                    mission: window.pendingAnalysis.mission || [],
-                                    vocation: window.pendingAnalysis.vocation || [],
-                                    career_recommendations: window.pendingAnalysis.careerRecommendations || [],
-                                    business_ideas: window.pendingAnalysis.businessIdeas || [],
-                                    score: window.pendingAnalysis.score || {},
-                                    trajectories: window.pendingAnalysis.trajectories || null,
-                                    coherence_diagnosis: window.pendingAnalysis.coherenceDiagnosis || null,
-                                    final_trajectory: window.pendingAnalysis.finalTrajectory || null,
-                                    positioning: window.pendingAnalysis.positioning || null,
-                                    coaching_prep: window.pendingAnalysis.coachingPrep || null,
-                                    profile_summary: window.pendingAnalysis.profileSummary || null,
-                                    ikigai_summary: window.pendingAnalysis.ikigaiSummary || null
-                                })
-                                .select();
-
-                            if (insertError) {
-                                console.error('❌ Erreur sauvegarde analyse:', insertError);
-                            } else {
-                                console.log('✅ Analyse sauvegardée avec succès:', insertData);
-                            }
-                        } catch (saveError) {
-                            console.error('❌ Erreur lors de la sauvegarde:', saveError);
-                            // Ne pas bloquer l'affichage des résultats même si la sauvegarde échoue
-                        }
+                // Créer compte avec Supabase
+                const { data, error } = await window.supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { name: email.split('@')[0] }
                     }
+                });
 
-                    // Fermer modal
-                    const modal = document.getElementById('signup-modal');
-                    modal.style.display = 'none';
-                    modal.classList.remove('active');
+                if (error) throw error;
 
-                    // AFFICHER résultats stockés
-                    console.log('✅ Affichage résultats:', window.pendingAnalysis);
-                    if (window.pendingAnalysis) {
-                        showResults(window.pendingAnalysis);
-                        window.pendingAnalysis = null;
+                console.log('✅ Compte créé:', data.user.email);
+
+                // 🔧 FIX: Sauvegarder l'analyse dans Supabase avec le user_id
+                if (window.pendingAnalysis && data.user) {
+                    console.log('💾 Sauvegarde de l\'analyse dans Supabase pour user:', data.user.id);
+
+                    try {
+                        const { data: insertData, error: insertError } = await window.supabaseClient
+                            .from('analyses')
+                            .insert({
+                                user_id: data.user.id,
+                                answers: window.pendingAnalysis.answers || {},
+                                passions: window.pendingAnalysis.passions || [],
+                                talents: window.pendingAnalysis.talents || [],
+                                mission: window.pendingAnalysis.mission || [],
+                                vocation: window.pendingAnalysis.vocation || [],
+                                career_recommendations: window.pendingAnalysis.careerRecommendations || [],
+                                business_ideas: window.pendingAnalysis.businessIdeas || [],
+                                score: window.pendingAnalysis.score || {},
+                                trajectories: window.pendingAnalysis.trajectories || null,
+                                coherence_diagnosis: window.pendingAnalysis.coherenceDiagnosis || null,
+                                final_trajectory: window.pendingAnalysis.finalTrajectory || null,
+                                positioning: window.pendingAnalysis.positioning || null,
+                                coaching_prep: window.pendingAnalysis.coachingPrep || null,
+                                profile_summary: window.pendingAnalysis.profileSummary || null,
+                                ikigai_summary: window.pendingAnalysis.ikigaiSummary || null
+                            })
+                            .select();
+
+                        if (insertError) {
+                            console.error('❌ Erreur sauvegarde analyse:', insertError);
+                        } else {
+                            console.log('✅ Analyse sauvegardée avec succès:', insertData);
+                        }
+                    } catch (saveError) {
+                        console.error('❌ Erreur lors de la sauvegarde:', saveError);
+                        // Ne pas bloquer l'affichage des résultats même si la sauvegarde échoue
                     }
-
-                } catch (error) {
-                    console.error('❌ Erreur signup:', error);
-                    errorDiv.textContent = error.message || 'Erreur lors de la création du compte';
-                    errorDiv.style.display = 'block';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Voir mes recommandations →';
                 }
-            });
 
-            // Fonction pour vérifier session et afficher modal si besoin
-            async function checkSessionBeforeResults(analysis) {
-                try {
-                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                // Fermer modal
+                const modal = document.getElementById('signup-modal');
+                modal.style.display = 'none';
+                modal.classList.remove('active');
 
-                    if (!session) {
-                        // Pas de session → CACHER page loading et afficher modal
-                        console.log('❌ Pas de session → Modal + stockage analysis');
+                // AFFICHER résultats stockés
+                console.log('✅ Affichage résultats:', window.pendingAnalysis);
+                if (window.pendingAnalysis) {
+                    showResults(window.pendingAnalysis);
+                    window.pendingAnalysis = null;
+                }
 
-                        // CACHER la page de chargement
-                        const loadingSection = document.getElementById('analyzing-section');
-                        console.log('🔍 Analyzing section trouvée:', loadingSection);
-                        if (loadingSection) {
-                            loadingSection.style.display = 'none';
-                            console.log('✅ Analyzing section cachée');
-                        }
+            } catch (error) {
+                console.error('❌ Erreur signup:', error);
+                errorDiv.textContent = error.message || 'Erreur lors de la création du compte';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Voir mes recommandations →';
+            }
+        });
 
-                        // AFFICHER le parent results-section (CRITIQUE!)
-                        const resultsSection = document.getElementById('results-section');
-                        if (resultsSection) {
-                            resultsSection.style.display = 'block';
-                            console.log('✅ Results section affichée');
-                        }
+        // Fonction pour vérifier session et afficher modal si besoin
+        async function checkSessionBeforeResults(analysis) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-                        // Stocker et afficher modal
-                        window.pendingAnalysis = analysis;
-                        const modal = document.getElementById('signup-modal');
-                        console.log('🔍 Modal trouvé:', modal);
+                if (!session) {
+                    // Pas de session → CACHER page loading et afficher modal
+                    console.log('❌ Pas de session → Modal + stockage analysis');
 
-                        // Forcer l'affichage avec style inline
-                        modal.style.display = 'flex';
-                        modal.style.background = 'rgba(0, 0, 0, 0.85)';
-                        modal.style.backdropFilter = 'blur(10px)';
-                        modal.style.justifyContent = 'center';
-                        modal.style.alignItems = 'center';
-                        modal.classList.add('active');
-                        console.log('✅ Modal affiché avec display: flex');
-                        return false;
-                    }
-
-                    console.log('✅ Session trouvée, affichage résultats');
-                    return true;
-                } catch (error) {
-                    console.error('Erreur vérification session:', error);
-
-                    // Cacher loading aussi en cas d'erreur
+                    // CACHER la page de chargement
                     const loadingSection = document.getElementById('analyzing-section');
+                    console.log('🔍 Analyzing section trouvée:', loadingSection);
                     if (loadingSection) {
                         loadingSection.style.display = 'none';
+                        console.log('✅ Analyzing section cachée');
                     }
 
                     // AFFICHER le parent results-section (CRITIQUE!)
                     const resultsSection = document.getElementById('results-section');
                     if (resultsSection) {
                         resultsSection.style.display = 'block';
+                        console.log('✅ Results section affichée');
                     }
 
+                    // Stocker et afficher modal
                     window.pendingAnalysis = analysis;
                     const modal = document.getElementById('signup-modal');
+                    console.log('🔍 Modal trouvé:', modal);
+
+                    // Forcer l'affichage avec style inline
                     modal.style.display = 'flex';
                     modal.style.background = 'rgba(0, 0, 0, 0.85)';
                     modal.style.backdropFilter = 'blur(10px)';
                     modal.style.justifyContent = 'center';
                     modal.style.alignItems = 'center';
                     modal.classList.add('active');
+                    console.log('✅ Modal affiché avec display: flex');
                     return false;
                 }
-            }
 
-            // Initialize on load
-            document.addEventListener('DOMContentLoaded', () => {
-                init();
-                checkPaymentOnLoad();
-                checkResultParameter();
-            });
+                console.log('✅ Session trouvée, affichage résultats');
+                return true;
+            } catch (error) {
+                console.error('Erreur vérification session:', error);
+
+                // Cacher loading aussi en cas d'erreur
+                const loadingSection = document.getElementById('analyzing-section');
+                if (loadingSection) {
+                    loadingSection.style.display = 'none';
+                }
+
+                // AFFICHER le parent results-section (CRITIQUE!)
+                const resultsSection = document.getElementById('results-section');
+                if (resultsSection) {
+                    resultsSection.style.display = 'block';
+                }
+
+                window.pendingAnalysis = analysis;
+                const modal = document.getElementById('signup-modal');
+                modal.style.display = 'flex';
+                modal.style.background = 'rgba(0, 0, 0, 0.85)';
+                modal.style.backdropFilter = 'blur(10px)';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.classList.add('active');
+                return false;
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            checkPaymentOnLoad();
+            checkResultParameter();
+        });
 
     </script>
 </body>

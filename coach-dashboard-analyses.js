@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger les analyses
     await loadAnalyses(user.id);
 
+    // Charger les statistiques
+    await loadAnalysesStats(user.id);
+
     // Afficher les analyses
     renderAnalyses();
 });
@@ -101,7 +104,7 @@ async function loadAnalyses(coachId) {
 
     } catch (error) {
         console.error('Erreur chargement analyses:', error);
-        AnalysesDashboard.analyses = getMockAnalyses();
+        AnalysesDashboard.analyses = [];
     }
 }
 
@@ -385,4 +388,89 @@ function updateAnalysesStatsUI(stats) {
     document.getElementById('monthAnalyses').textContent = stats.month;
     document.getElementById('avgAnalysisScore').textContent = stats.avgScore + '%';
     document.getElementById('analysisEvolution').textContent = (stats.evolution >= 0 ? '+' : '') + stats.evolution + '%';
+}
+
+// =============================================
+// Statistiques Analyses
+// =============================================
+
+async function loadAnalysesStats(coachId) {
+    try {
+        const { data: relations } = await supabaseClient
+            .from('coach_clients')
+            .select('client_id')
+            .eq('coach_id', coachId);
+        
+        if (!relations || relations.length === 0) {
+            updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
+            return;
+        }
+        
+        const clientIds = relations.map(r => r.client_id);
+        
+        const { data: allAnalyses } = await supabaseClient
+            .from('questionnaires')
+            .select('completed_at, ikigai_dimensions')
+            .in('user_id', clientIds)
+            .eq('completed', true);
+        
+        if (!allAnalyses || allAnalyses.length === 0) {
+            updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
+            return;
+        }
+        
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        
+        const monthAnalyses = allAnalyses.filter(a => new Date(a.completed_at) >= monthStart);
+        const lastMonthAnalyses = allAnalyses.filter(a => {
+            const d = new Date(a.completed_at);
+            return d >= lastMonthStart && d <= lastMonthEnd;
+        });
+        
+        // Calculer score moyen
+        let totalScore = 0, count = 0;
+        allAnalyses.forEach(a => {
+            if (a.ikigai_dimensions) {
+                const dims = a.ikigai_dimensions;
+                const score = ((dims.passion_score || 0) + (dims.mission_score || 0) + 
+                              (dims.vocation_score || 0) + (dims.profession_score || 0)) / 4;
+                if (score > 0) {
+                    totalScore += score;
+                    count++;
+                }
+            }
+        });
+        const avgScore = count > 0 ? Math.round(totalScore / count) : 0;
+        
+        // Calculer évolution
+        const evolution = lastMonthAnalyses.length > 0 
+            ? Math.round(((monthAnalyses.length - lastMonthAnalyses.length) / lastMonthAnalyses.length) * 100)
+            : 0;
+        
+        updateAnalysesStatsUI({
+            total: allAnalyses.length,
+            month: monthAnalyses.length,
+            avgScore: avgScore,
+            evolution: evolution
+        });
+        
+    } catch (error) {
+        console.error('Error loading analyses stats:', error);
+        updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
+    }
+}
+
+function updateAnalysesStatsUI(stats) {
+    const totalEl = document.getElementById('totalAnalyses');
+    const monthEl = document.getElementById('monthAnalyses');
+    const avgEl = document.getElementById('avgAnalysisScore');
+    const evolEl = document.getElementById('analysisEvolution');
+    
+    if (totalEl) totalEl.textContent = stats.total;
+    if (monthEl) monthEl.textContent = stats.month;
+    if (avgEl) avgEl.textContent = stats.avgScore + '%';
+    if (evolEl) evolEl.textContent = (stats.evolution >= 0 ? '+' : '') + stats.evolution + '%';
 }

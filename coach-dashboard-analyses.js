@@ -118,15 +118,13 @@ async function loadAnalyses(coachId) {
             };
         });
 
+
         console.log('✅ Total analyses loaded:', AnalysesDashboard.analyses.length);
-    });
 
-    console.log(`✅ ${AnalysesDashboard.analyses.length} analyses chargées`);
-
-} catch (error) {
-    console.error('Erreur chargement analyses:', error);
-    AnalysesDashboard.analyses = [];
-}
+    } catch (error) {
+        console.error('Erreur chargement analyses:', error);
+        AnalysesDashboard.analyses = [];
+    }
 }
 
 function getMockAnalyses() {

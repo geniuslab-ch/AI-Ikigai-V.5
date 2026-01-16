@@ -282,7 +282,7 @@
             <h2 class="card-title">💳 Plan & Facturation</h2>
             <div class="plan-card">
                 <div class="plan-name">Plan Pathfinder 🚀</div>
-                <div class="plan-price">1 460€/an</div>
+                <div class="plan-price">1 460$/an</div>
                 <p style="color: var(--gray); margin-bottom: 1rem;">100 analyses incluses • Google Calendar • Support
                     prioritaire</p>
                 <div style="margin-bottom: 1rem;">
@@ -583,7 +583,7 @@
                             <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">ACTUEL</div>
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Pathfinder</h3>
-                            <div class="plan-price" data-annual="1188" data-monthly="99" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
+                            <div class="plan-price" data-annual="1188" data-monthly="99" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460$/an</div>
                             <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">50 analyses/mois (600/an)</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ 50 analyses/mois</li>
@@ -645,9 +645,9 @@
                     const annual = priceEl.dataset.annual;
                     const monthly = priceEl.dataset.monthly;
                     if (mode === 'annual') {
-                        priceEl.textContent = `${annual}€/an`;
+                        priceEl.textContent = `${annual}$/an`;
                     } else {
-                        priceEl.textContent = `${monthly}€/mois`;
+                        priceEl.textContent = `${monthly}$/mois`;
                     }
                 });
 
@@ -663,7 +663,7 @@
             window.selectPlan = function (planName, price, billing) {
                 modal.remove();
                 const billingText = billing === 'annual' ? 'annuel' : 'mensuel';
-                const priceText = billing === 'annual' ? `${price}€/an` : `${price}€/mois`;
+                const priceText = billing === 'annual' ? `${price}$/an` : `${price}$/mois`;
                 alert(`📧 Changement de plan vers ${planName.toUpperCase()} (${billingText})\\n\\nPour modifier votre abonnement, contactez support@ai-ikigai.com\\n\\nNouveau tarif: ${priceText}`);
             };
         }

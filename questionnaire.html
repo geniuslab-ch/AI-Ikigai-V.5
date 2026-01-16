@@ -2064,13 +2064,11 @@
                         console.log('👨‍🏫 User has coach:', coachId);
                     }
 
-                    // Prepare analysis data
+                    // Prepare analysis data (only fields that exist in table)
                     const analysisData = {
                         user_id: user.id,
                         coach_id: coachId,
-                        user_email: user.email,
-                        answers: answers,
-                        created_at: new Date().toISOString()
+                        answers: answers
                     };
 
                     // Insert into analyses table

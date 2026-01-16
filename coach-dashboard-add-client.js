@@ -5,7 +5,7 @@
 function addNewClient() {
     const modal = document.getElementById('addClientModal');
     if (modal) {
-        modal.classList.add('active');
+        modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
         // Réinitialiser le formulaire
@@ -17,7 +17,7 @@ function addNewClient() {
 function closeAddClientModal() {
     const modal = document.getElementById('addClientModal');
     if (modal) {
-        modal.classList.remove('active');
+        modal.style.display = 'none';
         document.body.style.overflow = '';
     }
 }

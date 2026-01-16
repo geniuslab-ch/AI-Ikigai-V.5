@@ -253,10 +253,20 @@ function closeScheduleModal() {
 // Charger état connexion Google au démarrage
 async function loadGoogleConnectionStatus() {
     try {
+        // Check if CoachDashboard.coachData is available, otherwise use currentUser
+        const userId = (typeof CoachDashboard !== 'undefined' && CoachDashboard.coachData)
+            ? CoachDashboard.coachData.id
+            : (typeof currentUser !== 'undefined' && currentUser ? currentUser.id : null);
+
+        if (!userId) {
+            console.warn('No user ID found for Google Calendar status check');
+            return;
+        }
+
         const { data: profile } = await supabaseClient
             .from('profiles')
             .select('google_access_token')
-            .eq('id', CoachDashboard.coachData.id)
+            .eq('id', userId)
             .single();
 
         const connectBtn = document.getElementById('connectGoogleBtn');
@@ -264,7 +274,7 @@ async function loadGoogleConnectionStatus() {
 
         if (profile?.google_access_token) {
             if (connectBtn) connectBtn.style.display = 'none';
-            if (connectedDiv) connectedDiv.style.display = 'block';
+            if (connectedDiv) connectedDiv.style.display = 'inline';
         } else {
             if (connectBtn) connectBtn.style.display = 'block';
             if (connectedDiv) connectedDiv.style.display = 'none';

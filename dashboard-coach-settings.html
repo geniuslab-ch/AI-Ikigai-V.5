@@ -264,7 +264,9 @@
                     <h3>📅 Google Calendar</h3>
                     <p style="color: var(--gray); font-size: 0.9rem;">Synchronisez automatiquement vos séances</p>
                 </div>
-                <button class="btn-primary" onclick="connectGoogleCalendar()">Connecter</button>
+                <button class="btn-primary" id="connectGoogleBtn" onclick="connectGoogleCalendar()"
+                    style="display: none;">Connecter</button>
+                <span id="googleConnected" style="color: var(--success); display: none;">✅ Connecté</span>
             </div>
             <div class="integration-card">
                 <div>
@@ -466,6 +468,76 @@
             }
         }
 
+        // Afficher modal de changement de plan
+        function showChangePlanModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow-y: auto; padding: 2rem;';
+
+            modal.innerHTML = `
+                <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 900px; width: 100%;">
+                    <h2 style="margin-bottom: 1.5rem;">📊 Changer de Plan</h2>
+                    <p style="color: var(--gray); margin-bottom: 2rem;">Choisissez le plan qui correspond le mieux à vos besoins</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- Plan Explorer -->
+                        <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Explorer</h3>
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">730€/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">50 analyses incluses</p>
+                            <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 50 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Dashboard coach</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Support email</li>
+                            </ul>
+                            <button onclick="selectPlan('explorer', 730)" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Explorer</button>
+                        </div>
+
+                        <!-- Plan Pathfinder -->
+                        <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%); border: 2px solid var(--purple); border-radius: 16px; padding: 1.5rem; text-align: center; position: relative;">
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">ACTUEL</div>
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Pathfinder</h3>
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">100 analyses incluses</p>
+                            <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 100 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Google Calendar</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Support prioritaire</li>
+                            </ul>
+                            <button disabled style="width: 100%; padding: 0.75rem; background: var(--dark-border); border: none; border-radius: 8px; color: var(--gray); font-weight: 600; cursor: not-allowed;">Plan actuel</button>
+                        </div>
+
+                        <!-- Plan Guide -->
+                        <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">👑</div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Guide</h3>
+                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">2 920€/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">200 analyses incluses</p>
+                            <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 200 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Toutes les intégrations</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ Support VIP 24/7</li>
+                            </ul>
+                            <button onclick="selectPlan('guide', 2920)" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Guide</button>
+                        </div>
+                    </div>
+
+                    <button onclick="this.closest('div[style*=position]').remove()" style="width: 100%; padding: 0.75rem; background: var(--dark-border); border: none; border-radius: 8px; color: var(--light); cursor: pointer;">
+                        Annuler
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Fonction globale pour la sélection de plan
+            window.selectPlan = function (planName, price) {
+                modal.remove();
+                alert(`📧 Changement de plan vers ${planName.toUpperCase()}\\n\\nPour modifier votre abonnement, contactez support@ai-ikigai.com\\n\\nNouveau tarif: ${price}€/an`);
+            };
+        }
+
         // Afficher modal de résiliation d'abonnement
         function showCancelSubscription() {
             const modal = document.createElement('div');
@@ -493,7 +565,7 @@
                         <button onclick="this.closest('div[style*=position]').remove()" style="flex: 1; padding: 0.75rem; background: var(--dark-border); border: none; border-radius: 8px; color: var(--light); cursor: pointer;">
                             Annuler
                         </button>
-                        <button onclick="window.location.href='coach.html'" style="flex: 1; padding: 0.75rem; background: var(--purple); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                        <button onclick="this.closest('div[style*=position]').remove(); showChangePlanModal();" style="flex: 1; padding: 0.75rem; background: var(--purple); border: none; border-radius: 8px; color: white; cursor: pointer;">
                             Changer de plan
                         </button>
                         <button onclick="confirmCancellation()" style="flex: 1; padding: 0.75rem; background: var(--danger); border: none; border-radius: 8px; color: white; cursor: pointer;">
@@ -511,11 +583,6 @@
                 alert('📧 Un email de confirmation vous a été envoyé.\n\nPour finaliser la résiliation, contactez support@ai-ikigai.com avec votre demande.');
             };
         }
-
-        // Charger les notifications au chargement
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadNotifications();
-        });
 
         // La fonction connectGoogleCalendar est déjà définie dans coach-dashboard-google.js
         // Elle est exportée globalement via window.connectGoogleCalendar

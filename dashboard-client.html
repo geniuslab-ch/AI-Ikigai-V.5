@@ -1482,10 +1482,49 @@
             }
         }
 
-        async function handleLogout() {
-            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
-                await AuthAPI.signOut();
-            }
+        // Déconnexion avec modal custom
+        function handleLogout() {
+            console.log('🚪 Logout button clicked');
+
+            // Créer modal custom
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999;';
+
+            modal.innerHTML = `
+                <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; border: 2px solid var(--purple);">
+                    <h2 style="margin-bottom: 1rem; color: var(--light);">🚪 Déconnexion</h2>
+                    <p style="margin-bottom: 2rem; color: var(--gray);">Voulez-vous vraiment vous déconnecter ?</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="cancelLogout" style="flex: 1; padding: 0.75rem; background: var(--dark-border); color: var(--light); border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            Annuler
+                        </button>
+                        <button id="confirmLogout" style="flex: 1; padding: 0.75rem; background: var(--error); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            Oui, me déconnecter
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Gérer les clics
+            document.getElementById('cancelLogout').onclick = () => {
+                console.log('ℹ️ Logout cancelled by user');
+                modal.remove();
+            };
+
+            document.getElementById('confirmLogout').onclick = async () => {
+                try {
+                    console.log('⏳ User confirmed logout, signing out...');
+                    modal.remove();
+                    await AuthAPI.signOut();
+                    console.log('✅ Signed out, redirecting...');
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('❌ Erreur déconnexion:', error);
+                    alert('Erreur lors de la déconnexion: ' + error.message);
+                }
+            };
         }
 
         function navigateToSection(sectionName) {

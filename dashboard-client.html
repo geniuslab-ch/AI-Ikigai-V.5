@@ -940,48 +940,47 @@
                     document.getElementById('score-mission').textContent = '-';
                     document.getElementById('score-vocation').textContent = '-';
                 }
-            }
 
                 console.log('✅ Dashboard data loaded successfully');
 
-            // Now, populate dashboardData for other functions that rely on it
-            dashboardData = {
-                totalAnalyses: analyses.length,
-                latestAnalysis: latestAnalysis,
-                analyses: analyses // Pass all analyses for history
-            };
+                // Now, populate dashboardData for other functions that rely on it
+                dashboardData = {
+                    totalAnalyses: analyses.length,
+                    latestAnalysis: latestAnalysis,
+                    analyses: analyses // Pass all analyses for history
+                };
 
-            if (dashboardData.latestAnalysis) {
-                const scores = dashboardData.latestAnalysis.ikigai_dimensions; // Use ikigai_dimensions
-                document.getElementById('score-passion').textContent = scores.passion_score || 0;
-                document.getElementById('score-mission').textContent = scores.mission_score || 0;
-                document.getElementById('score-vocation').textContent = scores.vocation_score || 0;
+                if (dashboardData.latestAnalysis) {
+                    const scores = dashboardData.latestAnalysis.ikigai_dimensions; // Use ikigai_dimensions
+                    document.getElementById('score-passion').textContent = scores.passion_score || 0;
+                    document.getElementById('score-mission').textContent = scores.mission_score || 0;
+                    document.getElementById('score-vocation').textContent = scores.vocation_score || 0;
 
-                // Create the Ikigai chart
-                createIkigaiChart({
-                    passion: scores.passion_score,
-                    profession: scores.profession_score,
-                    mission: scores.mission_score,
-                    vocation: scores.vocation_score
-                });
+                    // Create the Ikigai chart
+                    createIkigaiChart({
+                        passion: scores.passion_score,
+                        profession: scores.profession_score,
+                        mission: scores.mission_score,
+                        vocation: scores.vocation_score
+                    });
 
-                // Display recommendations
-                displayRecommendations(dashboardData.latestAnalysis);
+                    // Display recommendations
+                    displayRecommendations(dashboardData.latestAnalysis);
 
-                // Display insights
-                displayInsights(dashboardData.latestAnalysis);
+                    // Display insights
+                    displayInsights(dashboardData.latestAnalysis);
 
-                // Check if first visit and show guide
-                checkFirstVisit();
+                    // Check if first visit and show guide
+                    checkFirstVisit();
+                }
+
+                // Display history
+                displayHistory(dashboardData.analyses);
+
+            } catch (error) {
+                console.error('Erreur chargement dashboard:', error);
+                // Note: Backend pas encore configuré, c'est normal
             }
-
-            // Display history
-            displayHistory(dashboardData.analyses);
-
-        } catch (error) {
-            console.error('Erreur chargement dashboard:', error);
-            // Note: Backend pas encore configuré, c'est normal
-        }
         }
 
         function createIkigaiChart(scores) {

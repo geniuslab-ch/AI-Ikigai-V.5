@@ -350,8 +350,13 @@
             // Charger le profil
             await loadProfile();
 
+            // Charger les préférences de notifications
+            await loadNotifications();
+
             // Charger le statut Google Calendar
             await loadGoogleConnectionStatus();
+
+            console.log('✅ Settings page fully initialized');
         });
 
         // Charger les données du profil
@@ -418,39 +423,53 @@
         // Charger les préférences de notifications
         async function loadNotifications() {
             try {
-                const { data: profile } = await supabaseClient
+                console.log('📧 Loading notification preferences...');
+                const { data: profile, error } = await supabaseClient
                     .from('profiles')
                     .select('notification_new_clients, notification_sessions, notification_newsletter')
                     .eq('id', currentUser.id)
                     .single();
 
+                if (error) throw error;
+
                 if (profile) {
                     document.getElementById('notif-new-clients').checked = profile.notification_new_clients !== false;
                     document.getElementById('notif-sessions').checked = profile.notification_sessions !== false;
                     document.getElementById('notif-newsletter').checked = profile.notification_newsletter === true;
+
+                    console.log('✅ Notifications loaded:', {
+                        newClients: profile.notification_new_clients,
+                        sessions: profile.notification_sessions,
+                        newsletter: profile.notification_newsletter
+                    });
                 }
             } catch (error) {
-                console.error('Erreur chargement notifications:', error);
+                console.error('❌ Erreur chargement notifications:', error);
             }
         }
 
         // Sauvegarder les préférences de notifications
         async function saveNotifications() {
             try {
+                const preferences = {
+                    notification_new_clients: document.getElementById('notif-new-clients').checked,
+                    notification_sessions: document.getElementById('notif-sessions').checked,
+                    notification_newsletter: document.getElementById('notif-newsletter').checked
+                };
+
+                console.log('💾 Saving notification preferences:', preferences);
+
                 const { error } = await supabaseClient
                     .from('profiles')
-                    .update({
-                        notification_new_clients: document.getElementById('notif-new-clients').checked,
-                        notification_sessions: document.getElementById('notif-sessions').checked,
-                        notification_newsletter: document.getElementById('notif-newsletter').checked
-                    })
+                    .update(preferences)
                     .eq('id', currentUser.id);
 
                 if (error) throw error;
 
+                console.log('✅ Preferences saved successfully');
                 alert('✅ Préférences de notifications enregistrées !');
             } catch (error) {
-                console.error('Erreur sauvegarde notifications:', error);
+                console.error('❌ Erreur sauvegarde notifications:', error);
                 alert('❌ Erreur : ' + error.message);
             }
         }
@@ -473,24 +492,43 @@
             const modal = document.createElement('div');
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow-y: auto; padding: 2rem;';
 
+            // Données des plans (annuel et mensuel)
+            const plans = {
+                explorer: { annual: 730, monthly: 73, analyses: 50 },
+                pathfinder: { annual: 1460, monthly: 146, analyses: 100 },
+                guide: { annual: 2920, monthly: 292, analyses: 200 }
+            };
+
             modal.innerHTML = `
                 <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 900px; width: 100%;">
-                    <h2 style="margin-bottom: 1.5rem;">📊 Changer de Plan</h2>
-                    <p style="color: var(--gray); margin-bottom: 2rem;">Choisissez le plan qui correspond le mieux à vos besoins</p>
+                    <h2 style="margin-bottom: 1rem;">📊 Changer de Plan</h2>
+                    <p style="color: var(--gray); margin-bottom: 1.5rem;">Choisissez le plan qui correspond le mieux à vos besoins</p>
+                    
+                    <!-- Toggle Annuel/Mensuel -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                        <div style="background: var(--dark); border-radius: 50px; padding: 0.25rem; display: flex; gap: 0.25rem;">
+                            <button id="billingAnnual" onclick="switchBilling('annual')" style="padding: 0.5rem 1.5rem; border: none; border-radius: 50px; background: var(--purple); color: white; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                Annuel
+                            </button>
+                            <button id="billingMonthly" onclick="switchBilling('monthly')" style="padding: 0.5rem 1.5rem; border: none; border-radius: 50px; background: transparent; color: var(--gray); cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                Mensuel
+                            </button>
+                        </div>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                         <!-- Plan Explorer -->
                         <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Explorer</h3>
-                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">730€/an</div>
+                            <div class="plan-price" data-annual="730" data-monthly="73" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">730€/an</div>
                             <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">50 analyses incluses</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ 50 analyses Ikigai/an</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Dashboard coach</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Support email</li>
                             </ul>
-                            <button onclick="selectPlan('explorer', 730)" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Explorer</button>
+                            <button onclick="selectPlan('explorer', 730, 'annual')" class="plan-select-btn" data-plan="explorer" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Explorer</button>
                         </div>
 
                         <!-- Plan Pathfinder -->
@@ -498,7 +536,7 @@
                             <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">ACTUEL</div>
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Pathfinder</h3>
-                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
+                            <div class="plan-price" data-annual="1460" data-monthly="146" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
                             <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">100 analyses incluses</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ 100 analyses Ikigai/an</li>
@@ -512,14 +550,14 @@
                         <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">👑</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Guide</h3>
-                            <div style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">2 920€/an</div>
+                            <div class="plan-price" data-annual="2920" data-monthly="292" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">2 920€/an</div>
                             <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">200 analyses incluses</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ 200 analyses Ikigai/an</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Toutes les intégrations</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Support VIP 24/7</li>
                             </ul>
-                            <button onclick="selectPlan('guide', 2920)" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Guide</button>
+                            <button onclick="selectPlan('guide', 2920, 'annual')" class="plan-select-btn" data-plan="guide" style="width: 100%; padding: 0.75rem; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Choisir Guide</button>
                         </div>
                     </div>
 
@@ -531,10 +569,55 @@
 
             document.body.appendChild(modal);
 
+            // Store current billing mode
+            let currentBilling = 'annual';
+
+            // Fonction pour changer le mode de facturation
+            window.switchBilling = function (mode) {
+                currentBilling = mode;
+                const annualBtn = document.getElementById('billingAnnual');
+                const monthlyBtn = document.getElementById('billingMonthly');
+                const prices = document.querySelectorAll('.plan-price');
+                const selectBtns = document.querySelectorAll('.plan-select-btn');
+
+                // Update button styles
+                if (mode === 'annual') {
+                    annualBtn.style.background = 'var(--purple)';
+                    annualBtn.style.color = 'white';
+                    monthlyBtn.style.background = 'transparent';
+                    monthlyBtn.style.color = 'var(--gray)';
+                } else {
+                    monthlyBtn.style.background = 'var(--purple)';
+                    monthlyBtn.style.color = 'white';
+                    annualBtn.style.background = 'transparent';
+                    annualBtn.style.color = 'var(--gray)';
+                }
+
+                // Update prices
+                prices.forEach(priceEl => {
+                    const annual = priceEl.dataset.annual;
+                    const monthly = priceEl.dataset.monthly;
+                    if (mode === 'annual') {
+                        priceEl.textContent = `${annual}€/an`;
+                    } else {
+                        priceEl.textContent = `${monthly}€/mois`;
+                    }
+                });
+
+                // Update select buttons onclick
+                selectBtns.forEach(btn => {
+                    const plan = btn.dataset.plan;
+                    const price = mode === 'annual' ? plans[plan].annual : plans[plan].monthly;
+                    btn.setAttribute('onclick', `selectPlan('${plan}', ${price}, '${mode}')`);
+                });
+            };
+
             // Fonction globale pour la sélection de plan
-            window.selectPlan = function (planName, price) {
+            window.selectPlan = function (planName, price, billing) {
                 modal.remove();
-                alert(`📧 Changement de plan vers ${planName.toUpperCase()}\\n\\nPour modifier votre abonnement, contactez support@ai-ikigai.com\\n\\nNouveau tarif: ${price}€/an`);
+                const billingText = billing === 'annual' ? 'annuel' : 'mensuel';
+                const priceText = billing === 'annual' ? `${price}€/an` : `${price}€/mois`;
+                alert(`📧 Changement de plan vers ${planName.toUpperCase()} (${billingText})\\n\\nPour modifier votre abonnement, contactez support@ai-ikigai.com\\n\\nNouveau tarif: ${priceText}`);
             };
         }
 

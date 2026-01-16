@@ -253,34 +253,45 @@ function closeScheduleModal() {
 // Charger état connexion Google au démarrage
 async function loadGoogleConnectionStatus() {
     try {
+        console.log('📅 Checking Google Calendar connection status...');
+
         // Check if CoachDashboard.coachData is available, otherwise use currentUser
         const userId = (typeof CoachDashboard !== 'undefined' && CoachDashboard.coachData)
             ? CoachDashboard.coachData.id
             : (typeof currentUser !== 'undefined' && currentUser ? currentUser.id : null);
 
         if (!userId) {
-            console.warn('No user ID found for Google Calendar status check');
+            console.warn('⚠️ No user ID found for Google Calendar status check');
             return;
         }
 
-        const { data: profile } = await supabaseClient
+        console.log('User ID for Google Calendar check:', userId);
+
+        const { data: profile, error } = await supabaseClient
             .from('profiles')
             .select('google_access_token')
             .eq('id', userId)
             .single();
 
+        if (error) {
+            console.error('❌ Error loading Google Calendar status:', error);
+            throw error;
+        }
+
         const connectBtn = document.getElementById('connectGoogleBtn');
         const connectedDiv = document.getElementById('googleConnected');
 
         if (profile?.google_access_token) {
+            console.log('✅ Google Calendar is connected');
             if (connectBtn) connectBtn.style.display = 'none';
             if (connectedDiv) connectedDiv.style.display = 'inline';
         } else {
+            console.log('ℹ️ Google Calendar is not connected');
             if (connectBtn) connectBtn.style.display = 'block';
             if (connectedDiv) connectedDiv.style.display = 'none';
         }
     } catch (error) {
-        console.error('Erreur chargement statut Google:', error);
+        console.error('❌ Erreur chargement statut Google:', error);
     }
 }
 

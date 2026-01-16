@@ -950,7 +950,7 @@
                     analyses: analyses // Pass all analyses for history
                 };
 
-                if (dashboardData.latestAnalysis) {
+                if (dashboardData.latestAnalysis && dashboardData.latestAnalysis.ikigai_dimensions) {
                     const scores = dashboardData.latestAnalysis.ikigai_dimensions; // Use ikigai_dimensions
                     document.getElementById('score-passion').textContent = scores.passion_score || 0;
                     document.getElementById('score-mission').textContent = scores.mission_score || 0;

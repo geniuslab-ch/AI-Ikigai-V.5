@@ -58,6 +58,13 @@ export default {
             }
 
             // ============================================
+            // ROUTE 6: Brevo - Notification Nouveau Client
+            // ============================================
+            if (url.pathname === '/api/notify/new-client' && request.method === 'POST') {
+                return await handleNotifyNewClient(request, env, corsHeaders);
+            }
+
+            // ============================================
             // 404: Route not found
             // ============================================
             return new Response(JSON.stringify({
@@ -682,4 +689,91 @@ function generatePDFHTML(client, questionnaire) {
 </body>
 </html>
     `;
+}
+
+// ================================================
+// BREVO EMAIL FUNCTIONS
+// ================================================
+
+async function sendBrevoEmail(env, templateId, toEmail, params) {
+    if (!env.BREVO_API_KEY) {
+        throw new Error('BREVO_API_KEY not configured');
+    }
+
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'api-key': env.BREVO_API_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            templateId: parseInt(templateId),
+            to: [{ email: toEmail }],
+            params: params
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Brevo API Error:', errorData);
+        throw new Error(`Brevo error: ${errorData.message || response.statusText}`);
+    }
+
+    return await response.json();
+}
+
+// ================================================
+// HANDLER: Notification Nouveau Client
+// ================================================
+async function handleNotifyNewClient(request, env, corsHeaders) {
+    try {
+        const { coachId, clientName, clientEmail } = await request.json();
+
+        if (!coachId || !clientName || !clientEmail) {
+            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
+
+        const supabaseClient = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        const { data: coach, error } = await supabaseClient
+            .from('profiles')
+            .select('email, name, notification_new_clients')
+            .eq('id', coachId)
+            .single();
+
+        if (error || !coach) {
+            return new Response(JSON.stringify({ error: 'Coach not found' }), {
+                status: 404,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
+
+        if (!coach.notification_new_clients) {
+            return new Response(JSON.stringify({ success: true, message: 'Notifications disabled' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Template #1 = Nouveau Client
+        await sendBrevoEmail(env, 1, coach.email, {
+            coach_name: coach.name,
+            client_name: clientName,
+            client_email: clientEmail
+        });
+
+        console.log(`✅ Notification sent to ${coach.email} for new client: ${clientName}`);
+
+        return new Response(JSON.stringify({ success: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+
+    } catch (error) {
+        console.error('Error in handleNotifyNewClient:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+    }
 }

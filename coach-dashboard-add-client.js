@@ -55,12 +55,35 @@ async function handleAddNewClient(event) {
 
         if (error) throw error;
 
-        // Envoyer l'email
+        // Envoyer l'email d'invitation au client
         const inviteLink = `${window.location.origin}/auth.html?invite=${invitationToken}`;
         await sendClientInvitation(email, name, message, inviteLink);
 
+        // ✨ NOUVEAU: Envoyer notification Brevo au coach
+        try {
+            await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/notify/new-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    coachId: CoachDashboard.coachData.id,
+                    clientName: name,
+                    clientEmail: email
+                })
+            });
+            console.log('✅ Notification Brevo envoyée au coach');
+        } catch (notifError) {
+            console.warn('⚠️ Notification Brevo échouée (non bloquant):', notifError);
+            // Ne pas bloquer le flow si la notification échoue
+        }
+
         alert(`✅ Invitation envoyée à ${email} !`);
         closeAddClientModal();
+
+        // Recharger la liste des clients
+        const clients = await loadClients();
+        if (typeof displayClientsTable === 'function') {
+            displayClientsTable(clients);
+        }
 
     } catch (error) {
         console.error('Erreur:', error);

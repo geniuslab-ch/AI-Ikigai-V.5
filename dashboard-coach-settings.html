@@ -314,12 +314,12 @@
         <div class="card">
             <h2 class="card-title">🔐 Compte & Sécurité</h2>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button class="btn-secondary" onclick="logout()"
-                    style="background: var(--dark-border); color: var(--light);">
+                <button onclick="logout()"
+                    style="padding: 0.75rem 1.5rem; background: var(--dark-border); color: var(--light); border: none; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 500;">
                     🚪 Se déconnecter
                 </button>
-                <button class="btn-danger" onclick="showCancelSubscription()"
-                    style="background: var(--danger); color: white;">
+                <button onclick="showCancelSubscription()"
+                    style="padding: 0.75rem 1.5rem; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 500;">
                     ⚠️ Résilier mon abonnement
                 </button>
             </div>
@@ -424,25 +424,64 @@
         async function loadNotifications() {
             try {
                 console.log('📧 Loading notification preferences...');
+                console.log('Current user ID:', currentUser?.id);
+
+                if (!currentUser || !currentUser.id) {
+                    console.error('❌ No current user available for loading notifications');
+                    return;
+                }
+
                 const { data: profile, error } = await supabaseClient
                     .from('profiles')
                     .select('notification_new_clients, notification_sessions, notification_newsletter')
                     .eq('id', currentUser.id)
                     .single();
 
-                if (error) throw error;
-
-                if (profile) {
-                    document.getElementById('notif-new-clients').checked = profile.notification_new_clients !== false;
-                    document.getElementById('notif-sessions').checked = profile.notification_sessions !== false;
-                    document.getElementById('notif-newsletter').checked = profile.notification_newsletter === true;
-
-                    console.log('✅ Notifications loaded:', {
-                        newClients: profile.notification_new_clients,
-                        sessions: profile.notification_sessions,
-                        newsletter: profile.notification_newsletter
-                    });
+                if (error) {
+                    console.error('❌ Database error loading notifications:', error);
+                    throw error;
                 }
+
+                if (!profile) {
+                    console.warn('⚠️ No profile data returned');
+                    return;
+                }
+
+                console.log('✅ Notifications loaded from database:', {
+                    newClients: profile.notification_new_clients,
+                    sessions: profile.notification_sessions,
+                    newsletter: profile.notification_newsletter
+                });
+
+                // Verify DOM elements exist
+                const newClientsEl = document.getElementById('notif-new-clients');
+                const sessionsEl = document.getElementById('notif-sessions');
+                const newsletterEl = document.getElementById('notif-newsletter');
+
+                console.log('📍 DOM elements found:', {
+                    newClients: !!newClientsEl,
+                    sessions: !!sessionsEl,
+                    newsletter: !!newsletterEl
+                });
+
+                if (newClientsEl) {
+                    newClientsEl.checked = profile.notification_new_clients !== false;
+                    console.log('✓ Set newClients checkbox to:', newClientsEl.checked);
+                }
+
+                if (sessionsEl) {
+                    sessionsEl.checked = profile.notification_sessions !== false;
+                    console.log('✓ Set sessions checkbox to:', sessionsEl.checked);
+                }
+
+                if (newsletterEl) {
+                    newsletterEl.checked = profile.notification_newsletter === true;
+                    console.log('✓ Set newsletter checkbox to:', newsletterEl.checked);
+                    console.log('📊 Newsletter - DB value:', profile.notification_newsletter, 'Checkbox state:', newsletterEl.checked);
+                } else {
+                    console.error('❌ Newsletter checkbox not found in DOM!');
+                }
+
             } catch (error) {
                 console.error('❌ Erreur chargement notifications:', error);
             }
@@ -476,16 +515,24 @@
 
         // Déconnexion
         async function logout() {
+            console.log('🚪 Logout button clicked');
             if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
                 try {
+                    console.log('⏳ Signing out from Supabase...');
                     await supabaseClient.auth.signOut();
+                    console.log('✅ Signed out, redirecting...');
                     window.location.href = 'index.html';
                 } catch (error) {
-                    console.error('Erreur déconnexion:', error);
-                    alert('Erreur lors de la déconnexion');
+                    console.error('❌ Erreur déconnexion:', error);
+                    alert('Erreur lors de la déconnexion: ' + error.message);
                 }
+            } else {
+                console.log('ℹ️ Logout cancelled by user');
             }
         }
+
+        // Make logout globally available
+        window.logout = logout;
 
         // Afficher modal de changement de plan
         function showChangePlanModal() {

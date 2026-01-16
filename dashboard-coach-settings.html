@@ -539,11 +539,11 @@
             const modal = document.createElement('div');
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow-y: auto; padding: 2rem;';
 
-            // Données des plans (annuel et mensuel)
+            // Données des plans (annuel et mensuel) - Prix alignés avec coach.html
             const plans = {
-                explorer: { annual: 730, monthly: 73, analyses: 50 },
-                pathfinder: { annual: 1460, monthly: 146, analyses: 100 },
-                guide: { annual: 2920, monthly: 292, analyses: 200 }
+                explorer: { annual: 49*12, monthly: 49, analyses: 10 },
+                pathfinder: { annual: 99*12, monthly: 99, analyses: 50 },
+                guide: { annual: 199*12, monthly: 199, analyses: 100 }
             };
 
             modal.innerHTML = `
@@ -568,10 +568,10 @@
                         <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Explorer</h3>
-                            <div class="plan-price" data-annual="730" data-monthly="73" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">730€/an</div>
-                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">50 analyses incluses</p>
+                            <div class="plan-price" data-annual="588" data-monthly="49" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">$588/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">10 analyses/mois (120/an)</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 50 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 10 analyses/mois</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Dashboard coach</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Support email</li>
                             </ul>
@@ -583,10 +583,10 @@
                             <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">ACTUEL</div>
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Pathfinder</h3>
-                            <div class="plan-price" data-annual="1460" data-monthly="146" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
-                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">100 analyses incluses</p>
+                            <div class="plan-price" data-annual="1188" data-monthly="99" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">1 460€/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">50 analyses/mois (600/an)</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 100 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 50 analyses/mois</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Google Calendar</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Support prioritaire</li>
                             </ul>
@@ -597,10 +597,10 @@
                         <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, transparent 100%); border: 2px solid var(--dark-border); border-radius: 16px; padding: 1.5rem; text-align: center;">
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">👑</div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Guide</h3>
-                            <div class="plan-price" data-annual="2920" data-monthly="292" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">2 920€/an</div>
-                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">200 analyses incluses</p>
+                            <div class="plan-price" data-annual="2388" data-monthly="199" style="font-size: 2rem; font-weight: 700; background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0;">$2,388/an</div>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">100 analyses/mois (1200/an)</p>
                             <ul style="list-style: none; padding: 0; text-align: left; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 200 analyses Ikigai/an</li>
+                                <li style="padding: 0.25rem 0; color: var(--light);">✓ 100 analyses/mois</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Toutes les intégrations</li>
                                 <li style="padding: 0.25rem 0; color: var(--light);">✓ Support VIP 24/7</li>
                             </ul>

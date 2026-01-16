@@ -906,7 +906,7 @@
                     .order('created_at', { ascending: false });
 
                 if (error) {
-                    console.error('❌ Error loading questionnaires:', error);
+                    console.error('❌ Error loading analyses:', error);
                     throw error;
                 }
 
@@ -923,10 +923,10 @@
                 }
 
                 // Prendre la dernière analyse
-                const latestAnalysis = questionnaires[0];
+                const latestAnalysis = analyses[0];
 
                 // Mettre à jour les stats
-                document.getElementById('total-analyses').textContent = questionnaires.length;
+                document.getElementById('total-analyses').textContent = analyses.length;
 
                 // Afficher les scores si disponibles
                 if (latestAnalysis.ikigai_dimensions) {
@@ -940,9 +940,9 @@
 
                 // Now, populate dashboardData for other functions that rely on it
                 dashboardData = {
-                    totalAnalyses: questionnaires.length,
+                    totalAnalyses: analyses.length,
                     latestAnalysis: latestAnalysis,
-                    analyses: questionnaires // Pass all analyses for history
+                    analyses: analyses // Pass all analyses for history
                 };
 
                 if (dashboardData.latestAnalysis) {
@@ -1626,8 +1626,8 @@
                         return;
                     }
 
-                    // Fetch questionnaires depuis Supabase
-                    const { data: questionnaires, error } = await supabaseClient
+                    // Fetch analyses depuis Supabase
+                    const { data: analyses, error } = await supabaseClient
                         .from('analyses')
                         .select('*')
                         .eq('user_id', session.user.id)

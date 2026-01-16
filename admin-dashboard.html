@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tableau de bord Admin - AI-Ikigai">
+    <title>Admin Dashboard | AI-Ikigai</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =============================================
+           CSS Variables - Matching AI-Ikigai Design
+           ============================================= */
+        :root {
+            --cyan: #00d4ff;
+            --blue: #4169e1;
+            --purple: #8b5cf6;
+            --magenta: #d946ef;
+            --pink: #ec4899;
+            --gradient-primary: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 25%, var(--purple) 50%, var(--magenta) 75%, var(--pink) 100%);
+            --gradient-text: linear-gradient(90deg, var(--cyan) 0%, var(--magenta) 100%);
+            --dark: #0a0a0f;
+            --dark-card: #12121a;
+            --dark-border: #1f1f2e;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+
+        /* =============================================
+           Layout with Sidebar
+           ============================================= */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--dark-card);
+            border-right: 1px solid var(--dark-border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: var(--light);
+        }
+
+        .logo span {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--light);
+        }
+
+        .nav-item.active {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--light);
+            border-right: 2px solid var(--purple);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-label {
+            flex: 1;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .nav-badge {
+            padding: 0.25rem 0.5rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* User Profile in Sidebar */
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid var(--dark-border);
+            background: var(--dark-card);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--dark-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 50px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            width: 400px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .notification-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            border-color: var(--purple);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--dark);
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-4px);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+        }
+
+        .trend-up {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .trend-down {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--purple);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid var(--purple);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--purple);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid var(--danger);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: var(--light);
+        }
+
+        .btn-icon {
+            background: var(--dark-border);
+            color: var(--light);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+        }
+
+        .btn-icon:hover {
+            background: var(--purple);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .data-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--dark-border);
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .data-table td {
+            padding: 1rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--gray);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-suspended {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 50px;
+            color: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--purple);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--dark-border);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--gray);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--light);
+        }
+
+        .tab-btn.active {
+            color: var(--light);
+            border-bottom-color: var(--purple);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--light);
+            font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .search-input {
+                width: 200px;
+            }
+
+            .search-input:focus {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .dashboard-content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--dark-border);
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2"/>
+                        <path d="M20 10 L20 30 M10 20 L30 20" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff"/>
+                                <stop offset="50%" style="stop-color:#8b5cf6"/>
+                                <stop offset="100%" style="stop-color:#ec4899"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>AI-Ikigai</span>
+                </a>
+                <div class="admin-badge">⚡ ADMIN</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="#overview" class="nav-item active" data-section="overview">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Vue d'ensemble</span>
+                    </a>
+                    <a href="#analytics" class="nav-item" data-section="analytics">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-label">Analytique Business</span>
+                    </a>
+                </div>
+
+                <!-- Module A - Gestion -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Module A - Gestion</div>
+                    <a href="#users" class="nav-item" data-section="users">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-label">Utilisateurs</span>
+                    </a>
+                    <a href="#coaches" class="nav-item" data-section="coaches">
+                        <span class="nav-icon">🎓</span>
+                        <span class="nav-label">Coaches</span>
+                    </a>
+                </div>
+
+                <!-- Module B - Analyses -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Module B - Analyses</div>
+                    <a href="#ikigai-analyses" class="nav-item" data-section="ikigai-analyses">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-label">Analyses Ikigai</span>
+                        <span class="nav-badge">3</span>
+                    </a>
+                </div>
+
+                <!-- Module C - Tarification -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Module C - Tarification</div>
+                    <a href="#pricing-b2c" class="nav-item" data-section="pricing-b2c">
+                        <span class="nav-icon">💳</span>
+                        <span class="nav-label">Tarifs B2C</span>
+                    </a>
+                    <a href="#pricing-coach" class="nav-item" data-section="pricing-coach">
+                        <span class="nav-icon">💰</span>
+                        <span class="nav-label">Tarifs Coach</span>
+                    </a>
+                </div>
+
+                <!-- Module D - Revenus -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Module D - Revenus</div>
+                    <a href="#revenue" class="nav-item" data-section="revenue">
+                        <span class="nav-icon">💵</span>
+                        <span class="nav-label">Revenus</span>
+                    </a>
+                </div>
+
+                <!-- Module E - Support -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Module E - Support</div>
+                    <a href="#support" class="nav-item" data-section="support">
+                        <span class="nav-icon">🎧</span>
+                        <span class="nav-label">Support</span>
+                        <span class="nav-badge">5</span>
+                    </a>
+                    <a href="#gdpr" class="nav-item" data-section="gdpr">
+                        <span class="nav-icon">🔒</span>
+                        <span class="nav-label">GDPR</span>
+                    </a>
+                    <a href="#audit" class="nav-item" data-section="audit">
+                        <span class="nav-icon">📝</span>
+                        <span class="nav-label">Logs d'Audit</span>
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Configuration</div>
+                    <a href="#settings" class="nav-item" data-section="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">Paramètres</span>
+                    </a>
+                    <a href="#roles" class="nav-item" data-section="roles">
+                        <span class="nav-icon">🔑</span>
+                        <span class="nav-label">Rôles & Permissions</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <div class="user-name">Admin User</div>
+                        <div class="user-role">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-content">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                        <h1 class="page-title" id="pageTitle">Vue d'ensemble</h1>
+                    </div>
+                    <div class="top-bar-actions">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" placeholder="Rechercher..." id="globalSearch">
+                        </div>
+                        <button class="notification-btn">
+                            🔔
+                            <span class="notification-dot"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Section: Overview (Vue d'ensemble) -->
+                <div class="section active" id="section-overview">
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card animate-in">
+                            <div class="stat-header">
+                                <div class="stat-icon">👥</div>
+                                <div class="stat-trend trend-up">
+                                    <span>↑</span>
+                                    <span>+18%</span>
+                                </div>
+                            </div>
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-label">Total Utilisateurs</div>
+                        </div>
+
+                        <div class="stat-card animate-in" style="animation-delay: 0.1s">
+                            <div class="stat-header">
+                                <div class="stat-icon">🎯</div>
+                                <div class="stat-trend trend-up">
+                                    <span>↑</span>
+                                    <span>+24%</span>
+                                </div>
+                            </div>
+                            <div class="stat-value">3,892</div>
+                            <div class="stat-label">Analyses Réalisées</div>
+                        </div>
+
+                        <div class="stat-card animate-in" style="animation-delay: 0.2s">
+                            <div class="stat-header">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-trend trend-up">
+                                    <span>↑</span>
+                                    <span>+32%</span>
+                                </div>
+                            </div>
+                            <div class="stat-value">87.4K€</div>
+                            <div class="stat-label">Revenus (ce mois)</div>
+                        </div>
+
+                        <div class="stat-card animate-in" style="animation-delay: 0.3s">
+                            <div class="stat-header">
+                                <div class="stat-icon">📈</div>
+                                <div class="stat-trend trend-up">
+                                    <span>↑</span>
+                                    <span>+12%</span>
+                                </div>
+                            </div>
+                            <div class="stat-value">68.2%</div>
+                            <div class="stat-label">Taux de Conversion</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">⚡</div>
+                                Actions Rapides
+                            </h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <button class="btn-primary" onclick="navigateToSection('users')">
+                                👥 Gérer les utilisateurs
+                            </button>
+                            <button class="btn-primary" onclick="navigateToSection('ikigai-analyses')">
+                                🎯 Voir les analyses
+                            </button>
+                            <button class="btn-primary" onclick="navigateToSection('pricing-b2c')">
+                                💳 Configurer les tarifs
+                            </button>
+                            <button class="btn-primary" onclick="navigateToSection('support')">
+                                🎧 Support clients
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">📊</div>
+                                Activité Récente
+                            </h2>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Utilisateur</th>
+                                    <th>Action</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>🎯</td>
+                                    <td>Marie Dupont</td>
+                                    <td>Analyse Ikigai complétée</td>
+                                    <td>Il y a 5 min</td>
+                                    <td><span class="status-badge status-active"><span class="status-dot"></span> Succès</span></td>
+                                </tr>
+                                <tr>
+                                    <td>💳</td>
+                                    <td>Jean Martin</td>
+                                    <td>Souscription Premium</td>
+                                    <td>Il y a 12 min</td>
+                                    <td><span class="status-badge status-active"><span class="status-dot"></span> Succès</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🎓</td>
+                                    <td>Sophie Bernard</td>
+                                    <td>Nouveau client ajouté</td>
+                                    <td>Il y a 18 min</td>
+                                    <td><span class="status-badge status-active"><span class="status-dot"></span> Succès</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Placeholder for other sections -->
+                <div class="section" id="section-users">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <div class="card-icon">👥</div>
+                                Gestion des Utilisateurs
+                            </h2>
+                        </div>
+                        <p>Section en construction... Voir admin-dashboard.js pour l'implémentation complète.</p>
+                    </div>
+                </div>
+
+                <!-- Add more sections dynamically via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

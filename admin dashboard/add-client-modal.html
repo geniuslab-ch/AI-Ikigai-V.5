@@ -1,0 +1,302 @@
+<!-- ============================================
+     MODAL AJOUT CLIENT - À ajouter dans coach-dashboard.html
+     Insérer ce code juste avant la fermeture de </body>
+     ============================================ -->
+
+<!-- Modal Ajout Client -->
+<div class="modal" id="addClientModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Ajouter un Client</h2>
+            <button class="modal-close" onclick="closeAddClientModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- Onglets -->
+            <div class="client-tabs">
+                <button class="tab-btn active" onclick="switchClientTab('existing')" id="existingTab">
+                    Client Existant
+                </button>
+                <button class="tab-btn" onclick="switchClientTab('new')" id="newTab">
+                    Nouveau Client
+                </button>
+            </div>
+
+            <!-- Formulaire Client Existant -->
+            <div class="tab-content active" id="existingClientForm">
+                <p style="color: var(--gray); margin-bottom: 1.5rem;">
+                    Ajoutez un client qui possède déjà un compte AI-Ikigai et qui a complété son questionnaire.
+                </p>
+                
+                <form id="existingClientFormElement" onsubmit="handleExistingClient(event)">
+                    <div class="form-group">
+                        <label for="existingEmail">Email du client</label>
+                        <input 
+                            type="email" 
+                            id="existingEmail" 
+                            class="form-input" 
+                            placeholder="client@email.com"
+                            required
+                        >
+                        <small class="form-help">
+                            Le client doit avoir déjà créé son compte et complété son analyse Ikigai.
+                        </small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeAddClientModal()">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn-primary" id="existingSubmitBtn">
+                            <span class="btn-text">Ajouter le client</span>
+                            <span class="btn-loading" style="display: none;">
+                                <span class="loading"></span> Recherche...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulaire Nouveau Client -->
+            <div class="tab-content" id="newClientForm">
+                <p style="color: var(--gray); margin-bottom: 1.5rem;">
+                    Invitez un nouveau client à rejoindre AI-Ikigai et à compléter son analyse Ikigai.
+                </p>
+                
+                <form id="newClientFormElement" onsubmit="handleNewClient(event)">
+                    <div class="form-group">
+                        <label for="newName">Nom complet *</label>
+                        <input 
+                            type="text" 
+                            id="newName" 
+                            class="form-input" 
+                            placeholder="Marie Dupont"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newEmail">Email *</label>
+                        <input 
+                            type="email" 
+                            id="newEmail" 
+                            class="form-input" 
+                            placeholder="marie.dupont@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPhone">Téléphone (optionnel)</label>
+                        <input 
+                            type="tel" 
+                            id="newPhone" 
+                            class="form-input" 
+                            placeholder="+33 6 12 34 56 78"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newMessage">Message d'invitation (optionnel)</label>
+                        <textarea 
+                            id="newMessage" 
+                            class="form-input" 
+                            rows="3"
+                            placeholder="Bonjour, je vous invite à découvrir votre Ikigai avec AI-Ikigai..."
+                        ></textarea>
+                        <small class="form-help">
+                            Ce message sera inclus dans l'email d'invitation.
+                        </small>
+                    </div>
+
+                    <div class="invitation-preview">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem;">📧</span>
+                            <strong>Aperçu de l'invitation</strong>
+                        </div>
+                        <div style="color: var(--gray); font-size: 0.9rem; line-height: 1.6;">
+                            Le client recevra un email avec :
+                            <ul style="margin: 0.5rem 0 0 1.5rem;">
+                                <li>Un lien d'inscription sécurisé</li>
+                                <li>Accès au questionnaire Ikigai</li>
+                                <li>Votre message personnalisé</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeAddClientModal()">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn-primary" id="newSubmitBtn">
+                            <span class="btn-text">✉️ Envoyer l'invitation</span>
+                            <span class="btn-loading" style="display: none;">
+                                <span class="loading"></span> Envoi...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Message de Succès -->
+            <div class="success-message" id="successMessage" style="display: none;">
+                <div class="success-icon">✅</div>
+                <h3 class="success-title" id="successTitle">Client ajouté avec succès !</h3>
+                <p class="success-text" id="successText">Le client apparaîtra dans votre liste une fois qu'il aura complété son questionnaire.</p>
+                <button class="btn-primary" onclick="closeAddClientModal()">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles pour le modal (à ajouter dans le <style> de coach-dashboard.html) -->
+<style>
+    /* Onglets */
+    .client-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--gray);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+        color: var(--light);
+    }
+
+    .tab-btn.active {
+        color: var(--light);
+        border-bottom-color: var(--purple);
+    }
+
+    /* Contenu des onglets */
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Formulaire */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--dark-card);
+        border: 1px solid var(--dark-border);
+        border-radius: 12px;
+        color: var(--light);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--purple);
+        background: var(--dark);
+    }
+
+    .form-input::placeholder {
+        color: var(--gray);
+    }
+
+    textarea.form-input {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-help {
+        display: block;
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .form-actions button {
+        flex: 1;
+    }
+
+    .btn-loading {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Aperçu invitation */
+    .invitation-preview {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .invitation-preview ul {
+        padding-left: 0;
+    }
+
+    .invitation-preview li {
+        color: var(--gray);
+        margin-bottom: 0.25rem;
+    }
+
+    /* Message de succès */
+    .success-message {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .success-title {
+        font-family: 'Sora', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .success-text {
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+</style>

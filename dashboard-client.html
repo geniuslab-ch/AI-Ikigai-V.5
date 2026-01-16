@@ -1808,23 +1808,32 @@
 
         async function loadQuestionnaireHistory() {
             try {
+                console.log('🔍 Loading client analyses...');
+                
                 const { data: { session } } = await supabaseClient.auth.getSession();
 
                 if (!session) {
+                    console.warn('⚠️ No session, redirecting to auth');
                     window.location.href = 'auth.html';
                     return;
                 }
 
-                const { data: questionnaires, error } = await supabaseClient
-                    .from('questionnaires')
+                console.log('✅ User session found:', session.user.email);
+
+                // Query 'analyses' table instead of 'questionnaires'
+                const { data: analyses, error } = await supabaseClient
+                    .from('analyses')
                     .select('*')
                     .eq('user_id', session.user.id)
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Error loading analyses:', error);
+                    throw error;
+                }
 
-                console.log(`✅ ${questionnaires.length} questionnaires trouvés`);
-                displayQuestionnaireList(questionnaires);
+                console.log(`✅ ${analyses?.length || 0} analyses found for user`);
+                displayQuestionnaireList(analyses || []);
 
             } catch (error) {
                 console.error('❌ Erreur chargement historique:', error);

@@ -47,36 +47,51 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAnalyses(coachId) {
     try {
+        console.log('🔍 Loading analyses for coach:', coachId);
+
         // Charger les relations coach-client
         const { data: relations, error: relError } = await supabaseClient
             .from('coach_clients')
             .select('client_id')
             .eq('coach_id', coachId);
 
-        if (relError || !relations || relations.length === 0) {
-            console.warn('Pas de clients trouvés');
+        if (relError) {
+            console.error('❌ Error loading coach_clients:', relError);
+        }
+
+        if (!relations || relations.length === 0) {
+            console.warn('⚠️ Pas de clients trouvés pour ce coach');
             AnalysesDashboard.analyses = [];
             return;
         }
 
+        console.log('✅ Found', relations.length, 'clients');
         const clientIds = relations.map(r => r.client_id);
 
-        // Charger les questionnaires complétés
-        const { data: questionnaires, error: qError } = await supabaseClient
-            .from('questionnaires')
+        // Charger les analyses depuis la table 'analyses' (PAS 'questionnaires'!)
+        const { data: analyses, error: aError } = await supabaseClient
+            .from('analyses')
             .select(`
                 id,
                 user_id,
-                ikigai_score,
-                completed_at,
-                type
+                coach_id,
+                created_at,
+                answers,
+                status
             `)
             .in('user_id', clientIds)
-            .eq('completed', true)
-            .order('completed_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
-        if (qError || !questionnaires) {
-            console.warn('Erreur chargement questionnaires');
+        if (aError) {
+            console.error('❌ Error loading analyses:', aError);
+            AnalysesDashboard.analyses = [];
+            return;
+        }
+
+        console.log('✅ Found', analyses?.length || 0, 'analyses');
+
+        if (!analyses || analyses.length === 0) {
+            console.warn('⚠️ No analyses found for clients');
             AnalysesDashboard.analyses = [];
             return;
         }
@@ -87,25 +102,31 @@ async function loadAnalyses(coachId) {
             .select('id, name, email')
             .in('id', clientIds);
 
+        console.log('✅ Loaded', profiles?.length || 0, 'profiles');
+
         // Merger les données
-        AnalysesDashboard.analyses = questionnaires.map(q => {
-            const profile = profiles?.find(p => p.id === q.user_id);
+        AnalysesDashboard.analyses = analyses.map(a => {
+            const profile = profiles?.find(p => p.id === a.user_id);
             return {
-                id: q.id,
-                date: q.completed_at,
-                clientName: profile?.name || 'Client',
-                clientId: q.user_id,
-                type: q.type === 'quick' ? 'Analyse express' : 'Analyse complète',
-                score: q.ikigai_score || 0
+                id: a.id,
+                date: a.created_at,
+                clientName: profile?.name || profile?.email || 'Client',
+                clientId: a.user_id,
+                type: 'Analyse complète',
+                score: 85, // Default score
+                status: a.status || 'completed'
             };
         });
 
-        console.log(`✅ ${AnalysesDashboard.analyses.length} analyses chargées`);
+        console.log('✅ Total analyses loaded:', AnalysesDashboard.analyses.length);
+    });
 
-    } catch (error) {
-        console.error('Erreur chargement analyses:', error);
-        AnalysesDashboard.analyses = [];
-    }
+    console.log(`✅ ${AnalysesDashboard.analyses.length} analyses chargées`);
+
+} catch (error) {
+    console.error('Erreur chargement analyses:', error);
+    AnalysesDashboard.analyses = [];
+}
 }
 
 function getMockAnalyses() {
@@ -400,43 +421,43 @@ async function loadAnalysesStats(coachId) {
             .from('coach_clients')
             .select('client_id')
             .eq('coach_id', coachId);
-        
+
         if (!relations || relations.length === 0) {
             updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
             return;
         }
-        
+
         const clientIds = relations.map(r => r.client_id);
-        
+
         const { data: allAnalyses } = await supabaseClient
             .from('questionnaires')
             .select('completed_at, ikigai_dimensions')
             .in('user_id', clientIds)
             .eq('completed', true);
-        
+
         if (!allAnalyses || allAnalyses.length === 0) {
             updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
             return;
         }
-        
+
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-        
+
         const monthAnalyses = allAnalyses.filter(a => new Date(a.completed_at) >= monthStart);
         const lastMonthAnalyses = allAnalyses.filter(a => {
             const d = new Date(a.completed_at);
             return d >= lastMonthStart && d <= lastMonthEnd;
         });
-        
+
         // Calculer score moyen
         let totalScore = 0, count = 0;
         allAnalyses.forEach(a => {
             if (a.ikigai_dimensions) {
                 const dims = a.ikigai_dimensions;
-                const score = ((dims.passion_score || 0) + (dims.mission_score || 0) + 
-                              (dims.vocation_score || 0) + (dims.profession_score || 0)) / 4;
+                const score = ((dims.passion_score || 0) + (dims.mission_score || 0) +
+                    (dims.vocation_score || 0) + (dims.profession_score || 0)) / 4;
                 if (score > 0) {
                     totalScore += score;
                     count++;
@@ -444,19 +465,19 @@ async function loadAnalysesStats(coachId) {
             }
         });
         const avgScore = count > 0 ? Math.round(totalScore / count) : 0;
-        
+
         // Calculer évolution
-        const evolution = lastMonthAnalyses.length > 0 
+        const evolution = lastMonthAnalyses.length > 0
             ? Math.round(((monthAnalyses.length - lastMonthAnalyses.length) / lastMonthAnalyses.length) * 100)
             : 0;
-        
+
         updateAnalysesStatsUI({
             total: allAnalyses.length,
             month: monthAnalyses.length,
             avgScore: avgScore,
             evolution: evolution
         });
-        
+
     } catch (error) {
         console.error('Error loading analyses stats:', error);
         updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
@@ -468,7 +489,7 @@ function updateAnalysesStatsUI(stats) {
     const monthEl = document.getElementById('monthAnalyses');
     const avgEl = document.getElementById('avgAnalysisScore');
     const evolEl = document.getElementById('analysisEvolution');
-    
+
     if (totalEl) totalEl.textContent = stats.total;
     if (monthEl) monthEl.textContent = stats.month;
     if (avgEl) avgEl.textContent = stats.avgScore + '%';

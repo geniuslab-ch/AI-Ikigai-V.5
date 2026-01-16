@@ -513,12 +513,41 @@
             }
         }
 
-        // Déconnexion
-        async function logout() {
+        // Déconnexion avec modal custom
+        function logout() {
             console.log('🚪 Logout button clicked');
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+
+            // Créer modal custom
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999;';
+
+            modal.innerHTML = `
+                <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; border: 2px solid var(--purple);">
+                    <h2 style="margin-bottom: 1rem; color: var(--light);">🚪 Déconnexion</h2>
+                    <p style="margin-bottom: 2rem; color: var(--gray);">Êtes-vous sûr de vouloir vous déconnecter ?</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="cancelLogout" style="flex: 1; padding: 0.75rem; background: var(--dark-border); color: var(--light); border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            Annuler
+                        </button>
+                        <button id="confirmLogout" style="flex: 1; padding: 0.75rem; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            Oui, me déconnecter
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Gérer les clics
+            document.getElementById('cancelLogout').onclick = () => {
+                console.log('ℹ️ Logout cancelled by user');
+                modal.remove();
+            };
+
+            document.getElementById('confirmLogout').onclick = async () => {
                 try {
-                    console.log('⏳ Signing out from Supabase...');
+                    console.log('⏳ User confirmed logout, signing out...');
+                    modal.remove();
                     await supabaseClient.auth.signOut();
                     console.log('✅ Signed out, redirecting...');
                     window.location.href = 'index.html';
@@ -526,9 +555,7 @@
                     console.error('❌ Erreur déconnexion:', error);
                     alert('Erreur lors de la déconnexion: ' + error.message);
                 }
-            } else {
-                console.log('ℹ️ Logout cancelled by user');
-            }
+            };
         }
 
         // Make logout globally available
@@ -541,9 +568,9 @@
 
             // Données des plans (annuel et mensuel) - Prix alignés avec coach.html
             const plans = {
-                explorer: { annual: 49*12, monthly: 49, analyses: 10 },
-                pathfinder: { annual: 99*12, monthly: 99, analyses: 50 },
-                guide: { annual: 199*12, monthly: 199, analyses: 100 }
+                explorer: { annual: 49 * 12, monthly: 49, analyses: 10 },
+                pathfinder: { annual: 99 * 12, monthly: 99, analyses: 50 },
+                guide: { annual: 199 * 12, monthly: 199, analyses: 100 }
             };
 
             modal.innerHTML = `

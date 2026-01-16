@@ -275,28 +275,63 @@ function countWeekSessions(clients) {
     const weekEnd = new Date(today);
     weekEnd.setDate(today.getDate() + 7);
 
-    return clients.filter(client => {
-        if (!client.nextSession) return false;
-        const sessionDate = new Date(client.nextSession);
-        return sessionDate >= today && sessionDate <= weekEnd;
-    }).length;
+    let count = 0;
+    clients.forEach(client => {
+        if (client.sessions && Array.isArray(client.sessions)) {
+            const weekSessions = client.sessions.filter(s => {
+                if (!s.session_date) return false;
+                const sessionDate = new Date(s.session_date);
+                return sessionDate >= today && sessionDate <= weekEnd;
+            });
+            count += weekSessions.length;
+        }
+    });
+    return count;
 }
 
 function countNewAnalyses(clients) {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
 
-    return clients.filter(client => {
-        if (!client.lastAnalysis) return false;
-        const analysisDate = new Date(client.lastAnalysis);
-        return analysisDate >= weekAgo;
-    }).length;
+    let count = 0;
+    clients.forEach(client => {
+        if (client.questionnaires && Array.isArray(client.questionnaires)) {
+            const newAnalyses = client.questionnaires.filter(q => {
+                if (!q.completed_at) return false;
+                const completedDate = new Date(q.completed_at);
+                return completedDate >= monthStart;
+            });
+            count += newAnalyses.length;
+        }
+    });
+    return count;
 }
 
 function calculateAverageScore(clients) {
     if (clients.length === 0) return 0;
-    const total = clients.reduce((sum, client) => sum + (client.score || 0), 0);
-    return Math.round(total / clients.length);
+
+    let totalScore = 0;
+    let count = 0;
+
+    clients.forEach(client => {
+        if (client.latestQuestionnaire && client.latestQuestionnaire.ikigai_dimensions) {
+            const dims = client.latestQuestionnaire.ikigai_dimensions;
+            const score = (
+                (dims.passion_score || 0) +
+                (dims.mission_score || 0) +
+                (dims.vocation_score || 0) +
+                (dims.profession_score || 0)
+            ) / 4;
+
+            if (score > 0) {
+                totalScore += score;
+                count++;
+            }
+        }
+    });
+
+    return count > 0 ? Math.round(totalScore / count) : 0;
 }
 
 function updateStatValue(elementId, value) {

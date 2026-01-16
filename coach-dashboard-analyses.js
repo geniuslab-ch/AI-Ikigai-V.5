@@ -310,3 +310,79 @@ window.viewAnalysisDetails = viewAnalysisDetails;
 window.downloadAnalysisPDF = downloadAnalysisPDF;
 
 console.log('📊 Analyses Dashboard loaded');
+
+// Calculer et afficher statistiques
+await loadAnalysesStats(user.id);
+
+async function loadAnalysesStats(coachId) {
+    try {
+        const { data: relations } = await supabaseClient
+            .from('coach_clients')
+            .select('client_id')
+            .eq('coach_id', coachId);
+        
+        if (!relations || relations.length === 0) {
+            updateAnalysesStatsUI({ total: 0, month: 0, avgScore: 0, evolution: 0 });
+            return;
+        }
+        
+        const clientIds = relations.map(r => r.client_id);
+        
+        const { data: allAnalyses } = await supabaseClient
+            .from('questionnaires')
+            .select('completed_at, ikigai_dimensions')
+            .in('user_id', clientIds)
+            .eq('completed', true);
+        
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        
+        const monthAnalyses = allAnalyses?.filter(a => new Date(a.completed_at) >= monthStart) || [];
+        const lastMonthAnalyses = allAnalyses?.filter(a => {
+            const d = new Date(a.completed_at);
+            return d >= lastMonthStart && d <= lastMonthEnd;
+        }) || [];
+        
+        const avgScore = calculateAvgScore(allAnalyses);
+        const evolution = lastMonthAnalyses.length > 0 
+            ? Math.round(((monthAnalyses.length - lastMonthAnalyses.length) / lastMonthAnalyses.length) * 100)
+            : 0;
+        
+        updateAnalysesStatsUI({
+            total: allAnalyses?.length || 0,
+            month: monthAnalyses.length,
+            avgScore: avgScore,
+            evolution: evolution
+        });
+    } catch (error) {
+        console.error('Error loading analyses stats:', error);
+    }
+}
+
+function calculateAvgScore(analyses) {
+    if (!analyses || analyses.length === 0) return 0;
+    
+    let total = 0, count = 0;
+    analyses.forEach(a => {
+        if (a.ikigai_dimensions) {
+            const dims = a.ikigai_dimensions;
+            const score = ((dims.passion_score || 0) + (dims.mission_score || 0) + 
+                          (dims.vocation_score || 0) + (dims.profession_score || 0)) / 4;
+            if (score > 0) {
+                total += score;
+                count++;
+            }
+        }
+    });
+    
+    return count > 0 ? Math.round(total / count) : 0;
+}
+
+function updateAnalysesStatsUI(stats) {
+    document.getElementById('totalAnalyses').textContent = stats.total;
+    document.getElementById('monthAnalyses').textContent = stats.month;
+    document.getElementById('avgAnalysisScore').textContent = stats.avgScore + '%';
+    document.getElementById('analysisEvolution').textContent = (stats.evolution >= 0 ? '+' : '') + stats.evolution + '%';
+}

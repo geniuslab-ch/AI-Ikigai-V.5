@@ -898,22 +898,21 @@
             try {
                 console.log('📊 Loading dashboard data for user:', currentUser.id);
 
-                // Charger directement les questionnaires depuis Supabase
-                const { data: questionnaires, error } = await supabaseClient
-                    .from('questionnaires')
+                // Charger directement les analyses depuis Supabase
+                const { data: analyses, error } = await supabaseClient
+                    .from('analyses')
                     .select('*')
                     .eq('user_id', currentUser.id)
-                    .eq('completed', true)
-                    .order('completed_at', { ascending: false });
+                    .order('created_at', { ascending: false });
 
                 if (error) {
                     console.error('❌ Error loading questionnaires:', error);
                     throw error;
                 }
 
-                console.log(`✅ ${questionnaires?.length || 0} questionnaires trouvés`);
+                console.log(`✅ ${analyses?.length || 0} analyses trouvées`);
 
-                if (!questionnaires || questionnaires.length === 0) {
+                if (!analyses || analyses.length === 0) {
                     console.log('ℹ️ Aucune analyse complétée');
                     // Afficher état vide
                     document.getElementById('total-analyses').textContent = '0';
@@ -1629,7 +1628,7 @@
 
                     // Fetch questionnaires depuis Supabase
                     const { data: questionnaires, error } = await supabaseClient
-                        .from('questionnaires')
+                        .from('analyses')
                         .select('*')
                         .eq('user_id', session.user.id)
                         .order('created_at', { ascending: false });
@@ -1809,7 +1808,7 @@
         async function loadQuestionnaireHistory() {
             try {
                 console.log('🔍 Loading client analyses...');
-                
+
                 const { data: { session } } = await supabaseClient.auth.getSession();
 
                 if (!session) {

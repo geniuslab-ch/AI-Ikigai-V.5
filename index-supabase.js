@@ -487,6 +487,7 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 // ============================================
 
 function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte') {
+	console.log('🚨🚨🚨 DÉBUT generateSimpleRecommendations - answers:', JSON.stringify(answers));
 	console.log(`📊 Génération simple des recommandations (sans IA) - Plan: ${userPlan}`);
 
 	// Déterminer le nombre de recommandations selon le plan
@@ -970,63 +971,151 @@ async function handleRequest(request, env) {
 		// ============ INVITATION ENDPOINT ============
 
 		// POST /api/send-invitation
-		if (path === '/api/send-invitation' && method === 'POST') {
-			try {
-				const { to, clientName, coachName, personalMessage, inviteLink } = await request.json();
+	if (path === '/api/send-invitation' && method === 'POST') {
+		try {
+			const { to, clientName, personalMessage, coachId } = await request.json();
 
-				if (!to || !clientName || !coachName || !inviteLink) {
-					return errorResponse('Champs requis manquants: to, clientName, coachName, inviteLink', 400);
-				}
-
-				if (!env.RESEND_API_KEY) {
-					console.error('❌ RESEND_API_KEY non configurée');
-					return errorResponse('Service d\'envoi d\'email non configuré', 500);
-				}
-
-				const emailHTML = generateInvitationEmailHTML(to, clientName, coachName, personalMessage, inviteLink);
-
-				const resendPayload = {
-					from: `${coachName} via AI-Ikigai <noreply@ai-ikigai.com>`,
-					to: [to],
-					reply_to: 'contact@ai-ikigai.com',
-					subject: `${coachName} vous invite à découvrir votre Ikigai ✨`,
-					html: emailHTML
-				};
-
-				console.log('📧 Envoi email invitation via Resend:', to);
-
-				const response = await fetch('https://api.resend.com/emails', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${env.RESEND_API_KEY}`
-					},
-					body: JSON.stringify(resendPayload)
-				});
-
-				const result = await response.json();
-
-				if (!response.ok) {
-					console.error('❌ Erreur Resend:', result);
-					const errorMessage = result.message || result.error || 'Échec envoi email';
-					return errorResponse(`Erreur Resend: ${errorMessage}`, 500);
-				}
-
-				console.log('✅ Email envoyé via Resend:', result.id);
-
-				return jsonResponse({
-					success: true,
-					message: 'Email envoyé avec succès',
-					emailId: result.id
-				});
-
-			} catch (error) {
-				console.error('❌ Erreur endpoint send-invitation:', error);
-				return errorResponse(error.message, 500);
+			if (!to || !clientName || !coachId) {
+				return errorResponse('Champs requis manquants: to, clientName, coachId', 400);
 			}
-		}
 
-		// ============ PDF GENERATION ENDPOINT ============
+			if (!env.RESEND_API_KEY) {
+				console.error('❌ RESEND_API_KEY non configurée');
+				return errorResponse('Service d\'envoi d\'email non configuré', 500);
+			}
+
+			const supabase = getSupabaseClient(env);
+
+			// Récupérer les infos du coach
+			const { data: coach, error: coachError } = await supabase
+				.from('profiles')
+				.select('id, name, email')
+				.eq('id', coachId)
+				.single();
+
+			if (coachError || !coach) {
+				return errorResponse('Coach non trouvé', 404);
+			}
+
+			const coachName = coach.name || coach.email.split('@')[0];
+
+			// Vérifier si un compte existe déjà pour cet email
+			const { data: existingProfile } = await supabase
+				.from('profiles')
+				.select('id')
+				.eq('email', to.toLowerCase())
+				.single();
+
+			let clientId = null;
+			if (existingProfile) {
+				clientId = existingProfile.id;
+				console.log('👤 Client existe déjà:', to);
+
+				// Vérifier si la relation existe déjà
+				const { data: existingRelation } = await supabase
+					.from('coach_clients')
+					.select('id')
+					.eq('coach_id', coachId)
+					.eq('client_id', clientId)
+					.single();
+
+				if (existingRelation) {
+					return errorResponse('Ce client est déjà invité', 400);
+				}
+			}
+
+			// Créer une invitation en attente
+			let invitationId = null;
+			if (clientId) {
+				// Client existe → créer la relation directement
+				const { data: relation, error: relationError } = await supabase
+					.from('coach_clients')
+					.insert({
+						coach_id: coachId,
+						client_id: clientId,
+						status: 'active',
+						invitation_email: to.toLowerCase()
+					})
+					.select()
+					.single();
+
+				if (relationError) {
+					console.error('❌ Erreur création relation:', relationError);
+					return errorResponse('Erreur création relation: ' + relationError.message);
+				}
+
+				invitationId = relation.id;
+				console.log('✅ Relation créée pour client existant');
+			} else {
+				// Client n'existe pas encore → créer invitation en attente
+				const { data: invitation, error: inviteError } = await supabase
+					.from('coach_clients')
+					.insert({
+						coach_id: coachId,
+						client_id: null,
+						status: 'pending',
+						invitation_email: to.toLowerCase()
+					})
+					.select()
+					.single();
+
+				if (inviteError) {
+					console.error('❌ Erreur création invitation:', inviteError);
+					return errorResponse('Erreur création invitation: ' + inviteError.message);
+				}
+
+				invitationId = invitation.id;
+				console.log('✅ Invitation créée en attente:', invitationId);
+			}
+
+			// Générer le lien d'invitation avec l'ID du coach
+			const inviteLink = `https://ai-ikigai.com/auth.html?role=client&coach_id=${coachId}&invitation_id=${invitationId}`;
+
+			const emailHTML = generateInvitationEmailHTML(to, clientName, coachName, personalMessage, inviteLink);
+
+			const resendPayload = {
+				from: `${coachName} via AI-Ikigai <noreply@ai-ikigai.com>`,
+				to: [to],
+				reply_to: 'contact@ai-ikigai.com',
+				subject: `${coachName} vous invite à découvrir votre Ikigai ✨`,
+				html: emailHTML
+			};
+
+			console.log('📧 Envoi email invitation via Resend:', to);
+
+			const response = await fetch('https://api.resend.com/emails', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${env.RESEND_API_KEY}`
+				},
+				body: JSON.stringify(resendPayload)
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				console.error('❌ Erreur Resend:', result);
+				const errorMessage = result.message || result.error || 'Échec envoi email';
+				return errorResponse(`Erreur Resend: ${errorMessage}`, 500);
+			}
+
+			console.log('✅ Email envoyé via Resend:', result.id);
+
+			return jsonResponse({
+				success: true,
+				message: 'Invitation envoyée avec succès',
+				emailId: result.id,
+				invitationId: invitationId
+			});
+
+		} catch (error) {
+			console.error('❌ Erreur endpoint send-invitation:', error);
+			return errorResponse(error.message, 500);
+		}
+	}
+
+			// ============ PDF GENERATION ENDPOINT ============
 
 		// POST /api/generate-pdf
 		if (path === '/api/generate-pdf' && method === 'POST') {

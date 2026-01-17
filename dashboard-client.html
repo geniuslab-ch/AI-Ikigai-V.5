@@ -1515,19 +1515,118 @@
 
         async function viewAnalysis(id) {
             try {
-                // Récupérer les détails de l'analyse
-                const response = await fetch(`https://ai-ikigai.ai-ikigai.workers.dev/api/questionnaire/${id}`);
-                const data = await response.json();
+                // Récupérer l'analyse directement depuis Supabase
+                const { data: analysis, error } = await supabaseClient
+                    .from('analyses')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
 
-                if (data.success && data.analysis) {
-                    // Stocker l'analyse dans localStorage pour la page de résultats
-                    localStorage.setItem('current-analysis', JSON.stringify(data.analysis));
-                    // Rediriger vers la page de résultats
-                    window.location.href = `questionnaire.html?result=${id}`;
-                } else {
-                    console.error('Analyse non trouvée');
+                if (error || !analysis) {
+                    console.error('Analyse non trouvée:', error);
                     alert('Impossible de charger cette analyse');
+                    return;
                 }
+
+                // Créer une modal pour afficher l'analyse
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999; overflow-y: auto; padding: 2rem;';
+
+                const date = new Date(analysis.created_at).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Préparer les données pour l'affichage
+                const score = analysis.score || {};
+                const passions = analysis.passions || [];
+                const talents = analysis.talents || [];
+                const mission = analysis.mission || [];
+                const vocation = analysis.vocation || [];
+                const recommendations = analysis.career_recommendations || [];
+
+                modal.innerHTML = `
+                    <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; border: 2px solid var(--purple);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 style="color: var(--light); margin: 0;">Analyse Ikigai - ${date}</h2>
+                            <button onclick="this.closest('div[style*=\\'position: fixed\\']').remove()" style="background: transparent; border: none; color: var(--light); font-size: 2rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                            <div style="background: var(--dark); padding: 1rem; border-radius: 12px;">
+                                <div style="color: var(--gray); font-size: 0.85rem;">Passion</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--purple);">${score.passion || 0}</div>
+                            </div>
+                            <div style="background: var(--dark); padding: 1rem; border-radius: 12px;">
+                                <div style="color: var(--gray); font-size: 0.85rem;">Profession</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--cyan);">${score.profession || 0}</div>
+                            </div>
+                            <div style="background: var(--dark); padding: 1rem; border-radius: 12px;">
+                                <div style="color: var(--gray); font-size: 0.85rem;">Mission</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--pink);">${score.mission || 0}</div>
+                            </div>
+                            <div style="background: var(--dark); padding: 1rem; border-radius: 12px;">
+                                <div style="color: var(--gray); font-size: 0.85rem;">Vocation</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--magenta);">${score.vocation || 0}</div>
+                            </div>
+                        </div>
+
+                        ${passions.length > 0 ? `
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--purple); margin-bottom: 0.75rem;">💜 Passions</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${passions.map(p => `<span style="background: rgba(139, 92, 246, 0.2); color: var(--purple); padding: 0.5rem 1rem; border-radius: 8px;">${p}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${talents.length > 0 ? `
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--cyan); margin-bottom: 0.75rem;">⚡ Talents</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${talents.map(t => `<span style="background: rgba(0, 212, 255, 0.2); color: var(--cyan); padding: 0.5rem 1rem; border-radius: 8px;">${t}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${mission.length > 0 ? `
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--pink); margin-bottom: 0.75rem;">🎯 Mission</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${mission.map(m => `<span style="background: rgba(236, 72, 153, 0.2); color: var(--pink); padding: 0.5rem 1rem; border-radius: 8px;">${m}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${vocation.length > 0 ? `
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--magenta); margin-bottom: 0.75rem;">💼 Vocation</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${vocation.map(v => `<span style="background: rgba(217, 70, 239, 0.2); color: var(--magenta); padding: 0.5rem 1rem; border-radius: 8px;">${v}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${recommendations.length > 0 ? `
+                            <div>
+                                <h3 style="color: var(--light); margin-bottom: 1rem;">Recommandations de Carrière</h3>
+                                ${recommendations.map(rec => `
+                                    <div style="background: var(--dark); border: 1px solid var(--dark-border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                            <div style="font-weight: 600; color: var(--light);">${rec.title}</div>
+                                            ${rec.matchScore ? `<div style="background: var(--gradient-primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">${rec.matchScore}%</div>` : ''}
+                                        </div>
+                                        <div style="color: var(--gray); font-size: 0.9rem;">${rec.description || ''}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
             } catch (error) {
                 console.error('Erreur lors du chargement de l\'analyse:', error);
                 alert('Erreur lors du chargement de l\'analyse');

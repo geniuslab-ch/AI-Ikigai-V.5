@@ -779,7 +779,7 @@ async function handleRequest(request, env) {
 			const clientsWithStats = await Promise.all(
 				(relations || []).map(async (rel) => {
 					const { count } = await supabase
-						.from('questionnaires')
+						.from('analyses')
 						.select('*', { count: 'exact', head: true })
 						.eq('user_id', rel.client_id);
 
@@ -877,16 +877,16 @@ async function handleRequest(request, env) {
 			}
 
 			// Récupérer les analyses du client
-			const { data: questionnaires } = await supabase
-				.from('questionnaires')
+			const { data: analyses } = await supabase
+				.from('analyses')
 				.select('*')
 				.eq('user_id', clientId)
 				.order('created_at', { ascending: false });
 
 			return jsonResponse({
 				success: true,
-				latestAnalysis: questionnaires[0]?.analysis || null,
-				history: questionnaires
+				latestAnalysis: analyses[0] || null,
+				history: analyses
 			});
 		}
 
@@ -922,7 +922,7 @@ async function handleRequest(request, env) {
 				.select('*', { count: 'exact', head: true });
 
 			const { count: totalAnalyses } = await supabase
-				.from('questionnaires')
+				.from('analyses')
 				.select('*', { count: 'exact', head: true });
 
 			return jsonResponse({
@@ -1109,6 +1109,16 @@ async function handleRequest(request, env) {
 							.single();
 						userId = profile?.id || null;
 					}
+
+					// DEBUG: Log complet de l'objet analysis avant insertion
+					console.log('🔍 DEBUG - Analysis object before Supabase insert:');
+					console.log('  - score:', JSON.stringify(analysis.score));
+					console.log('  - passions:', JSON.stringify(analysis.passions));
+					console.log('  - talents:', JSON.stringify(analysis.talents));
+					console.log('  - mission:', JSON.stringify(analysis.mission));
+					console.log('  - vocation:', JSON.stringify(analysis.vocation));
+					console.log('  - careerRecommendations:', analysis.careerRecommendations?.length || 0);
+					console.log('  - businessIdeas:', analysis.businessIdeas?.length || 0);
 
 					// Sauvegarder dans table analyses avec tous les champs
 					const { error: insertError } = await supabase.from('analyses').insert({

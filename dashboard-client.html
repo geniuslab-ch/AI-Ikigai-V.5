@@ -929,11 +929,36 @@
                 document.getElementById('total-analyses').textContent = analyses.length;
 
                 // Afficher les scores si disponibles
-                if (latestAnalysis && latestAnalysis.ikigai_dimensions) {
-                    const dims = latestAnalysis.ikigai_dimensions;
-                    document.getElementById('score-passion').textContent = dims.passion_score || '-';
-                    document.getElementById('score-mission').textContent = dims.mission_score || '-';
-                    document.getElementById('score-vocation').textContent = dims.vocation_score || '-';
+                // Support both new (ikigai_dimensions) and legacy (score) formats
+                if (latestAnalysis) {
+                    let dims = latestAnalysis.ikigai_dimensions;
+
+                    // Fallback to legacy 'score' format if ikigai_dimensions doesn't exist
+                    if (!dims && latestAnalysis.score) {
+                        // Convert old score format to new ikigai_dimensions format
+                        const legacyScore = latestAnalysis.score;
+                        dims = {
+                            passion_score: legacyScore.passion || 0,
+                            profession_score: legacyScore.profession || 0,
+                            mission_score: legacyScore.mission || 0,
+                            vocation_score: legacyScore.vocation || 0
+                        };
+                        console.log('ℹ️ Using legacy score format', dims);
+                    }
+
+                    if (dims) {
+                        document.getElementById('score-passion').textContent = dims.passion_score || '-';
+                        document.getElementById('score-mission').textContent = dims.mission_score || '-';
+                        document.getElementById('score-vocation').textContent = dims.vocation_score || '-';
+
+                        // Store dims in latestAnalysis for use by other functions
+                        latestAnalysis.ikigai_dimensions = dims;
+                    } else {
+                        // Pas de scores calculés encore
+                        document.getElementById('score-passion').textContent = '-';
+                        document.getElementById('score-mission').textContent = '-';
+                        document.getElementById('score-vocation').textContent = '-';
+                    }
                 } else {
                     // Pas de scores calculés encore
                     document.getElementById('score-passion').textContent = '-';
@@ -950,32 +975,30 @@
                     analyses: analyses // Pass all analyses for history
                 };
 
-                if (dashboardData.latestAnalysis && dashboardData.latestAnalysis.ikigai_dimensions) {
-                    const scores = dashboardData.latestAnalysis.ikigai_dimensions; // Use ikigai_dimensions
-                    document.getElementById('score-passion').textContent = scores.passion_score || 0;
-                    document.getElementById('score-mission').textContent = scores.mission_score || 0;
-                    document.getElementById('score-vocation').textContent = scores.vocation_score || 0;
-
-                    // Create the Ikigai chart
+                // Create the Ikigai chart (if scores are available)
+                if (latestAnalysis && latestAnalysis.ikigai_dimensions) {
+                    const dims = latestAnalysis.ikigai_dimensions;
                     createIkigaiChart({
-                        passion: scores.passion_score,
-                        profession: scores.profession_score,
-                        mission: scores.mission_score,
-                        vocation: scores.vocation_score
+                        passion: dims.passion_score || 0,
+                        profession: dims.profession_score || 0,
+                        mission: dims.mission_score || 0,
+                        vocation: dims.vocation_score || 0
                     });
 
-                    // Display recommendations
-                    displayRecommendations(dashboardData.latestAnalysis);
-
                     // Display insights
-                    displayInsights(dashboardData.latestAnalysis);
-
-                    // Check if first visit and show guide
-                    checkFirstVisit();
+                    displayInsights(latestAnalysis);
+                } else {
+                    console.log('ℹ️ No ikigai_dimensions yet, skipping chart and insights');
                 }
 
-                // Display history
-                displayHistory(dashboardData.analyses);
+                // Display recommendations (handles missing data internally)
+                displayRecommendations(latestAnalysis);
+
+                // Display history (always show, even without scores)
+                displayHistory(analyses);
+
+                // Check if first visit and show guide
+                checkFirstVisit();
 
             } catch (error) {
                 console.error('Erreur chargement dashboard:', error);
@@ -1064,7 +1087,14 @@
             // Also populate the overview section
             const overviewContainer = document.getElementById('recommendations-list');
 
+            // Si pas d'analyse, afficher un message d'état vide dans tous les conteneurs
             if (!analysis) {
+                console.log('ℹ️ No analysis data available for recommendations');
+                const emptyMessage = '<div class="empty-state"><div class="empty-state-icon">💼</div><p>Complétez une analyse pour voir vos recommandations</p></div>';
+                if (careerContainer) careerContainer.innerHTML = emptyMessage;
+                if (businessContainer) businessContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🚀</div><p>Les idées d\'entreprise apparaîtront ici</p></div>';
+                if (diagnosticContainer) diagnosticContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>Le diagnostic de cohérence apparaîtra ici</p></div>';
+                if (overviewContainer) overviewContainer.innerHTML = emptyMessage;
                 return;
             }
 
@@ -1417,7 +1447,25 @@
 
         function displayInsights(analysis) {
             const container = document.getElementById('ikigai-insights');
-            const dominant = Object.entries(analysis.score)
+
+            // Vérifier si l'analyse et les dimensions existent
+            if (!analysis || !analysis.ikigai_dimensions) {
+                console.warn('⚠️ No ikigai_dimensions available for insights');
+                container.innerHTML = '';
+                return;
+            }
+
+            // Créer l'objet de scores depuis ikigai_dimensions
+            const dims = analysis.ikigai_dimensions;
+            const scores = {
+                passion: dims.passion_score || 0,
+                profession: dims.profession_score || 0,
+                mission: dims.mission_score || 0,
+                vocation: dims.vocation_score || 0
+            };
+
+            // Trouver le score dominant
+            const dominant = Object.entries(scores)
                 .sort((a, b) => b[1] - a[1])[0];
 
             const insights = {

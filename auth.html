@@ -451,49 +451,46 @@
 
                 await AuthAPI.signUp(email, password, name, role); // Passer le rôle à signUp
 
-                // Si inscription via invitation, créer la relation coach-client
-                if (inviteToken && role === 'client') {
+                // Détecter coach_id et invitation_id dans l'URL pour activer la relation
+                const coachId = urlParams.get('coach_id');
+                const invitationId = urlParams.get('invitation_id');
+
+                if (coachId && invitationId && role === 'client') {
                     try {
+                        // Attendre que Supabase crée le profil
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+
                         // Se connecter automatiquement pour obtenir l'ID utilisateur
-                        await new Promise(resolve => setTimeout(resolve, 1000)); // Attendre que Supabase crée le profil
-                        const { user: signedInUser } = await AuthAPI.signIn(email, password);
+                        const { user: newUser } = await AuthAPI.signIn(email, password);
 
-                        // Récupérer l'invitation
-                        const { data: invitation } = await supabaseClient
-                            .from('client_invitations')
-                            .select('*')
-                            .eq('invitation_token', inviteToken)
-                            .eq('status', 'pending')
-                            .single();
+                        if (newUser) {
+                            console.log('🔗 Activation relation coach-client...', { coachId, invitationId, clientId: newUser.id });
 
-                        if (invitation) {
-                            // Créer la relation coach-client
-                            await supabaseClient
+                            // Activer la relation coach-client pendante
+                            const { error: updateError } = await supabaseClient
                                 .from('coach_clients')
-                                .insert({
-                                    coach_id: invitation.coach_id,
-                                    client_id: signedInUser.id,
-                                    status: 'active'
-                                });
-
-                            // Marquer l'invitation comme acceptée
-                            await supabaseClient
-                                .from('client_invitations')
                                 .update({
-                                    status: 'accepted',
-                                    accepted_at: new Date().toISOString()
+                                    client_id: newUser.id,
+                                    status: 'active'
                                 })
-                                .eq('id', invitation.id);
+                                .eq('id', invitationId)
+                                .eq('coach_id', coachId)
+                                .eq('status', 'pending');
 
-                            showSuccess('✅ Compte créé et lié à votre coach ! Redirection...');
-                            setTimeout(() => {
-                                redirectToDashboard(role);
-                            }, 1500);
-                            return;
+                            if (updateError) {
+                                console.error('❌ Erreur activation relation:', updateError);
+                            } else {
+                                console.log('✅ Relation coach-client activée');
+                                showSuccess('✅ Compte créé et lié à votre coach ! Redirection...');
+                                setTimeout(() => {
+                                    redirectToDashboard(role);
+                                }, 1500);
+                                return;
+                            }
                         }
                     } catch (inviteErr) {
-                        console.error('Erreur traitement invitation:', inviteErr);
-                        // Ne pas bloquer l'inscription si l'invitation échoue
+                        console.error('Erreur activation invitation:', inviteErr);
+                        // Ne pas bloquer l'inscription si l'activation échoue
                     }
                 }
 

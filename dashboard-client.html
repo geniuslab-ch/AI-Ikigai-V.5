@@ -946,6 +946,17 @@
                         console.log('ℹ️ Using legacy score format', dims);
                     }
 
+                    // Fallback to direct column format (passion_score, mission_score, etc.)
+                    if (!dims && (latestAnalysis.passion_score || latestAnalysis.mission_score || latestAnalysis.vocation_score || latestAnalysis.profession_score)) {
+                        dims = {
+                            passion_score: latestAnalysis.passion_score || 0,
+                            profession_score: latestAnalysis.profession_score || 0,
+                            mission_score: latestAnalysis.mission_score || 0,
+                            vocation_score: latestAnalysis.vocation_score || 0
+                        };
+                        console.log('ℹ️ Using direct column format', dims);
+                    }
+
                     if (dims) {
                         document.getElementById('score-passion').textContent = dims.passion_score || '-';
                         document.getElementById('score-mission').textContent = dims.mission_score || '-';

@@ -57,8 +57,9 @@ async function handleAddNewClient(event) {
 
         // Envoyer l'email d'invitation au client
         // IMPORTANT: Using GitHub Pages URL because custom domain DNS is not configured
-        const inviteLink = `https://geniuslab-ch.github.io/AI-Ikigai-V.5/auth.html?invite=${invitationToken}`;
+        const inviteLink = `https://geniuslab-ch.github.io/AI-Ikigai-V.5/auth.html?role=client&coach_id=${CoachDashboard.coachData.id}&invitation_id=${invitation.id}&invite=${invitationToken}`;
         await sendClientInvitation(email, name, message, inviteLink, CoachDashboard.coachData.id, invitationToken);
+
 
 
         // ✨ NOUVEAU: Envoyer notification Brevo au coach

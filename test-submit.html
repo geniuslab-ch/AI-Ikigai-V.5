@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Questionnaire Submit</title>
+</head>
+
+<body>
+    <h1>Test de Soumission Questionnaire</h1>
+    <button id="testBtn" onclick="submitTest()">🧪 Soumettre Test</button>
+    <div id="result"></div>
+
+    <script>
+        async function submitTest() {
+            const btn = document.getElementById('testBtn');
+            const resultDiv = document.getElementById('result');
+
+            btn.disabled = true;
+            btn.textContent = 'Envoi en cours...';
+            resultDiv.innerHTML = '<p>⏳ Soumission en cours...</p>';
+
+            try {
+                // Créer des réponses de test simples
+                const testAnswers = {
+                    "1": ["create", "explore", "connect"],
+                    "2": "business",
+                    "3": ["innovation", "tech"],
+                    "4": "entrepreneurship",
+                    "5": ["learn", "challenge"],
+                    "6": "consulting",
+                    "7": ["freedom", "creativity"],
+                    "8": "startup",
+                    "9": ["social", "education"],
+                    "10": "remote",
+                    "11": ["leadership", "communication"],
+                    "12": "I want to create my own path",
+                    "13": "I love solving complex problems",
+                    "14": "Making a positive impact on society",
+                    "15": "I want to start my own business"
+                };
+
+                const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/questionnaire/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        answers: testAnswers,
+                        email: 'noura.scharer@gmail.com',
+                        user_plan: 'decouverte'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div style="border: 2px solid green; padding: 1rem; margin: 1rem 0; background: #e8f5e9;">
+                            <h3>✅ Succès!</h3>
+                            <p><strong>Questionnaire ID:</strong> ${data.questionnaireId}</p>
+                            <h4>Analyse retournée:</h4>
+                            <pre>${JSON.stringify(data.analysis, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="border: 2px solid red; padding: 1rem; margin: 1rem 0; background: #ffebee;">
+                            <h3>❌ Erreur</h3>
+                            <p>${data.error || 'Erreur inconnue'}</p>
+                        </div>
+                    `;
+                }
+
+                btn.disabled = false;
+                btn.textContent = '🧪 Soumettre Test';
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="border: 2px solid red; padding: 1rem; margin: 1rem 0; background: #ffebee;">
+                        <h3>❌ Erreur Réseau</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.textContent = '🧪 Soumettre Test';
+            }
+        }
+    </script>
+</body>
+
+</html>

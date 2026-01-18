@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Analyses - noura.schaerer@gmail.com</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #0a0a0f;
+            color: #e2e8f0;
+        }
+
+        .analysis {
+            background: #1a1a2e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .empty {
+            color: #f87171;
+        }
+
+        .filled {
+            color: #34d399;
+        }
+
+        pre {
+            background: #0f0f1a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <h1>🔍 Debug Analyses pour noura.schaerer@gmail.com</h1>
+    <div id="output"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://wgmtujvvfnsbhudshmkh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxMDA3MjMsImV4cCI6MjA1MTY3NjcyM30.SsjFNLPJi5VEMWgk-w4yjcqk3_JTlBOoOCBBo0cSV8Y';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const output = document.getElementById('output');
+
+        async function debug() {
+            output.innerHTML = '<p>⏳ Chargement...</p>';
+
+            // 1. Get user
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                output.innerHTML = '<p class="empty">❌ Non connecté</p>';
+                return;
+            }
+
+            output.innerHTML = `<p>✅ Utilisateur: ${user.email}</p>`;
+
+            // 2. Get all analyses
+            const { data: analyses, error } = await supabase
+                .from('analyses')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                output.innerHTML += `<p class="empty">❌ Erreur: ${error.message}</p>`;
+                return;
+            }
+
+            output.innerHTML += `<p>📊 ${analyses.length} analyse(s) trouvée(s)</p>`;
+
+            analyses.forEach((analysis, i) => {
+                const hasScores = analysis.score && (
+                    analysis.score.passion > 0 ||
+                    analysis.score.profession > 0 ||
+                    analysis.score.mission > 0 ||
+                    analysis.score.vocation > 0
+                );
+
+                const hasRecommendations = analysis.career_recommendations && analysis.career_recommendations.length > 0;
+                const hasAnswers = analysis.answers && Object.keys(analysis.answers).length > 0;
+
+                let html = `
+                    <div class="analysis">
+                        <h3>Analyse #${i + 1} - ${new Date(analysis.created_at).toLocaleString('fr-FR')}</h3>
+                        <p><strong>ID:</strong> ${analysis.id}</p>
+                        <p><strong>Réponses questionnaire:</strong> <span class="${hasAnswers ? 'filled' : 'empty'}">${hasAnswers ? Object.keys(analysis.answers).length + ' questions répondues' : 'VIDE ❌'}</span></p>
+                        <p><strong>Scores:</strong> <span class="${hasScores ? 'filled' : 'empty'}">${hasScores ? 'CALCULÉS ✓' : 'TOUS À 0 ❌'}</span></p>
+                        <pre>${JSON.stringify(analysis.score || {}, null, 2)}</pre>
+                        <p><strong>Recommandations:</strong> <span class="${hasRecommendations ? 'filled' : 'empty'}">${hasRecommendations ? analysis.career_recommendations.length + ' recommandations' : 'VIDE ❌'}</span></p>
+                        <p><strong>Passions:</strong> ${analysis.passions ? analysis.passions.join(', ') : '<span class="empty">VIDE</span>'}</p>
+                        <p><strong>Talents:</strong> ${analysis.talents ? analysis.talents.join(', ') : '<span class="empty">VIDE</span>'}</p>
+                        <p><strong>Mission:</strong> ${analysis.mission ? analysis.mission.join(', ') : '<span class="empty">VIDE</span>'}</p>
+                        <p><strong>Vocation:</strong> ${analysis.vocation ? analysis.vocation.join(', ') : '<span class="empty">VIDE</span>'}</p>
+                    </div>
+                `;
+
+                output.innerHTML += html;
+            });
+
+            // Diagnostic
+            const problemAnalyses = analyses.filter(a => {
+                const hasScores = a.score && (a.score.passion > 0 || a.score.profession > 0);
+                return !hasScores;
+            });
+
+            if (problemAnalyses.length > 0) {
+                output.innerHTML += `
+                    <div style="background: #7f1d1d; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                        <h2>⚠️ PROBLÈME DÉTECTÉ</h2>
+                        <p>${problemAnalyses.length} analyse(s) sans scores calculés !</p>
+                        <p><strong>Cause probable:</strong> Le questionnaire n'a pas été soumis correctement au worker.</p>
+                        <p><strong>Solution:</strong></p>
+                        <ol>
+                            <li>Supprimer ces analyses vides</li>
+                            <li>Passer le questionnaire complet sur <a href="https://ai-ikigai.com/questionnaire.html" style="color: #60a5fa;">questionnaire.html</a></li>
+                            <li>Soumettre le questionnaire</li>
+                        </ol>
+                    </div>
+                `;
+            }
+        }
+
+        debug();
+    </script>
+</body>
+
+</html>

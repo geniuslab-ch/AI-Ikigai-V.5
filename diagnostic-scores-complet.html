@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vérification Scores Supabase</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #0a0a0f;
+            color: #e2e8f0;
+        }
+
+        pre {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .error {
+            color: #f87171;
+        }
+
+        .success {
+            color: #34d399;
+        }
+
+        h2 {
+            color: #8b5cf6;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <h1>🔍 Diagnostic Complet - Scores Supabase</h1>
+    <div id="output">⏳ Chargement...</div>
+
+    <script>
+        const SUPABASE_URL = 'https://wgmtujvvfnsbhudshmkh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnbXR1anZ2Zm5zYmh1ZHNobWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NjI4NTAsImV4cCI6MjA4MzAzODg1MH0.JFsoAJtAb5CYausxkt51umCOlJqis1RBywv0b9-EhWc';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const output = document.getElementById('output');
+
+        async function checkScores() {
+            let html = '';
+
+            // 1. Get current user
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                output.innerHTML = '<p class="error">❌ Non connecté - Veuillez vous connecter sur ai-ikigai.com</p>';
+                return;
+            }
+
+            html += `<h2>✅ Utilisateur: ${user.email}</h2>`;
+            html += `<p>User ID: ${user.id}</p>`;
+
+            // 2. Get all analyses with ALL columns
+            const { data: analyses, error } = await supabase
+                .from('analyses')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                html += `<p class="error">❌ Erreur: ${error.message}</p>`;
+                output.innerHTML = html;
+                return;
+            }
+
+            html += `<h2>📊 ${analyses.length} Analyse(s) Trouvée(s)</h2>`;
+
+            if (analyses.length === 0) {
+                html += '<p class="error">❌ Aucune analyse dans la base - Passez le questionnaire !</p>';
+                output.innerHTML = html;
+                return;
+            }
+
+            // 3. Analyze each analysis
+            analyses.forEach((a, i) => {
+                html += `<h3>Analyse #${i + 1} - ${new Date(a.created_at).toLocaleString('fr-FR')}</h3>`;
+
+                // Check individual columns
+                const hasIndividualScores = (a.passion_score || 0) > 0 || (a.profession_score || 0) > 0;
+                html += `<p><strong>Colonnes individuelles:</strong> <span class="${hasIndividualScores ? 'success' : 'error'}">${hasIndividualScores ? 'REMPLIES ✓' : 'VIDES ❌'}</span></p>`;
+                html += `<pre>passion_score: ${a.passion_score || 'NULL'}
+profession_score: ${a.profession_score || 'NULL'}
+mission_score: ${a.mission_score || 'NULL'}
+vocation_score: ${a.vocation_score || 'NULL'}</pre>`;
+
+                // Check JSONB score column
+                const hasJsonbScore = a.score && typeof a.score === 'object' && Object.keys(a.score).length > 0;
+                html += `<p><strong>Colonne JSONB score:</strong> <span class="${hasJsonbScore ? 'success' : 'error'}">${hasJsonbScore ? 'PRESENT ✓' : 'VIDE ❌'}</span></p>`;
+                html += `<pre>${JSON.stringify(a.score, null, 2)}</pre>`;
+
+                // Check answers
+                const hasAnswers = a.answers && typeof a.answers === 'object' && Object.keys(a.answers).length > 0;
+                html += `<p><strong>Réponses questionnaire:</strong> <span class="${hasAnswers ? 'success' : 'error'}">${hasAnswers ? Object.keys(a.answers).length + ' réponses' : 'VIDE ❌'}</span></p>`;
+
+                // Check recommendations
+                const hasReco = a.career_recommendations && a.career_recommendations.length > 0;
+                html += `<p><strong>Recommandations:</strong> <span class="${hasReco ? 'success' : 'error'}">${hasReco ? a.career_recommendations.length + ' reco' : 'VIDE ❌'}</span></p>`;
+
+                html += '<hr style="border-color: #334155; margin: 30px 0;">';
+            });
+
+            // 4. Diagnostic
+            const allBad = analyses.every(a =>
+                (!a.passion_score || a.passion_score === 0) &&
+                (!a.score || Object.keys(a.score).length === 0)
+            );
+
+            if (allBad) {
+                html += `
+                    <div style="background: #7f1d1d; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h2>🚨 DIAGNOSTIC</h2>
+                        <p><strong>Toutes vos analyses ont des scores VIDES !</strong></p>
+                        <p><strong>Causes possibles:</strong></p>
+                        <ol>
+                            <li>Analyses créées AVANT le fix du worker (${new Date().toLocaleString()})</li>
+                            <li>Le questionnaire n'a pas été soumis correctement</li>
+                            <li>Problème avec Claude API lors de la génération</li>
+                        </ol>
+                        <p><strong>Solutions:</strong></p>
+                        <ol>
+                            <li><strong>RECOMMANDÉ:</strong> Supprimez ces analyses et refaites le questionnaire complet</li>
+                            <li>OU utilisez le script SQL fix-existing-scores.sql pour générer des scores de test</li>
+                        </ol>
+                    </div>
+                `;
+            }
+
+            output.innerHTML = html;
+        }
+
+        checkScores();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acheter des Analyses | AI-Ikigai Coach</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .breadcrumb {
+            padding: 6rem 2rem 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .page-header {
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .packs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+
+        .pack-card {
+            background: var(--dark-card);
+            border: 2px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pack-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-4px);
+        }
+
+        .pack-card.featured {
+            border-color: var(--purple);
+            position: relative;
+        }
+
+        .pack-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--purple);
+            color: white;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pack-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .pack-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pack-price {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 1rem 0;
+        }
+
+        .pack-unit {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pack-features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .pack-features li {
+            padding: 0.5rem 0;
+            color: var(--light);
+        }
+
+        .pack-features li::before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .info-section {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto 2rem;
+            margin: 0 2rem 2rem;
+        }
+
+        .info-section h3 {
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .info-section p {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo"><span>AI-Ikigai</span></a>
+            <div class="nav-center">
+                <a href="dashboard-coach.html" class="nav-link">Vue d'ensemble</a>
+                <a href="dashboard-coach-clients.html" class="nav-link">Mes clients</a>
+                <a href="dashboard-coach-analyses.html" class="nav-link">Analyses</a>
+                <a href="dashboard-coach-settings.html" class="nav-link">Paramètres</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="dashboard-coach.html">Dashboard</a> → Acheter des analyses
+    </div>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>💳 Acheter Plus d'<span class="gradient">Analyses</span></h1>
+        <p style="color: var(--gray); font-size: 1.1rem;">Augmentez votre capacité d'analyses Ikigai avec nos packs
+            flexibles</p>
+    </div>
+
+    <!-- Packs Grid -->
+    <div class="packs-grid">
+        <!-- Pack Starter -->
+        <div class="pack-card">
+            <div class="pack-icon">🚀</div>
+            <div class="pack-name">Starter</div>
+            <div class="pack-price">50$</div>
+            <div class="pack-unit">10 analyses supplémentaires</div>
+            <ul class="pack-features">
+                <li>5$ par analyse</li>
+                <li>Ajouté à votre quota actuel</li>
+                <li>Valable 12 mois</li>
+                <li>Support email</li>
+            </ul>
+            <button class="btn-primary" style="width: 100%;" onclick="buyPack('starter', 50)">
+                Acheter Starter
+            </button>
+        </div>
+
+        <!-- Pack Pro (Featured) -->
+        <div class="pack-card featured">
+            <div class="pack-badge">MEILLEURE VALEUR</div>
+            <div class="pack-icon">⭐</div>
+            <div class="pack-name">Pro</div>
+            <div class="pack-price">100$</div>
+            <div class="pack-unit">25 analyses supplémentaires</div>
+            <ul class="pack-features">
+                <li>4$ par analyse</li>
+                <li>Économie de 25$</li>
+                <li>Ajouté à votre quota actuel</li>
+                <li>Valable 12 mois</li>
+                <li>Support prioritaire</li>
+            </ul>
+            <button class="btn-primary" style="width: 100%;" onclick="buyPack('pro', 100)">
+                Acheter Pro
+            </button>
+        </div>
+
+        <!-- Pack Business -->
+        <div class="pack-card">
+            <div class="pack-icon">👑</div>
+            <div class="pack-name">Business</div>
+            <div class="pack-price">175$</div>
+            <div class="pack-unit">50 analyses supplémentaires</div>
+            <ul class="pack-features">
+                <li>3.50$ par analyse</li>
+                <li>Économie de 75$</li>
+                <li>Ajouté à votre quota actuel</li>
+                <li>Valable 12 mois</li>
+                <li>Support VIP 24/7</li>
+            </ul>
+            <button class="btn-primary" style="width: 100%;" onclick="buyPack('business', 175)">
+                Acheter Business
+            </button>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <h3>💡 Pourquoi acheter des analyses supplémentaires ?</h3>
+        <p>
+            Votre abonnement inclut un quota d'analyses annuel. Si vous avez besoin de plus d'analyses pour accompagner
+            davantage de clients,
+            nos packs flexibles vous permettent d'augmenter votre capacité sans changer d'abonnement.
+        </p>
+        <p style="margin-top: 1rem;">
+            <strong>Avantages :</strong><br>
+            • Prix dégressifs selon le volume<br>
+            • Ajouté immédiatement à votre quota<br>
+            • Valable 12 mois<br>
+            • Facturation unique, pas d'engagement
+        </p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script>
+        async function buyPack(packName, price) {
+            // Vérifier authentification
+            const user = await checkAuth('coach');
+            if (!user) {
+                alert('Veuillez vous connecter');
+                window.location.href = 'auth.html?role=coach';
+                return;
+            }
+
+            // Message temporaire avant intégration Stripe
+            alert(`🎯 Achat du pack ${packName.toUpperCase()} - ${price}$\n\n` +
+                `Cette fonctionnalité sera bientôt disponible avec l'intégration Stripe.\n\n` +
+                `Pour l'instant, contactez support@ai-ikigai.com pour acheter des analyses supplémentaires.`);
+
+            // TODO: Intégration Stripe
+            // const session = await createStripeCheckout(packName, price);
+            // window.location.href = session.url;
+        }
+    </script>
+</body>
+
+</html>

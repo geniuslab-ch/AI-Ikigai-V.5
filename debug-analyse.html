@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Analyse</title>
+</head>
+
+<body>
+    <h1>Debug Analyse Supabase</h1>
+    <div id="output"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script>
+        (async () => {
+            const output = document.getElementById('output');
+
+            try {
+                // Authentifier l'utilisateur
+                const user = await checkAuth('client');
+                if (!user) {
+                    output.innerHTML = '<p>Non authentifié</p>';
+                    return;
+                }
+
+                output.innerHTML += `<p><strong>User ID:</strong> ${user.id}</p>`;
+
+                // Récupérer toutes les analyses
+                const { data: analyses, error } = await supabaseClient
+                    .from('analyses')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    output.innerHTML += `<p style="color: red;">Erreur: ${error.message}</p>`;
+                    return;
+                }
+
+                output.innerHTML += `<p><strong>Nombre d'analyses:</strong> ${analyses.length}</p>`;
+
+                // Afficher chaque analyse
+                analyses.forEach((analysis, index) => {
+                    output.innerHTML += `
+                        <div style="border: 1px solid #ccc; padding: 1rem; margin: 1rem 0; background: #f9f9f9;">
+                            <h3>Analyse #${index + 1} - ${new Date(analysis.created_at).toLocaleString()}</h3>
+                            
+                            <h4>Answers (réponses du questionnaire):</h4>
+                            <pre>${JSON.stringify(analysis.answers, null, 2)}</pre>
+                            
+                            <h4>Score:</h4>
+                            <pre>${JSON.stringify(analysis.score, null, 2)}</pre>
+                            
+                            <h4>Passions:</h4>
+                            <pre>${JSON.stringify(analysis.passions, null, 2)}</pre>
+                            
+                            <h4>Talents:</h4>
+                            <pre>${JSON.stringify(analysis.talents, null, 2)}</pre>
+                            
+                            <h4>Mission:</h4>
+                            <pre>${JSON.stringify(analysis.mission, null, 2)}</pre>
+                            
+                            <h4>Vocation:</h4>
+                            <pre>${JSON.stringify(analysis.vocation, null, 2)}</pre>
+                            
+                            <h4>Career Recommendations:</h4>
+                            <pre>${JSON.stringify(analysis.career_recommendations, null, 2)}</pre>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                output.innerHTML += `<p style="color: red;">Erreur: ${error.message}</p>`;
+                console.error(error);
+            }
+        })();
+    </script>
+</body>
+
+</html>

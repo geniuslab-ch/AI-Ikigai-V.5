@@ -110,8 +110,7 @@ async function loadClients() {
             .from('questionnaires')
             .select('*')
             .in('user_id', clientIds)
-            .eq('completed', true)
-            .order('completed_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
         // Charger séances planifiées
         const { data: sessions } = await supabaseClient

@@ -58,7 +58,8 @@ async function handleAddNewClient(event) {
         // Envoyer l'email d'invitation au client
         // IMPORTANT: Using GitHub Pages URL because custom domain DNS is not configured
         const inviteLink = `https://geniuslab-ch.github.io/AI-Ikigai-V.5/auth.html?invite=${invitationToken}`;
-        await sendClientInvitation(email, name, message, inviteLink);
+        await sendClientInvitation(email, name, message, inviteLink, CoachDashboard.coachData.id, invitationToken);
+
 
         // ✨ NOUVEAU: Envoyer notification Brevo au coach
         try {
@@ -101,7 +102,7 @@ function generateInvitationToken() {
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function sendClientInvitation(email, clientName, personalMessage, inviteLink) {
+async function sendClientInvitation(email, clientName, personalMessage, inviteLink, coachId, invitationToken) {
     try {
         const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/send-invitation', {
             method: 'POST',
@@ -111,7 +112,9 @@ async function sendClientInvitation(email, clientName, personalMessage, inviteLi
                 clientName,
                 coachName: CoachDashboard.coachData?.name || 'Votre Coach',
                 personalMessage,
-                inviteLink
+                inviteLink,
+                coachId,
+                invitationToken
             })
         });
 

@@ -947,6 +947,90 @@ async function handleRequest(request, env) {
             });
         }
 
+        // POST /api/send-invitation
+        if (path === '/api/send-invitation' && method === 'POST') {
+            try {
+                const { to, clientName, coachName, personalMessage, inviteLink, coachId, invitationToken } = await request.json();
+
+                // Validation simple
+                if (!to || !clientName || !inviteLink) {
+                    return errorResponse('Champs manquants (to, clientName, inviteLink)', 400);
+                }
+
+                const emailHTML = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 2.5rem; font-weight: bold; background: linear-gradient(90deg, #00d4ff, #d946ef); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .content { line-height: 1.8; color: #334155; }
+        .personal-message { background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #8b5cf6; font-style: italic; margin: 25px 0; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #00d4ff, #8b5cf6); color: white; padding: 16px 40px; text-decoration: none; border-radius: 50px; margin: 30px 0; font-weight: 600; font-size: 1.1rem; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">AI-Ikigai</div>
+            <div>Découvrez votre raison d'être</div>
+        </div>
+        <div class="content">
+            <h2>Bonjour ${clientName} 👋</h2>
+            <p><strong>${coachName || 'Votre Coach'}</strong> vous invite à découvrir votre Ikigai avec AI-Ikigai !</p>
+            ${personalMessage ? `<div class="personal-message">"${personalMessage}"</div>` : ''}
+            <div style="text-align: center;">
+                <a href="${inviteLink}" class="cta-button">✨ Créer mon compte gratuitement</a>
+            </div>
+            <p style="text-align: center; color: #94a3b8;">Ce lien est valide pendant 7 jours</p>
+        </div>
+        <div class="footer">
+            <p>© 2026 AI-Ikigai</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+                // Envoi via MailChannels
+                const mailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        personalizations: [{
+                            to: [{ email: to, name: clientName }]
+                        }],
+                        from: {
+                            email: 'coach@ai-ikigai.com',
+                            name: 'AI-Ikigai Coach'
+                        },
+                        subject: `${coachName || 'Votre Coach'} vous invite à découvrir votre Ikigai ✨`,
+                        content: [{
+                            type: 'text/html',
+                            value: emailHTML
+                        }]
+                    })
+                });
+
+                if (!mailResponse.ok) {
+                    const errText = await mailResponse.text();
+                    console.error('MailChannels Error:', errText);
+                    return errorResponse('Erreur envoi email: ' + errText, 500);
+                }
+
+                return jsonResponse({ success: true, message: 'Email envoyé' });
+
+            } catch (e) {
+                return errorResponse('Erreur serveur: ' + e.message, 500);
+            }
+        }
+
         // ============ ENDPOINTS EXISTANTS ============
 
         // Submit questionnaire

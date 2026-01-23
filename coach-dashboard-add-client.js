@@ -27,6 +27,11 @@ async function handleAddNewClient(event) {
 
     const name = document.getElementById('newClientName').value.trim();
     const email = document.getElementById('newClientEmail').value.trim();
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Format email invalide');
+        return;
+    }
     const message = document.getElementById('newClientMessage').value.trim();
 
     const submitBtn = document.getElementById('submitClientBtn');

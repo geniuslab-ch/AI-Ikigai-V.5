@@ -3222,15 +3222,27 @@
                 let userPlan = 'decouverte';
                 if (window.supabaseClient && userId) {
                     try {
-                        const { data: profile } = await window.supabaseClient
-                            .from('profiles')
-                            .select('plan')
-                            .eq('id', userId)
-                            .single();
-                        if (profile) {
-                            userPlan = profile.plan || 'decouverte';
-                            console.log('📋 Plan utilisateur:', userPlan);
+                        // Check if user has a coach
+                        const { data: coachRelation } = await window.supabaseClient
+                            .from('coach_clients')
+                            .select('id')
+                            .eq('client_id', userId)
+                            .maybeSingle();
+
+                        if (coachRelation) {
+                            console.log('👨‍🏫 User has a coach -> Upgrading plan to decouverte_coach');
+                            userPlan = 'decouverte_coach';
+                        } else {
+                            const { data: profile } = await window.supabaseClient
+                                .from('profiles')
+                                .select('plan')
+                                .eq('id', userId)
+                                .single();
+                            if (profile) {
+                                userPlan = profile.plan || 'decouverte';
+                            }
                         }
+                        console.log('📋 Final User Plan:', userPlan);
                     } catch (error) {
                         console.warn('⚠️ Could not fetch user plan:', error);
                     }

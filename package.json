@@ -2,10 +2,10 @@
   "name": "ai-ikigai-backend",
   "version": "3.0.0",
   "description": "AI-Ikigai Backend with Supabase",
-  "main": "index-standalone.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "wrangler dev index-standalone.js",
-    "deploy": "wrangler deploy index-standalone.js"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0"

@@ -2066,7 +2066,7 @@
                     const token = session?.access_token;
 
                     // Call worker API to generate scores and save to Supabase
-                    const response = await fetch(`${window.AI_IKIGAI_API_URL || 'https://ai-ikigai.workers.dev'}/api/questionnaire/submit`, {
+                    const response = await fetch(`${window.AI_IKIGAI_API_URL || 'https://ai-ikigai.ai-ikigai.workers.dev'}/api/questionnaire/submit`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -77,7 +77,16 @@ async function loadAnalyses(coachId) {
                 coach_id,
                 created_at,
                 answers,
-                status
+                status,
+                score,
+                passions,
+                talents,
+                mission,
+                vocation,
+                career_recommendations,
+                business_ideas,
+                trajectories,
+                coherence_diagnosis
             `)
             .in('user_id', clientIds)
             .order('created_at', { ascending: false });
@@ -107,14 +116,24 @@ async function loadAnalyses(coachId) {
         // Merger les données
         AnalysesDashboard.analyses = analyses.map(a => {
             const profile = profiles?.find(p => p.id === a.user_id);
+
+            // Calculer score moyen si dispo
+            let scoreVal = 0;
+            if (a.score) {
+                const s = a.score;
+                scoreVal = Math.round(((s.passion || 0) + (s.profession || 0) + (s.mission || 0) + (s.vocation || 0)) / 4);
+            }
+            if (scoreVal === 0) scoreVal = 85; // Fallback
+
             return {
                 id: a.id,
                 date: a.created_at,
                 clientName: profile?.name || profile?.email || 'Client',
                 clientId: a.user_id,
                 type: 'Analyse complète',
-                score: 85, // Default score
-                status: a.status || 'completed'
+                score: scoreVal,
+                status: a.status || 'completed',
+                fullData: a
             };
         });
 
@@ -268,21 +287,84 @@ async function viewAnalysisDetails(analysisId) {
     modal.style.justifyContent = 'center';
     modal.style.zIndex = '10000';
 
+    const full = analysis.fullData || {};
+    const score = full.score || {};
+    const recs = full.career_recommendations || [];
+    const ideas = full.business_ideas || [];
+    const trajectories = full.trajectories || [];
+
+    let contentHtml = `
+        <h2 style="margin-bottom: 1.5rem;">📊 Détails de l'analyse</h2>
+        <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div><strong>Client :</strong> ${analysis.clientName}</div>
+            <div><strong>Date :</strong> ${formatDate(analysis.date)}</div>
+            <div><strong>Type :</strong> ${analysis.type}</div>
+            <div><strong>Score :</strong> <span class="score-badge ${getScoreClass(analysis.score)}">${analysis.score}%</span></div>
+        </div>
+    `;
+
+    // Scores
+    if (score.passion) {
+        contentHtml += `
+            <div style="margin-bottom: 1.5rem; background: var(--dark); padding: 1rem; border-radius: 12px;">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--gray);">Scores par dimension</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center;">
+                    <div><div style="font-weight: 700; color: #8b5cf6;">${score.passion}%</div><div style="font-size: 0.8rem;">Passion</div></div>
+                    <div><div style="font-weight: 700; color: #00d4ff;">${score.profession}%</div><div style="font-size: 0.8rem;">Profession</div></div>
+                    <div><div style="font-weight: 700; color: #ec4899;">${score.mission}%</div><div style="font-size: 0.8rem;">Mission</div></div>
+                    <div><div style="font-weight: 700; color: #d946ef;">${score.vocation}%</div><div style="font-size: 0.8rem;">Vocation</div></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Trajectories (V2)
+    if (trajectories.length > 0) {
+        contentHtml += `<h3 style="margin: 1.5rem 0 1rem 0;">🛤️ Trajectoires</h3>`;
+        trajectories.forEach(t => {
+            contentHtml += `
+                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(139, 92, 246, 0.05); border-left: 3px solid #8b5cf6; border-radius: 8px;">
+                    <div style="font-weight: 600; color: white;">${t.title || t.label}</div>
+                    <div style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">${t.description || ''}</div>
+                </div>
+            `;
+        });
+    }
+
+    // Recommendations (V1/V2)
+    if (recs.length > 0) {
+        contentHtml += `<h3 style="margin: 1.5rem 0 1rem 0;">💼 Recommandations Carrière</h3>`;
+        recs.forEach(rec => {
+            contentHtml += `
+                <div style="margin-bottom: 1rem; padding: 1rem; background: var(--dark); border-radius: 8px;">
+                    <div style="font-weight: 600; display: flex; justify-content: space-between;">
+                        <span>${rec.title}</span>
+                        ${rec.matchScore ? `<span style="color: var(--success);">${rec.matchScore}%</span>` : ''}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">${rec.description || ''}</div>
+                </div>
+            `;
+        });
+    }
+
+    // Business Ideas
+    if (ideas.length > 0) {
+        contentHtml += `<h3 style="margin: 1.5rem 0 1rem 0;">🚀 Business Ideas</h3>`;
+        ideas.forEach(idea => {
+            const title = typeof idea === 'string' ? idea : (idea.title || idea.name);
+            const desc = typeof idea === 'string' ? '' : (idea.description || '');
+            contentHtml += `
+                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(236, 72, 153, 0.05); border-radius: 8px;">
+                    <div style="font-weight: 600;">${title}</div>
+                    ${desc ? `<div style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">${desc}</div>` : ''}
+                </div>
+            `;
+        });
+    }
+
     modal.innerHTML = `
-        <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
-            <h2 style="margin-bottom: 1.5rem;">📊 Détails de l'analyse</h2>
-            <div style="margin-bottom: 1rem;">
-                <strong>Client :</strong> ${analysis.clientName}
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Date :</strong> ${formatDate(analysis.date)}
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Type :</strong> ${analysis.type}
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <strong>Score Ikigai :</strong> <span class="score-badge ${getScoreClass(analysis.score)}">${analysis.score}%</span>
-            </div>
+        <div style="background: var(--dark-card); border-radius: 20px; padding: 2rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto;">
+            ${contentHtml}
             <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                 <button class="btn-primary" onclick="downloadAnalysisPDF(${analysisId})">📥 Télécharger PDF</button>
                 <button class="btn-secondary" onclick="this.closest('.modal').remove()">Fermer</button>

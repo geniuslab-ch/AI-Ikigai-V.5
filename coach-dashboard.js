@@ -97,7 +97,12 @@ async function loadClients() {
         }
 
         // Récupérer IDs clients
-        const clientIds = relations.map(r => r.client_id);
+        const clientIds = relations.map(r => r.client_id).filter(id => id);
+
+        if (clientIds.length === 0) {
+            console.log('Aucun ID client valide trouvé');
+            return [];
+        }
 
         // Charger profils clients
         const { data: clientProfiles } = await supabaseClient

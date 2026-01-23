@@ -1,0 +1,12 @@
+name = "ai-ikigai-api"
+main = "./src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# Placeholder values - these should be overridden by Cloudflare Dashboard secrets
+# Do not commit real keys here
+SUPABASE_URL = "https://wgmtujvvfnsbhudshmkh.supabase.co"
+# SUPABASE_ANON_KEY and SERVICE_ROLE_KEY should be set in Cloudflare Dashboard
+
+[observability]
+enabled = true

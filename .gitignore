@@ -7,7 +7,6 @@
 *.key
 
 # Configuration files with credentials
-wrangler.toml
 .wrangler/
 
 # Dependencies

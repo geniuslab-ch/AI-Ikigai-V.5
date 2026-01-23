@@ -12,7 +12,7 @@
 const API_CONFIG = {
     // URL de l'API backend
     // En production, remplacez par votre URL
-    baseUrl: 'https://api.ai-ikigai.com',
+    baseUrl: 'https://ai-ikigai.ai-ikigai.workers.dev',
 
     // En développement local, décommentez cette ligne :
     // baseUrl: 'http://localhost:8787',

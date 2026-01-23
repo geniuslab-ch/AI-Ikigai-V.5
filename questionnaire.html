@@ -3037,6 +3037,7 @@
 
                 if (hasBusinessIdeas) {
                     console.log('✨ Business Ideas reçues du backend - Affichage autorisé (Coach Upgrade ou Premium)');
+                    // On ne filtre PAS si le backend a renvoyé des données riches (c'est lui qui décide)
                 } else if (userPlan === 'decouverte' || userPlan === 'free') {
                     // Plan gratuit standard sans upgrade coach: max 3 career reco, PAS de business ideas
                     console.log('🚫 Plan gratuit standard: limitation affichage');
@@ -3227,13 +3228,13 @@
                 if (window.supabaseClient && userId) {
                     try {
                         // Check if user has a coach
-                        const { data: coachRelation } = await window.supabaseClient
+                        // ⚠️ FORCE CHECK: On vérifie la relation coach même si le profil dit 'decouverte'
+                        const { data: coachRelations, error: coachError } = await window.supabaseClient
                             .from('coach_clients')
                             .select('id')
-                            .eq('client_id', userId)
-                            .maybeSingle();
+                            .eq('client_id', userId);
 
-                        if (coachRelation) {
+                        if (!coachError && coachRelations && coachRelations.length > 0) {
                             console.log('👨‍🏫 User has a coach -> Upgrading plan to decouverte_coach');
                             userPlan = 'decouverte_coach';
                         } else {

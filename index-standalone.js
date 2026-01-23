@@ -963,6 +963,11 @@ async function handleRequest(request, env) {
                             mission: analysis.mission || [],
                             vocation: analysis.vocation || [],
                             score: analysis.score || {},
+                            // Ensure backward compatibility columns are also populated if needed
+                            passion_score: analysis.score?.passion || 0,
+                            profession_score: analysis.score?.profession || 0,
+                            mission_score: analysis.score?.mission || 0,
+                            vocation_score: analysis.score?.vocation || 0,
                             profile_summary: analysis.profileSummary || null,
                             ikigai_summary: analysis.ikigaiSummary || null,
                             career_recommendations: analysis.careerRecommendations || [],
@@ -972,7 +977,8 @@ async function handleRequest(request, env) {
                             final_trajectory: analysis.finalTrajectory || null,
                             positioning: analysis.positioning || null,
                             coaching_prep: analysis.coachingPrep || null,
-                            status: 'completed'
+                            status: 'completed',
+                            created_at: new Date().toISOString()
                         };
 
                         await supabaseQuery(env, 'POST', 'analyses', {

@@ -229,9 +229,10 @@ async function generateRecommendationsWithClaude(answers, cvData, env, userPlan 
         // Mapper le plan au pack level
         const packLevelMap = {
             'decouverte': 'CLARITY',
-            'decouverte_coach': 'CLARITY',
+            // Upgrade coach plans to TRANSFORMATION (Full Access)
+            'decouverte_coach': 'TRANSFORMATION',
             'essentiel': 'DIRECTION',
-            'essentiel_coach': 'DIRECTION',
+            'essentiel_coach': 'TRANSFORMATION',
             'premium': 'TRANSFORMATION',
             'premium_coach': 'TRANSFORMATION',
             'elite_coach': 'TRANSFORMATION'
@@ -495,14 +496,21 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 }
 
 function generateSimpleRecommendations(answers, cvData) {
-    console.log('📊 Génération simple des recommandations (sans IA)');
+    console.log('📊 Génération simple des recommandations (sans IA - Mode Fallback)');
 
     const analysis = {
         passions: [],
         talents: [],
         mission: [],
         vocation: [],
-        recommendations: [],
+        careerRecommendations: [], // Updated key name
+        businessIdeas: [], // V2 field
+        trajectories: [], // V2 field
+        coherenceDiagnosis: {
+            strengths: ["Cohérence passions/compétences", "Motivation intrinsèque forte"],
+            misalignments: ["Nécessité de clarifier le modèle économique"],
+            keyRisks: ["Marché concurrentiel", "Besoin de montée en compétences techniques"]
+        },
         score: { passion: 0, profession: 0, mission: 0, vocation: 0 }
     };
 
@@ -583,57 +591,123 @@ function generateSimpleRecommendations(answers, cvData) {
 
     const dominant = Object.entries(analysis.score).sort((a, b) => b[1] - a[1])[0][0];
 
+    // Helper to create detailed recommendation
+    const createRec = (title, desc, score, realism, risk) => ({
+        title,
+        description: desc,
+        matchScore: score,
+        realism: realism, // 🟢, 🟠, 🔴
+        realismLabel: realism === '🟢' ? 'Accessible' : (realism === '🟠' ? 'Challenge' : 'Ambitieux'),
+        keyRisk: risk
+    });
+
     if (dominant === 'passion' && analysis.passions[0]) {
-        analysis.recommendations.push({
-            title: `Créateur ${analysis.passions[0]}`,
-            description: `Exploitez votre passion pour ${analysis.passions[0].toLowerCase()} en créant des projets innovants qui vous inspirent.`,
-            matchScore: 92
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Créateur ${analysis.passions[0]}`,
+            `Exploitez votre passion pour ${analysis.passions[0].toLowerCase()} en créant des projets innovants qui vous inspirent.`,
+            92, '🟢', 'Risque d\'épuisement professionnel'
+        ));
     } else if (dominant === 'mission' && analysis.mission[0]) {
-        analysis.recommendations.push({
-            title: `Responsable ${analysis.mission[0]}`,
-            description: `Dirigez des initiatives dans ${analysis.mission[0].toLowerCase()} pour créer un impact durable.`,
-            matchScore: 90
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Responsable ${analysis.mission[0]}`,
+            `Dirigez des initiatives dans ${analysis.mission[0].toLowerCase()} pour créer un impact durable.`,
+            90, '🟢', 'Complexité organisationnelle'
+        ));
     } else if (dominant === 'profession' && analysis.talents[0]) {
-        analysis.recommendations.push({
-            title: `Expert ${analysis.talents[0]}`,
-            description: `Devenez une référence en ${analysis.talents[0].toLowerCase()} grâce à votre expertise unique.`,
-            matchScore: 88
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Expert ${analysis.talents[0]}`,
+            `Devenez une référence en ${analysis.talents[0].toLowerCase()} grâce à votre expertise unique.`,
+            88, '🟢', 'Niche de marché restreinte'
+        ));
     } else {
-        analysis.recommendations.push({
-            title: `Consultant Stratégique`,
-            description: `Conseillez des organisations en combinant vos compétences et votre vision.`,
-            matchScore: 85
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Consultant Stratégique`,
+            `Conseillez des organisations en combinant vos compétences et votre vision.`,
+            85, '🟠', 'Cycle de vente long'
+        ));
     }
 
     if (cvData.skills && cvData.skills.length > 0) {
         const mainSkill = cvData.skills[0];
         const expText = cvData.yearsExperience > 0 ? ` avec ${cvData.yearsExperience} ans d'expérience` : '';
-        analysis.recommendations.push({
-            title: `Lead ${mainSkill}`,
-            description: `Dirigez des équipes et projets en ${mainSkill.toLowerCase()}${expText} pour maximiser votre impact.`,
-            matchScore: 87
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Lead ${mainSkill}`,
+            `Dirigez des équipes et projets en ${mainSkill.toLowerCase()}${expText} pour maximiser votre impact.`,
+            87, '🟢', 'Responsabilité managériale élevée'
+        ));
     }
 
     if (analysis.passions[0] && analysis.mission[0]) {
-        analysis.recommendations.push({
-            title: `Entrepreneur ${analysis.passions[0]} & ${analysis.mission[0]}`,
-            description: `Créez votre entreprise alliant ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()}.`,
-            matchScore: 84
-        });
+        analysis.careerRecommendations.push(createRec(
+            `Entrepreneur ${analysis.passions[0]} & ${analysis.mission[0]}`,
+            `Créez votre entreprise alliant ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()}.`,
+            84, '🔴', 'Incertitude financière initiale'
+        ));
     }
 
-    while (analysis.recommendations.length < 3) {
-        analysis.recommendations.push({
-            title: 'Consultant Indépendant',
-            description: 'Développez votre activité de conseil en exploitant votre expertise unique.',
-            matchScore: 75
-        });
+    while (analysis.careerRecommendations.length < 3) {
+        analysis.careerRecommendations.push(createRec(
+            'Consultant Indépendant',
+            'Développez votre activité de conseil en exploitant votre expertise unique.',
+            75, '🟢', 'Isolement professionnel'
+        ));
     }
+
+    // Generate Mock Business Ideas
+    analysis.businessIdeas = [
+        {
+            title: `Agence ${analysis.talents[0] || 'Conseil'}`,
+            description: "Structure de conseil spécialisée.",
+            viabilityScore: 85,
+            problem: "Manque d'expertise pointue",
+            target: "PME et Startups",
+            whyFits: "Utilise vos compétences clés"
+        },
+        {
+            title: `Formation ${analysis.passions[0] || 'En ligne'}`,
+            description: "Programme de formation digital.",
+            viabilityScore: 80,
+            problem: "Besoin de montée en compétences",
+            target: "Professionnels en reconversion",
+            whyFits: "Transmet votre passion"
+        },
+        {
+            title: "Plateforme de Mise en Relation",
+            description: "Connecter experts et clients.",
+            viabilityScore: 75,
+            problem: "Difficulté à trouver les bons profils",
+            target: "Marché B2B",
+            whyFits: "Répond à un besoin marché"
+        }
+    ];
+
+    // Generate Mock Trajectories
+    analysis.trajectories = [
+        {
+            rank: 1,
+            label: "Trajectoire Réaliste (6 mois)",
+            title: `Expert ${analysis.talents[0] || 'Junior'}`,
+            description: "Capitalisez sur vos acquis pour une transition douce.",
+            jobTitles: ["Consultant", "Chef de projet"],
+            actionPlan30Days: ["Mettre à jour LinkedIn", "Contacter 5 recruteurs", "Suivre une formation courte"]
+        },
+        {
+            rank: 2,
+            label: "Trajectoire Équilibrée (6-12 mois)",
+            title: `Manager ${analysis.passions[0] || 'd\'équipe'}`,
+            description: "Prenez des responsabilités tout en explorant vos passions.",
+            jobTitles: ["Manager", "Product Owner"],
+            actionPlan30Days: ["Définir son offre", "Netwroking actif", "Bilan de compétences"]
+        },
+        {
+            rank: 3,
+            label: "Trajectoire Ambitieuse (12-24 mois)",
+            title: "Fondateur / CEO",
+            description: "Lancez votre propre structure alignée avec votre mission.",
+            jobTitles: ["Entrepreneur", "CEO"],
+            actionPlan30Days: ["Étude de marché", "Business Plan", "Recherche d'associés"]
+        }
+    ];
 
     return analysis;
 }
@@ -963,6 +1037,11 @@ async function handleRequest(request, env) {
                             mission: analysis.mission || [],
                             vocation: analysis.vocation || [],
                             score: analysis.score || {},
+                            // Ensure backward compatibility columns are also populated if needed
+                            passion_score: analysis.score?.passion || 0,
+                            profession_score: analysis.score?.profession || 0,
+                            mission_score: analysis.score?.mission || 0,
+                            vocation_score: analysis.score?.vocation || 0,
                             profile_summary: analysis.profileSummary || null,
                             ikigai_summary: analysis.ikigaiSummary || null,
                             career_recommendations: analysis.careerRecommendations || [],
@@ -972,7 +1051,8 @@ async function handleRequest(request, env) {
                             final_trajectory: analysis.finalTrajectory || null,
                             positioning: analysis.positioning || null,
                             coaching_prep: analysis.coachingPrep || null,
-                            status: 'completed'
+                            status: 'completed',
+                            created_at: new Date().toISOString()
                         };
 
                         await supabaseQuery(env, 'POST', 'analyses', {

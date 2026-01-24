@@ -1152,7 +1152,17 @@
                 'premium_coach': 'TRANSFORMATION',
                 'elite_coach': 'TRANSFORMATION'
             };
-            const packLevel = packLevelMap[userPlan] || 'CLARITY';
+            let packLevel = packLevelMap[userPlan] || 'CLARITY';
+
+            // FORCE UPGRADE if data is present (Backend overriding Frontend plan)
+            if (analysis.businessIdeas && analysis.businessIdeas.length > 0) {
+                console.log('✨ Data-driven upgrade: Business Ideas detected, upgrading view to DIRECTION+');
+                if (packLevel === 'CLARITY') packLevel = 'DIRECTION';
+            }
+            if (analysis.coherenceDiagnosis || analysis.finalTrajectory) {
+                console.log('✨ Data-driven upgrade: Diagnostic detected, upgrading view to TRANSFORMATION');
+                packLevel = 'TRANSFORMATION';
+            }
 
             let careerHtml = '';
             let businessHtml = '';

@@ -1059,9 +1059,10 @@ async function handleRequest(request, env) {
             console.log('📋 User plan from body:', userPlan);
 
             // Si pas de plan dans body, récupérer depuis Supabase si user_id ou email dispo
-            if (!user_plan && env.SUPABASE_URL) {
+            if (env.SUPABASE_URL) {
                 try {
                     let uid = user_id;
+                    // Trouver l'ID si on a que l'email
                     if (!uid && email) {
                         const profiles = await supabaseQuery(env, 'GET', 'profiles', {
                             query: `?email=eq.${email.toLowerCase()}&select=id`
@@ -1070,16 +1071,31 @@ async function handleRequest(request, env) {
                     }
 
                     if (uid) {
-                        const profiles = await supabaseQuery(env, 'GET', 'profiles', {
-                            query: `?id=eq.${uid}&select=plan`
-                        });
-                        if (profiles[0]) {
-                            userPlan = profiles[0].plan || 'decouverte';
-                            console.log(`✅ Plan récupéré depuis Supabase: ${userPlan}`);
+                        // 1. Vérifier si l'utilisateur a un coach (Upgrade prioritaire)
+                        try {
+                            const coachRel = await supabaseQuery(env, 'GET', 'coach_clients', {
+                                query: `?client_id=eq.${uid}&select=id`
+                            });
+
+                            if (coachRel && coachRel.length > 0) {
+                                console.log('👨‍🏫 Coach détecté côté backend - Upgrade vers TRANSFORMATION');
+                                userPlan = 'decouverte_coach'; // Force upgrade
+                            } else if (!user_plan) {
+                                // 2. Sinon récupérer le plan du profil (si pas fourni dans body)
+                                const profiles = await supabaseQuery(env, 'GET', 'profiles', {
+                                    query: `?id=eq.${uid}&select=plan`
+                                });
+                                if (profiles[0]) {
+                                    userPlan = profiles[0].plan || 'decouverte';
+                                    console.log(`✅ Plan récupéré depuis Supabase: ${userPlan}`);
+                                }
+                            }
+                        } catch (err) {
+                            console.warn('⚠️ Erreur vérification coach/plan:', err.message);
                         }
                     }
                 } catch (e) {
-                    console.warn('⚠️ Erreur récupération plan utilisateur:', e.message);
+                    console.warn('⚠️ Erreur récupération infos utilisateur:', e.message);
                 }
             }
 

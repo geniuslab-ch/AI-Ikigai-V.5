@@ -856,7 +856,6 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js"></script>
-    <script src="dashboard-recommendations.js"></script>
 
     <script>
         let currentUser = null;
@@ -1758,35 +1757,6 @@
             }
         }
 
-        function displayAllRecommendations(analysis) {
-            const container = document.getElementById('all-recommendations-list');
-
-            if (!container) {
-                console.warn('⚠️ Container all-recommendations-list not found');
-                return;
-            }
-
-            if (!analysis) {
-                return;
-            }
-
-            // Mapper les champs snake_case -> camelCase
-            const recommendations = analysis.career_recommendations || analysis.careerRecommendations || [];
-
-            if (!recommendations || recommendations.length === 0) {
-                container.innerHTML = '<p style="color: var(--text); padding: 2rem; text-align: center;">Aucune recommandation disponible</p>';
-                return;
-            }
-
-            container.innerHTML = recommendations.map(rec => `
-                <div class="recommendation-item">
-                    <div class="recommendation-header">
-                        <div class="recommendation-title">${rec.title}</div>
-                        ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
-                    </div>
-                    <div class="recommendation-desc">${rec.description}</div>
-                </div>
-            `).join('');
             // ========================================
             // DASHBOARD HISTORIQUE QUESTIONNAIRES
             // ========================================
@@ -1894,7 +1864,6 @@
             document.addEventListener('DOMContentLoaded', () => {
                 loadQuestionnaireHistory();
             });
-        }
 
         // Settings functions
         function loadSettingsData() {

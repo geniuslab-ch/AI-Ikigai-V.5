@@ -84,10 +84,13 @@ async function handleAddNewClient(event) {
             // Ne pas bloquer le flow si la notification échoue
         }
 
-        alert(`✅ Invitation envoyée à ${email} !`);
-        closeAddClientModal();
+        // alert(`✅ Invitation envoyée à ${email} !`);
+        // closeAddClientModal();
 
-        // Recharger la liste des clients
+        // AFFICHER LE LIEN DANS LA MODAL AU LIEU DE FERMER
+        showInvitationSuccess(name, email, inviteLink);
+
+        // Recharger la liste des clients en arrière-plan
         const clients = await loadClients();
         if (typeof displayClientsTable === 'function') {
             displayClientsTable(clients);
@@ -134,6 +137,32 @@ async function sendClientInvitation(email, clientName, personalMessage, inviteLi
         console.error('Erreur envoi:', error);
         throw error;
     }
+}
+
+function showInvitationSuccess(name, email, link) {
+    const modalBody = document.querySelector('#addClientModal .modal-body');
+    if (!modalBody) return;
+
+    modalBody.innerHTML = `
+        <div style="text-align: center; padding: 1rem;">
+            <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">✓</div>
+            <h3 style="color: var(--light); margin-bottom: 0.5rem;">Invitation créée pour ${name} !</h3>
+            <p style="color: var(--gray); margin-bottom: 2rem;">Un email a été envoyé à ${email}.</p>
+
+            <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid var(--purple); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; text-align: left;">
+                <label style="display: block; color: var(--purple); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase;">Lien d'invitation direct</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" value="${link}" readonly style="width: 100%; padding: 0.75rem; background: var(--dark); border: 1px solid var(--dark-border); border-radius: 8px; color: var(--gray); font-family: monospace; font-size: 0.9rem;" onclick="this.select()">
+                    <button onclick="navigator.clipboard.writeText('${link}').then(() => this.innerText = 'Copié !').catch(() => alert('Erreur copie'))" style="background: var(--purple); color: white; border: none; border-radius: 8px; padding: 0 1.5rem; cursor: pointer; font-weight: 600; min-width: 100px;">Copier</button>
+                </div>
+                <p style="color: var(--gray); font-size: 0.85rem; margin-top: 0.75rem;">
+                    💡 <strong style="color: var(--light);">Conseil :</strong> Copiez ce lien et envoyez-le par WhatsApp ou SMS pour être sûr que votre client le reçoive.
+                </p>
+            </div>
+
+            <button onclick="closeAddClientModal()" class="btn-primary" style="width: 100%;">Terminer</button>
+        </div>
+    `;
 }
 
 // Exporter les fonctions

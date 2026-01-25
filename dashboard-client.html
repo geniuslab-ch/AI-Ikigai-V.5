@@ -590,8 +590,6 @@
                 </div>
             </div>
 
-            <div id="all-recommendations-list" style="display: none;"></div>
-
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" onclick="navigateToSection('overview'); return false;">
                     <span>📊</span>
@@ -864,6 +862,7 @@
 
         // Initialisation
         (async () => {
+            console.log('VERSION: 3.1.0 - Cleaned Dashboard');
             // Vérifier l'authentification
             currentUser = await checkAuth('client');
             if (!currentUser) return;

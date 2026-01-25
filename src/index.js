@@ -1080,6 +1080,17 @@ async function handleRequest(request, env) {
                             if (coachRel && coachRel.length > 0) {
                                 console.log('👨‍🏫 Coach détecté côté backend - Upgrade vers TRANSFORMATION');
                                 userPlan = 'decouverte_coach'; // Force upgrade
+
+                                // UPDATE: Persist upgrade to profiles table to ensure consistency
+                                try {
+                                    await supabaseQuery(env, 'PATCH', 'profiles', {
+                                        query: `?id=eq.${uid}`,
+                                        body: { plan: 'decouverte_coach' }
+                                    });
+                                    console.log('✅ Profil mis à jour vers decouverte_coach');
+                                } catch (updErr) {
+                                    console.error('⚠️ Failed to update profile plan:', updErr);
+                                }
                             } else if (!user_plan) {
                                 // 2. Sinon récupérer le plan du profil (si pas fourni dans body)
                                 const profiles = await supabaseQuery(env, 'GET', 'profiles', {

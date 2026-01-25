@@ -1008,8 +1008,12 @@ async function handleRequest(request, env) {
                                 to: [{ email: to, name: clientName }]
                             }],
                             from: {
+                            email: 'no-reply@ai-ikigai.workers.dev',
+                            name: `AI-Ikigai Coach (${coachName || 'Votre Coach'})`
+                        },
+                        reply_to: {
                                 email: 'coach@ai-ikigai.com',
-                                name: 'AI-Ikigai Coach'
+                            name: coachName || 'Votre Coach'
                             },
                             subject: `${coachName || 'Votre Coach'} vous invite à découvrir votre Ikigai ✨`,
                             content: [{

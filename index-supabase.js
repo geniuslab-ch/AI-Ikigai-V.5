@@ -485,10 +485,14 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 	// Déterminer le nombre de recommandations selon le plan
 	const recommendationCounts = {
 		'decouverte': { career: 3, business: 0 },
+		'decouverte_coach': { career: 10, business: 5 },
 		'clarity': { career: 3, business: 0 },
 		'essentiel': { career: 10, business: 5 },
+		'essentiel_coach': { career: 10, business: 5 },
 		'direction': { career: 10, business: 5 },
 		'premium': { career: 10, business: 5 },
+		'premium_coach': { career: 10, business: 5 },
+		'elite_coach': { career: 10, business: 5 },
 		'transformation': { career: 10, business: 5 }
 	};
 
@@ -626,7 +630,7 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 	// Générer les recommandations de carrière
 	if (dominant === 'passion' && analysis.passions[0]) {
 		analysis.careerRecommendations.push({
-			title: `Créateur ${analysis.passions[0]}`,
+			title: `Entrepreneur dans l'innovation`,
 			description: `Exploitez votre passion pour ${analysis.passions[0].toLowerCase()} en créant des projets innovants qui vous inspirent.`,
 			matchScore: 92,
 			realism: '🟢',

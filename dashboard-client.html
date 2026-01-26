@@ -1782,8 +1782,10 @@
 
             // Mapper les champs snake_case -> camelCase
             const recommendations = analysis.career_recommendations || analysis.careerRecommendations || [];
+            const businessIdeas = analysis.business_ideas || analysis.businessIdeas || [];
+            const diagnosis = analysis.coherence_diagnosis || analysis.coherenceDiagnosis || null;
 
-            if (!recommendations || recommendations.length === 0) {
+            if ((!recommendations || recommendations.length === 0) && (!businessIdeas || businessIdeas.length === 0)) {
                 if (fullContainer) fullContainer.innerHTML = '<p style="color: var(--text); padding: 2rem; text-align: center;">Aucune recommandation disponible</p>';
                 if (overviewContainer) overviewContainer.innerHTML = '<div class="empty-state"><p>Complétez une analyse pour voir vos recommandations</p></div>';
                 return;
@@ -1791,7 +1793,12 @@
 
             // 1. Populate Full List (Recommendations Tab)
             if (fullContainer) {
-                fullContainer.innerHTML = recommendations.map(rec => `
+                let html = '';
+
+                // Career Recommendations
+                if (recommendations.length > 0) {
+                    html += `<h3 style="color: var(--purple); margin-bottom: 1.5rem;">🎯 Recommandations Carrière</h3>`;
+                    html += recommendations.map(rec => `
                     <div class="recommendation-item">
                         <div class="recommendation-header">
                             <div class="recommendation-title">${rec.title}</div>
@@ -1821,11 +1828,62 @@
                         </div>` : ''}
                     </div>
                 `).join('');
+                }
+
+                // Business Ideas
+                if (businessIdeas.length > 0) {
+                    html += `<h3 style="color: #ec4899; margin-top: 2.5rem; margin-bottom: 1.5rem;">🚀 Idées Business</h3>`;
+                    html += businessIdeas.map((idea, i) => {
+                        const isString = typeof idea === 'string';
+                        const title = isString ? idea : (idea.title || idea.name || `Idée ${i + 1}`);
+                        const description = isString ? '' : (idea.description || '');
+
+                        return `
+                        <div class="recommendation-item" style="border-left: 4px solid #ec4899;">
+                            <div class="recommendation-header">
+                                <div class="recommendation-title">${title}</div>
+                                ${!isString && idea.viabilityScore ? `<div class="match-score" style="background: #ec4899;">${idea.viabilityScore}%</div>` : ''}
+                            </div>
+                            ${description ? `<div class="recommendation-desc">${description}</div>` : ''}
+                        </div>`;
+                    }).join('');
+                }
+
+                // Diagnostic
+                if (diagnosis) {
+                    html += `<h3 style="color: #10b981; margin-top: 2.5rem; margin-bottom: 1.5rem;">🔍 Diagnostic de Cohérence</h3>`;
+                    html += `
+                        <div class="recommendation-item" style="border-left: 4px solid #10b981;">
+                            <div class="recommendation-header">
+                                <div class="recommendation-title">Score Global</div>
+                                <div class="match-score" style="background: #10b981;">${diagnosis.score || 85}%</div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+                                <div>
+                                    <strong style="color: #4ade80; display: block; margin-bottom: 0.5rem;">✅ Forces</strong>
+                                    <ul style="padding-left: 20px; margin: 0; color: var(--text);">
+                                        ${(diagnosis.strengths || []).map(s => `<li>${s}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <strong style="color: #f87171; display: block; margin-bottom: 0.5rem;">⚠️ Points de vigilance</strong>
+                                    <ul style="padding-left: 20px; margin: 0; color: var(--text);">
+                                        ${(diagnosis.weaknesses || []).map(w => `<li>${w}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                     `;
+                }
+
+                fullContainer.innerHTML = html;
             }
 
             // 2. Populate Overview Widget (Top 3 only, simplified)
             if (overviewContainer) {
-                overviewContainer.innerHTML = recommendations.slice(0, 3).map((rec, i) => `
+                // Combine top career + 1 top business
+                let summaryHtml = recommendations.slice(0, 3).map((rec, i) => `
                     <div class="recommendation-item-summary" style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: 600; color: var(--text);">${i + 1}. ${rec.title}</div>
@@ -1834,6 +1892,20 @@
                         ${rec.matchScore ? `<div style="background: var(--purple); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${rec.matchScore}%</div>` : ''}
                     </div>
                 `).join('');
+
+                if (businessIdeas.length > 0) {
+                    const idea = businessIdeas[0];
+                    const title = typeof idea === 'string' ? idea : (idea.title || idea.name);
+                    summaryHtml += `
+                    <div class="recommendation-item-summary" style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(236, 72, 153, 0.05);">
+                        <div>
+                            <div style="font-weight: 600; color: #ec4899;">🚀 Idée Business</div>
+                            <div style="font-size: 0.85rem; color: var(--gray); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 250px;">${title}</div>
+                        </div>
+                    </div>`;
+                }
+
+                overviewContainer.innerHTML = summaryHtml;
             }
         }
         // ========================================

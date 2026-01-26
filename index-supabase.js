@@ -1651,6 +1651,9 @@ async function handleRequest(request, env) {
 						talents: analysis.talents || [],
 						mission: analysis.mission || [],
 						vocation: analysis.vocation || [],
+						career_recommendations: analysis.careerRecommendations || [],
+						business_ideas: analysis.businessIdeas || [],
+						coherence_diagnosis: analysis.coherenceDiagnosis || null,
 						score: analysis.score || {},
 						// BACKWARD COMPATIBILITY: Colonnes individuelles pour ancien dashboard
 						passion_score: analysis.score?.passion || 0,

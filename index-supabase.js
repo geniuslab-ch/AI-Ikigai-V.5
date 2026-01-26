@@ -405,7 +405,8 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 
 		if (!response.ok) {
 			console.error('❌ Erreur Claude API:', data);
-			return generateSimpleRecommendations(answers, cvData, userPlan);
+			console.log('🔄 Bascule vers le plan de secours OpenAI...');
+			return generateRecommendationsWithOpenAI(answers, cvData, env, userPlan);
 		}
 
 		const content = data.content[0].text;
@@ -466,11 +467,13 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 		}
 
 		console.warn('⚠️ Pas de JSON trouvé dans la réponse Claude');
-		return generateSimpleRecommendations(answers, cvData, userPlan);
+		console.log('🔄 Bascule vers le plan de secours OpenAI...');
+		return generateRecommendationsWithOpenAI(answers, cvData, env, userPlan);
 
 	} catch (error) {
 		console.error('❌ Erreur génération Claude:', error.message);
-		return generateSimpleRecommendations(answers, cvData, userPlan);
+		console.log('🔄 Bascule vers le plan de secours OpenAI...');
+		return generateRecommendationsWithOpenAI(answers, cvData, userPlan);
 	}
 }
 
@@ -2025,3 +2028,128 @@ export default {
 		}
 	},
 };
+
+// ============================================
+// FALLBACK: GÉNÉRATION AVEC OPENAI (GPT-4o)
+// ============================================
+
+async function generateRecommendationsWithOpenAI(answers, cvData, env, userPlan) {
+	if (!env.OPENAI_API_KEY) {
+		console.warn('⚠️ Pas de clé API OpenAI, utilisation génération simple');
+		return generateSimpleRecommendations(answers, cvData, userPlan);
+	}
+
+	console.log('🤖⚠️ Bascule vers OpenAI (GPT-4o) pour recommandations...');
+
+	try {
+		const packLevelMap = {
+			'decouverte': 'CLARITY',
+			'decouverte_coach': 'TRANSFORMATION',
+			'essentiel': 'DIRECTION',
+			'essentiel_coach': 'TRANSFORMATION',
+			'premium': 'TRANSFORMATION',
+			'premium_coach': 'TRANSFORMATION',
+			'elite_coach': 'TRANSFORMATION'
+		};
+		const packLevel = packLevelMap[userPlan] || 'CLARITY';
+
+		const systemPrompt = `You are an expert career coach using the Ikigai methodology.
+CORE PRINCIPLES:
+- Do NOT invent information
+- Be specific and actionable
+- Output JSON ONLY (no markdown code blocks)
+- Language: FRENCH
+
+PACK_LEVEL = ${packLevel}
+
+USER DATA:
+A) Ikigai questionnaire:
+${JSON.stringify(answers, null, 2)}
+
+B) CV:
+Skills: ${cvData.skills.join(', ') || 'Non spécifié'}
+Experience: ${cvData.experiences.join(', ') || 'Non spécifié'}
+Years: ${cvData.yearsExperience || 0}
+
+OUTPUT JSON STRUCTURE (Must match exactly):
+${packLevel === 'CLARITY' ? `
+{
+  "profileSummary": "6 lines max",
+  "ikigaiSummary": "Summary",
+  "passions": ["p1", "p2", "p3"],
+  "talents": ["t1", "t2", "t3"],
+  "mission": ["m1", "m2"],
+  "vocation": ["v1", "v2"],
+  "score": {"passion": 85, "mission": 90, "vocation": 80, "profession": 75},
+  "careerRecommendations": [
+    { "title": "Job Title", "description": "Why it fits", "matchScore": 90, "realism": "🟢", "realismLabel": "Accessible", "keyRisk": "None" },
+    { "title": "Job Title", "description": "Why it fits", "matchScore": 80, "realism": "🟠", "realismLabel": "Growth", "keyRisk": "None" },
+    { "title": "Job Title", "description": "Why it fits", "matchScore": 70, "realism": "🔴", "realismLabel": "Ambitious", "keyRisk": "None" }
+  ]
+}` : `
+{
+  "profileSummary": "6 lines",
+  "ikigaiSummary": "Summary",
+  "passions": [...], "talents": [...], "mission": [...], "vocation": [...],
+  "score": {...},
+  "trajectories": [
+    {
+      "rank": 1, "label": "Main Path", "title": "Title", "description": "Desc",
+      "jobTitles": ["Job1", "Job2"], "whyIkigai": "Reason", "whyCV": "Reason", "whyMarket": "Reason",
+      "existingSkills": ["s1"], "skillsToDevelop": ["s1", "s2"], "actionPlan30Days": ["a1", "a2"]
+    },
+    { "rank": 2, "label": "Alternative", ... },
+    { "rank": 3, "label": "Ambitious", ... }
+  ],
+  "businessIdeas": [
+    { "title": "Idea", "description": "Desc", "problem": "Prob", "target": "Target", "whyFits": "Reason", "viabilityScore": 80 },
+    ... (5 ideas total)
+  ],
+  "coherenceDiagnosis": { "strengths": [], "misalignments": [], "keyRisks": [] },
+  "finalTrajectory": { "choice": "Path 1", "justification": "Because..." },
+  "positioning": { "statement": "I am...", "linkedinHeadline": "Head", "pitch": "Pitch" },
+  "coachingPrep": { "keyQuestions": [], "topicsToClarify": [] },
+  "careerRecommendations": []
+}`}`;
+
+		const response = await fetch('https://api.openai.com/v1/chat/completions', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${env.OPENAI_API_KEY}`
+			},
+			body: JSON.stringify({
+				model: 'gpt-4o',
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: 'Generate the Ikigai analysis JSON.' }
+				],
+				temperature: 0.7,
+				response_format: { type: "json_object" }
+			})
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error('❌ OpenAI API Error:', data);
+			return generateSimpleRecommendations(answers, cvData, userPlan);
+		}
+
+		const content = data.choices[0].message.content;
+		const analysis = JSON.parse(content);
+
+		console.log('✅ Recommandations générées par OpenAI (GPT-4o)');
+
+		// Ensure score exists
+		if (!analysis.score) {
+			analysis.score = { passion: 75, profession: 75, mission: 75, vocation: 75 };
+		}
+
+		return analysis;
+
+	} catch (error) {
+		console.error('❌ Erreur génération OpenAI:', error);
+		return generateSimpleRecommendations(answers, cvData, userPlan);
+	}
+}

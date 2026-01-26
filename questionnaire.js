@@ -516,6 +516,44 @@ function showCVUpload() {
         pill.classList.remove('active');
         pill.classList.add('completed');
     });
+
+    // Check Plan for Unlocking CV
+    const urlParams = new URLSearchParams(window.location.search);
+    const userPlan = urlParams.get('plan') || localStorage.getItem('ai-ikigai-plan') || 'decouverte';
+    const coachId = urlParams.get('coach_id') || localStorage.getItem('ai-ikigai-coach-id');
+
+    // Plans that allow CV upload
+    const premiumPlans = ['essentiel', 'essentiel_coach', 'direction', 'premium', 'premium_coach', 'elite_coach', 'transformation', 'decouverte_coach'];
+
+    // Coach clients always get premium features
+    const isPremium = premiumPlans.includes(userPlan) || !!coachId;
+
+    const upgradeMessage = document.getElementById('cv-upgrade-message');
+    const optionalMessage = document.getElementById('cv-optional-message');
+    const uploadZone = document.getElementById('upload-zone');
+    const cvInput = document.getElementById('cv-input');
+
+    if (upgradeMessage) {
+        if (isPremium) {
+            // Unlocked
+            upgradeMessage.style.display = 'none';
+            if (optionalMessage) optionalMessage.style.display = 'flex';
+            if (uploadZone) {
+                uploadZone.style.opacity = '1';
+                uploadZone.style.pointerEvents = 'auto';
+            }
+            if (cvInput) cvInput.disabled = false;
+        } else {
+            // Locked
+            upgradeMessage.style.display = 'flex';
+            if (optionalMessage) optionalMessage.style.display = 'none';
+            if (uploadZone) {
+                uploadZone.style.opacity = '0.5';
+                uploadZone.style.pointerEvents = 'none'; // Disable click
+            }
+            if (cvInput) cvInput.disabled = true;
+        }
+    }
 }
 
 // Setup CV Upload

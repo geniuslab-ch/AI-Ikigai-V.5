@@ -1527,7 +1527,7 @@ async function handleRequest(request, env) {
 			console.log('📝 POST /api/questionnaire/submit');
 
 			const body = await request.json();
-			const { answers, email, user_plan } = body;
+			const { answers, email, user_plan: bodyUserPlan } = body;
 
 			if (!answers || Object.keys(answers).length === 0) {
 				return errorResponse('Pas de réponses fournies');
@@ -1546,11 +1546,11 @@ async function handleRequest(request, env) {
 			};
 
 			// Utiliser user_plan du body en priorité, sinon récupérer depuis Supabase
-			let userPlan = user_plan || 'decouverte';
-			console.log('📋 User plan from body:', user_plan);
+			let userPlan = bodyUserPlan || 'decouverte';
+			console.log('📋 User plan from body:', bodyUserPlan);
 
-			// Si pas de plan dans body, récupérer depuis Supabase
-			if (!user_plan) {
+			// Si pas de plan dans body (null/undefined), récupérer depuis Supabase
+			if (!bodyUserPlan) {
 				const authHeader = request.headers.get('Authorization');
 				console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
 

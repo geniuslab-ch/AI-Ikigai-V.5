@@ -280,14 +280,6 @@ ${packLevel === 'CLARITY' ? `Generate JSON:
   "score": {"passion": 85, "mission": 90, "vocation": 80, "profession": 75},
   "careerRecommendations": [
     {
-      "title": "Poste 1",
-      "description": "Pourquoi correspond (2-3 lignes)",
-      "matchScore": 85,
-      "realism": "🟢",
-      "realismLabel": "Accessible rapidement",
-      "keyRisk": "Limitation"
-    },
-    {
       "title": "Poste 2",
       "description": "Pourquoi correspond (2-3 lignes)",
       "matchScore": 75,

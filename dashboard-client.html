@@ -1245,10 +1245,13 @@
                                             <div style="flex: 1;">
                                                 <span style="background: ${gradients[idx]}; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">${traj.label || labels[idx]}</span>
                                                 <h4 style="font-size: 1.25rem; margin: 0; color: var(--text); font-weight: 600;">${traj.title || traj.career || traj.name || 'Trajectoire professionnelle'}</h4>
+                                                ${traj.realism ? `<div style="margin-top: 0.5rem;"><span style="font-size: 1.2rem;">${traj.realism}</span> <span style="color: var(--gray); font-size: 0.9rem;">${traj.realismLabel || ''}</span></div>` : ''}
                                             </div>
                                             <div style="background: ${gradients[idx]}; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; margin-left: 1rem;">${['🎯', '🚀', '⭐'][idx]}</div>
                                         </div>
                                         <p style="color: var(--gray); margin-bottom: 1rem; line-height: 1.6; font-size: 0.95rem;">${traj.description || traj.justification || 'Cette trajectoire professionnelle correspond à votre profil Ikigai et offre des perspectives d\'évolution alignées avec vos passions et compétences.'}</p>
+                                        
+                                        ${traj.keyRisk ? `<div style="padding: 0.75rem; background: rgba(251, 146, 60, 0.1); border-radius: 8px; border-left: 3px solid #fb923c; margin-bottom: 1rem;"><strong style="color: #fb923c;">⚠️ Point d'attention:</strong> <span style="color: var(--text);">${traj.keyRisk}</span></div>` : ''}
                                     
                                     ${traj.jobTitles && traj.jobTitles.length > 0 ? `
                                         <div style="margin-bottom: 1rem;">

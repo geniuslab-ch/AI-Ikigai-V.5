@@ -319,6 +319,9 @@ Generate JSON:
       "label": "Trajectoire principale",
       "title": "Nom parcours",
       "description": "2-3 lignes",
+      "realism": "🟢",
+      "realismLabel": "Accessible",
+      "keyRisk": "Point d'attention majeur",
       "jobTitles": ["Poste 1", "Poste 2", "Poste 3"],
       "whyIkigai": "Bref",
       "whyCV": "Bref",
@@ -2089,6 +2092,7 @@ ${packLevel === 'CLARITY' ? `
   "trajectories": [
     {
       "rank": 1, "label": "Main Path", "title": "Title", "description": "Desc",
+      "realism": "🟢", "realismLabel": "Accessible", "keyRisk": "Attention Point",
       "jobTitles": ["Job1", "Job2"], "whyIkigai": "Reason", "whyCV": "Reason", "whyMarket": "Reason",
       "existingSkills": ["s1"], "skillsToDevelop": ["s1", "s2"], "actionPlan30Days": ["a1", "a2"]
     },

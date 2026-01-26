@@ -1138,7 +1138,7 @@
                             } else {
                                 console.log('🔍 Coach relation result:', coachRel);
                             }
-                            
+
                             if (coachRel) {
                                 console.log('👨‍🏫 Coach found for client -> Upgrading visualization to decouverte_coach');
                                 userPlan = 'decouverte_coach';
@@ -1772,99 +1772,113 @@
         }
 
         function displayAllRecommendations(analysis) {
-            const container = document.getElementById('all-recommendations-list');
+            // Target the detailed full list (Recommendations tab)
+            const fullContainer = document.getElementById('all-recommendations-list');
+            // Target the summary list (Overview tab)
+            const overviewContainer = document.getElementById('recommendations-list');
 
-            if (!container) {
-                console.warn('⚠️ Container all-recommendations-list not found');
-                return;
-            }
-
-            if (!analysis) {
-                return;
-            }
+            if (!analysis) return;
 
             // Mapper les champs snake_case -> camelCase
             const recommendations = analysis.career_recommendations || analysis.careerRecommendations || [];
 
             if (!recommendations || recommendations.length === 0) {
-                container.innerHTML = '<p style="color: var(--text); padding: 2rem; text-align: center;">Aucune recommandation disponible</p>';
+                if (fullContainer) fullContainer.innerHTML = '<p style="color: var(--text); padding: 2rem; text-align: center;">Aucune recommandation disponible</p>';
+                if (overviewContainer) overviewContainer.innerHTML = '<div class="empty-state"><p>Complétez une analyse pour voir vos recommandations</p></div>';
                 return;
             }
 
-            container.innerHTML = recommendations.map(rec => `
-                <div class="recommendation-item">
-                    <div class="recommendation-header">
-                        <div class="recommendation-title">${rec.title}</div>
-                        ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
+            // 1. Populate Full List (Recommendations Tab)
+            if (fullContainer) {
+                fullContainer.innerHTML = recommendations.map(rec => `
+                    <div class="recommendation-item">
+                        <div class="recommendation-header">
+                            <div class="recommendation-title">${rec.title}</div>
+                            ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
+                        </div>
+                        
+                        ${rec.realismLabel ? `
+                        <div class="recommendation-meta" style="display:flex; gap:10px; margin: 5px 0; font-size:0.9em;">
+                            <span class="realism-badge" style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">
+                                ${rec.realism || '🟢'} ${rec.realismLabel}
+                            </span>
+                        </div>` : ''}
+    
+                        <div class="recommendation-desc">${rec.description}</div>
+    
+                        ${rec.keyRisk && rec.keyRisk !== 'Aucun' ? `
+                        <div class="recommendation-risk" style="margin-top:10px; color:#ff6b6b; font-size:0.9em;">
+                            <strong>⚠️ Vigilance :</strong> ${rec.keyRisk}
+                        </div>` : ''}
+    
+                        ${rec.attentionPoints && rec.attentionPoints.length > 0 ? `
+                        <div class="recommendation-points" style="margin-top:10px; font-size:0.9em; color:#a0aec0;">
+                            <strong>💡 Points d'attention :</strong>
+                            <ul style="padding-left:20px; margin-top:5px;">
+                                ${rec.attentionPoints.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>` : ''}
                     </div>
-                    
-                    ${rec.realismLabel ? `
-                    <div class="recommendation-meta" style="display:flex; gap:10px; margin: 5px 0; font-size:0.9em;">
-                        <span class="realism-badge" style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">
-                            ${rec.realism || '🟢'} ${rec.realismLabel}
-                        </span>
-                    </div>` : ''}
-
-                    <div class="recommendation-desc">${rec.description}</div>
-
-                    ${rec.keyRisk && rec.keyRisk !== 'Aucun' ? `
-                    <div class="recommendation-risk" style="margin-top:10px; color:#ff6b6b; font-size:0.9em;">
-                        <strong>⚠️ Vigilance :</strong> ${rec.keyRisk}
-                    </div>` : ''}
-
-                    ${rec.attentionPoints && rec.attentionPoints.length > 0 ? `
-                    <div class="recommendation-points" style="margin-top:10px; font-size:0.9em; color:#a0aec0;">
-                        <strong>💡 Points d'attention :</strong>
-                        <ul style="padding-left:20px; margin-top:5px;">
-                            ${rec.attentionPoints.map(p => `<li>${p}</li>`).join('')}
-                        </ul>
-                    </div>` : ''}
-                </div>
-            `).join('');
-            // ========================================
-            // DASHBOARD HISTORIQUE QUESTIONNAIRES
-            // ========================================
-
-            async function loadQuestionnaireHistory() {
-                try {
-                    // Récupérer session utilisateur
-                    const { data: { session } } = await supabaseClient.auth.getSession();
-
-                    if (!session) {
-                        window.location.href = 'auth.html';
-                        return;
-                    }
-
-                    // Fetch analyses depuis Supabase
-                    const { data: analyses, error } = await supabaseClient
-                        .from('analyses')
-                        .select('*')
-                        .eq('user_id', session.user.id)
-                        .order('created_at', { ascending: false });
-
-                    if (error) throw error;
-
-                    console.log(`✅ ${questionnaires.length} questionnaires trouvés`);
-
-                    // Afficher dans UI
-                    displayQuestionnaireList(questionnaires);
-
-                } catch (error) {
-                    console.error('❌ Erreur chargement historique:', error);
-                    alert('Erreur lors du chargement de votre historique');
-                }
+                `).join('');
             }
 
-            function displayQuestionnaireList(questionnaires) {
-                const container = document.getElementById('questionnaire-history');
+            // 2. Populate Overview Widget (Top 3 only, simplified)
+            if (overviewContainer) {
+                overviewContainer.innerHTML = recommendations.slice(0, 3).map((rec, i) => `
+                    <div class="recommendation-item-summary" style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text);">${i + 1}. ${rec.title}</div>
+                            <div style="font-size: 0.85rem; color: var(--gray); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 250px;">${rec.description}</div>
+                        </div>
+                        ${rec.matchScore ? `<div style="background: var(--purple); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${rec.matchScore}%</div>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+        // ========================================
+        // DASHBOARD HISTORIQUE QUESTIONNAIRES
+        // ========================================
 
-                if (!container) {
-                    console.warn('⚠️ Container #questionnaire-history introuvable');
+        async function loadQuestionnaireHistory() {
+            try {
+                // Récupérer session utilisateur
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = 'auth.html';
                     return;
                 }
 
-                if (questionnaires.length === 0) {
-                    container.innerHTML = `
+                // Fetch analyses depuis Supabase
+                const { data: analyses, error } = await supabaseClient
+                    .from('analyses')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log(`✅ ${questionnaires.length} questionnaires trouvés`);
+
+                // Afficher dans UI
+                displayQuestionnaireList(questionnaires);
+
+            } catch (error) {
+                console.error('❌ Erreur chargement historique:', error);
+                alert('Erreur lors du chargement de votre historique');
+            }
+        }
+
+        function displayQuestionnaireList(questionnaires) {
+            const container = document.getElementById('questionnaire-history');
+
+            if (!container) {
+                console.warn('⚠️ Container #questionnaire-history introuvable');
+                return;
+            }
+
+            if (questionnaires.length === 0) {
+                container.innerHTML = `
             <div style="text-align: center; padding: 3rem;">
                 <p style="color: var(--gray); font-size: 1.1rem;">
                     Aucun questionnaire complété pour le moment
@@ -1874,10 +1888,10 @@
                 </a>
             </div>
         `;
-                    return;
-                }
+                return;
+            }
 
-                const html = questionnaires.map(q => `
+            const html = questionnaires.map(q => `
         <div class="questionnaire-card" data-id="${q.id}">
             <div class="questionnaire-header">
                 <h4>${formatDate(q.created_at)}</h4>
@@ -1904,30 +1918,30 @@
         </div>
     `).join('');
 
-                container.innerHTML = html;
-            }
+            container.innerHTML = html;
+        }
 
-            function formatDate(dateString) {
-                const date = new Date(dateString);
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                return date.toLocaleDateString('fr-FR', options);
-            }
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleDateString('fr-FR', options);
+        }
 
-            function viewQuestionnaire(id) {
-                // Rediriger vers questionnaire avec résultats
-                window.location.href = `questionnaire.html?result=${id}`;
-            }
+        function viewQuestionnaire(id) {
+            // Rediriger vers questionnaire avec résultats
+            window.location.href = `questionnaire.html?result=${id}`;
+        }
 
-            // Fonction  downloadPDF sera implémentée Phase 4
-            function downloadPDF(id) {
-                alert('Export PDF en cours d\'implémentation (Phase 4)');
-                // Sera implémenté dans Phase 4
-            }
+        // Fonction  downloadPDF sera implémentée Phase 4
+        function downloadPDF(id) {
+            alert('Export PDF en cours d\'implémentation (Phase 4)');
+            // Sera implémenté dans Phase 4
+        }
 
-            // Charger au chargement page
-            document.addEventListener('DOMContentLoaded', () => {
-                loadQuestionnaireHistory();
-            });
+        // Charger au chargement page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestionnaireHistory();
+        });
         }
 
         // Settings functions

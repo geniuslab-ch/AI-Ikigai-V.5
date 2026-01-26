@@ -3095,46 +3095,104 @@
                     if (recommendationsList) {
                         const careerHTML = backendAnalysis.careerRecommendations.map((rec, i) => `
                     <div class="recommendation-item">
-                        <div class="recommendation-number">${i + 1}</div>
-                        <div class="recommendation-content">
-                            <h4>${rec.title || rec.name || `Carrière ${i + 1}`}</h4>
-                            <p>${rec.description}</p>
+                        <div class="recommendation-header">
+                            <div class="recommendation-number">${i + 1}</div>
+                            <div class="recommendation-content">
+                                <h4>${rec.title || rec.name || `Carrière ${i + 1}`} ${rec.matchScore ? `<span class="score-badge">${rec.matchScore}%</span>` : ''}</h4>
+                                
+                                ${rec.realismLabel ? `
+                                <div class="recommendation-meta" style="margin-bottom: 8px;">
+                                    <span class="realism-badge" style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size: 0.9em;">
+                                        ${rec.realism || '🟢'} ${rec.realismLabel}
+                                    </span>
+                                </div>` : ''}
+
+                                <p>${rec.description}</p>
+
+                                ${rec.keyRisk && rec.keyRisk !== 'Aucun' ? `
+                                <div class="recommendation-risk" style="margin-top:10px; color:#ff6b6b; font-size:0.9em; background: rgba(255, 107, 107, 0.1); padding: 8px; border-radius: 6px;">
+                                    <strong>⚠️ Vigilance :</strong> ${rec.keyRisk}
+                                </div>` : ''}
+
+                                ${rec.attentionPoints && rec.attentionPoints.length > 0 ? `
+                                <div class="recommendation-points" style="margin-top:10px; font-size:0.9em; color:#e2e8f0; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 6px;">
+                                    <strong>💡 Points d'attention :</strong>
+                                    <ul style="padding-left:20px; margin-top:5px; margin-bottom: 0;">
+                                        ${rec.attentionPoints.map(p => `<li>${p}</li>`).join('')}
+                                    </ul>
+                                </div>` : ''}
+                            </div>
                         </div>
                     </div>
                 `).join('');
 
                         const businessHTML = backendAnalysis.businessIdeas && backendAnalysis.businessIdeas.length > 0
-                            ? (() => {
-                                console.log('🔍 DEBUG businessIdeas:', backendAnalysis.businessIdeas);
-                                console.log('🔍 DEBUG first idea:', backendAnalysis.businessIdeas[0]);
-                                return backendAnalysis.businessIdeas.map((idea, i) => {
-                                    // Handle both string and object formats
-                                    const isString = typeof idea === 'string';
-                                    const title = isString ? idea : (idea.title || idea.name || `Idée ${i + 1}`);
-                                    const description = isString ? '' : (idea.description || '');
+                            ? backendAnalysis.businessIdeas.map((idea, i) => {
+                                // Handle both string and object formats
+                                const isString = typeof idea === 'string';
+                                const title = isString ? idea : (idea.title || idea.name || `Idée ${i + 1}`);
+                                const description = isString ? '' : (idea.description || '');
 
-                                    console.log(`🔍 Idea ${i}: isString=${isString}, title="${title}"`);
-
-                                    return `
-                    <div class="recommendation-item">
-                        <div class="recommendation-number">💼 ${i + 1}</div>
+                                return `
+                    <div class="recommendation-item business-idea">
+                        <div class="recommendation-number" style="background: var(--gradient-secondary);">🚀 ${i + 1}</div>
                         <div class="recommendation-content">
                             <h4>${title}</h4>
                             ${description ? `<p>${description}</p>` : ''}
                         </div>
                     </div>
                 `;
-                                }).join('');
-                            })()
-                            : '<div class="empty-state"><p>Débloquez les idées business avec le plan Essentiel</p></div>';
+                            }).join('')
+                            : '';
+
+                        const diagnosticHTML = backendAnalysis.coherenceDiagnosis
+                            ? `
+                            <div class="recommendation-item diagnostic" style="border: 2px solid var(--purple);">
+                                <div class="recommendation-number">🎯</div>
+                                <div class="recommendation-content">
+                                    <h4>Diagnostic de Cohérence (${backendAnalysis.coherenceDiagnosis.score || 85}%)</h4>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 10px;">
+                                        <div>
+                                            <strong style="color: #4ade80;">Forces :</strong>
+                                            <ul style="padding-left: 20px;">
+                                                ${(backendAnalysis.coherenceDiagnosis.strengths || []).map(s => `<li>${s}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <strong style="color: #f87171;">Faiblesses :</strong>
+                                            <ul style="padding-left: 20px;">
+                                                ${(backendAnalysis.coherenceDiagnosis.weaknesses || []).map(w => `<li>${w}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 10px;">
+                                        <strong style="color: var(--purple);">Recommandations :</strong>
+                                        <ul style="padding-left: 20px;">
+                                            ${(backendAnalysis.coherenceDiagnosis.recommendations || []).map(r => `<li>${r}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>`
+                            : '';
+
 
                         recommendationsList.innerHTML = `
-                            <h3>🎯 Recommandations de carrière(${backendAnalysis.careerRecommendations.length})</h3>
+                            <h3>🎯 Recommandations de carrière</h3>
                             ${careerHTML}
+                            
                             ${businessHTML ? `
                                 <div style="clear: both; margin-top: 2rem;">
-                                    <h3>💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>
+                                    <h3>💼 Idées de business</h3>
                                     ${businessHTML}
+                                </div>
+                            ` : ''}
+
+                            ${diagnosticHTML ? `
+                                <div style="clear: both; margin-top: 2rem;">
+                                    <h3>🔍 Diagnostic de cohérence</h3>
+                                    ${diagnosticHTML}
                                 </div>
                             ` : ''}
                         `;

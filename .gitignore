@@ -1,48 +1,7 @@
-# Environment variables and secrets
-.env
-.env.local
-.env.production
-.env.*.local
-*.pem
-*.key
-
-# Configuration files with credentials
-# wrangler.toml
-.wrangler/
-
-# Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Build outputs
-dist/
-build/
-.output/
-.vercel/
-.netlify/
-
-# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
+.env
+.wrangler/
+dist/
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Logs
-logs/
-*.log
-
-# Temporary files
-tmp/
-temp/
+npm-debug.log

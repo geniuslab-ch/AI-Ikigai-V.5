@@ -10,7 +10,7 @@ const QuestionnaireAPI = {
      * @param {string} userEmail - User's email (optional fallback)
      * @returns {Promise} Submission result with analysis data
      */
-    async submit(answers, userEmail = null) {
+    async submit(answers, userEmail = null, userPlan = null) {
         try {
             console.log('📝 Submitting questionnaire to Worker API...');
 
@@ -24,6 +24,7 @@ const QuestionnaireAPI = {
             }
 
             console.log('✅ User authenticated:', user.email);
+            console.log('📋 User plan:', userPlan || 'auto-detect');
 
             // Fetch from Backend Worker
             const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/questionnaire/submit', {
@@ -35,7 +36,7 @@ const QuestionnaireAPI = {
                 body: JSON.stringify({
                     answers,
                     email: user.email,
-                    user_plan: null // Will be auto-detected by backend
+                    user_plan: userPlan // Pass detected plan if available
                 })
             });
 

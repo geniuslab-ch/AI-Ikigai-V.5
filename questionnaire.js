@@ -327,7 +327,7 @@ function renderQuestion() {
 
     if (q.type === 'single' || q.type === 'multi-select') {
         const multiClass = q.type === 'multi-select' ? 'multi-select' : '';
-        const multiHint = q.type === 'multi-select' ? 
+        const multiHint = q.type === 'multi-select' ?
             `<div class="multi-select-hint">
                 <span>ℹ️</span>
                 <span>Sélectionnez jusqu'à ${q.maxSelect} réponses</span>
@@ -387,10 +387,10 @@ function renderQuestion() {
             <p class="question-hint">${q.hint}</p>
             ${optionsHTML}
             <div class="nav-buttons">
-                ${currentQuestion > 0 ? 
-                    `<button class="btn btn-back" onclick="goToPreviousQuestion()">← Retour</button>` : 
-                    '<div></div>'
-                }
+                ${currentQuestion > 0 ?
+            `<button class="btn btn-back" onclick="goToPreviousQuestion()">← Retour</button>` :
+            '<div></div>'
+        }
                 <button class="btn btn-next" onclick="goToNextQuestion()" ${!hasAnswer(q.id) ? 'disabled' : ''}>
                     ${currentQuestion === questions.length - 1 ? 'Continuer' : 'Suivant'} →
                 </button>
@@ -511,7 +511,7 @@ function showCVUpload() {
     progressFill.style.width = '100%';
     progressPercent.textContent = '100%';
     currentQEl.textContent = '15';
-    
+
     document.querySelectorAll('.category-pill').forEach(pill => {
         pill.classList.remove('active');
         pill.classList.add('completed');
@@ -646,7 +646,7 @@ function showResults(backendAnalysis = null) {
         // Update passions
         const passionTags = document.querySelector('.result-card.passion .result-tags');
         if (passionTags && backendAnalysis.passions) {
-            passionTags.innerHTML = backendAnalysis.passions.map(p => 
+            passionTags.innerHTML = backendAnalysis.passions.map(p =>
                 `<span class="result-tag">${p}</span>`
             ).join('');
         }
@@ -654,7 +654,7 @@ function showResults(backendAnalysis = null) {
         // Update talents
         const talentTags = document.querySelector('.result-card.profession .result-tags');
         if (talentTags && backendAnalysis.talents) {
-            talentTags.innerHTML = backendAnalysis.talents.map(t => 
+            talentTags.innerHTML = backendAnalysis.talents.map(t =>
                 `<span class="result-tag">${t}</span>`
             ).join('');
         }
@@ -672,7 +672,7 @@ function showResults(backendAnalysis = null) {
                         </div>
                     </div>
                 `).join('');
-                
+
                 recommendationsList.innerHTML = `
                     <h3>🎯 Recommandations de carrière</h3>
                     ${recsHTML}
@@ -704,8 +704,31 @@ async function submitToBackend() {
         // Check if API is available
         if (typeof QuestionnaireAPI !== 'undefined') {
             const userEmail = localStorage.getItem('ai-ikigai-email');
-            const result = await QuestionnaireAPI.submit(answers, userEmail);
-            
+
+            // Detect Plan before submitting
+            let userPlan = 'decouverte';
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    // Check coach relation
+                    const { data: coachRel } = await supabaseClient
+                        .from('coach_clients')
+                        .select('id')
+                        .eq('client_id', user.id)
+                        .maybeSingle();
+
+                    if (coachRel) {
+                        console.log('👨‍🏫 User has a coach -> Upgrading plan to decouverte_coach');
+                        userPlan = 'decouverte_coach';
+                    }
+                    console.log('📋 Final User Plan:', userPlan);
+                }
+            } catch (err) {
+                console.warn('⚠️ Error detecting plan:', err);
+            }
+
+            const result = await QuestionnaireAPI.submit(answers, userEmail, userPlan);
+
             if (result.success) {
                 console.log('✅ Questionnaire submitted:', result.questionnaireId);
                 return result;
@@ -722,7 +745,7 @@ async function uploadCVToBackend(file) {
     try {
         if (typeof QuestionnaireAPI !== 'undefined') {
             const result = await QuestionnaireAPI.uploadCV(file);
-            
+
             if (result.success) {
                 console.log('✅ CV uploaded:', result.cvData);
                 return result;

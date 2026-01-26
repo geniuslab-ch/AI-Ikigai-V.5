@@ -2987,10 +2987,23 @@
                             .eq('id', session.user.id)
                             .single();
                         userPlan = profile?.plan || 'decouverte';
-                        console.log('👤 Plan utilisateur:', userPlan);
+
+                        // Check coach relation for upgrade
+                        const { data: coachRel } = await window.supabaseClient
+                            .from('coach_clients')
+                            .select('id')
+                            .eq('client_id', session.user.id)
+                            .maybeSingle();
+
+                        if (coachRel) {
+                            console.log('👨‍🏫 Coach found -> Upgrading display plan to decouverte_coach');
+                            userPlan = 'decouverte_coach';
+                        }
+
+                        console.log('👤 Plan utilisateur (Display):', userPlan);
                     }
                 } catch (e) {
-                    console.log('⚠️ Erreur récupération plan, utilisation plan gratuit par défaut');
+                    console.log('⚠️ Erreur récupération plan, utilisation plan gratuit par défaut', e);
                 }
 
                 // ✅ APPLIQUER LES RESTRICTIONS SELON LE PLAN

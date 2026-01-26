@@ -1552,55 +1552,49 @@ async function handleRequest(request, env) {
 				yearsExperience: 0
 			};
 
-			// Utiliser user_plan du body en priorité, sinon récupérer depuis Supabase
+			// Utiliser user_plan du body comme base
 			let userPlan = bodyUserPlan || 'decouverte';
 			console.log('📋 User plan from body:', bodyUserPlan);
 
-			// Si pas de plan dans body (null/undefined), récupérer depuis Supabase
-			if (!bodyUserPlan) {
-				const authHeader = request.headers.get('Authorization');
-				console.log('🔍 Authorization header:', authHeader ? 'Présent' : 'Absent');
+			// TOUJOURS vérifier Supabase pour upgrader le plan si coach présent
+			const authHeader = request.headers.get('Authorization');
+			if (authHeader && env.SUPABASE_URL) {
+				try {
+					const token = authHeader.replace('Bearer ', '');
+					const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
+						global: { headers: { Authorization: `Bearer ${token}` } }
+					});
+					const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-				if (authHeader && env.SUPABASE_URL) {
-					try {
-						const token = authHeader.replace('Bearer ', '');
-						// FIX: Create authenticated client to pass RLS
-						const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
-							global: { headers: { Authorization: `Bearer ${token}` } }
-						});
-						const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-						console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
-
-						if (user) {
-							// 1. Récupérer le profil et son plan de base
-							const { data: profile, error: profileError } = await supabase
+					if (user) {
+						// 1. Si pas de plan dans le body, prendre celui du profil
+						if (!bodyUserPlan) {
+							const { data: profile } = await supabase
 								.from('profiles')
 								.select('plan')
 								.eq('id', user.id)
 								.single();
-
-							console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
-							let basePlan = profile?.plan || 'decouverte';
-
-							// 2. Vérifier si l'utilisateur a un coach (si oui, upgrade implicite)
-							const { data: coachRelation } = await supabase
-								.from('coach_clients')
-								.select('id')
-								.eq('client_id', user.id)
-								.maybeSingle();
-
-							if (coachRelation) {
-								console.log('👨‍🏫 User has a coach -> Upgrading plan to decouverte_coach');
-								basePlan = 'decouverte_coach';
-							}
-
-							userPlan = basePlan;
-							console.log(`✅ Plan final (après check coach): ${userPlan}`);
+							if (profile?.plan) userPlan = profile.plan;
 						}
-					} catch (error) {
-						console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);
+
+						// 2. CRITIQUE: Vérifier si l'utilisateur a un coach (FORCE UPGRADE)
+						const { data: coachRelation } = await supabase
+							.from('coach_clients')
+							.select('id')
+							.eq('client_id', user.id)
+							.maybeSingle();
+
+						if (coachRelation) {
+							console.log('👨‍🏫 User has a coach -> Forcing plan upgrade to decouverte_coach');
+							// Upgrade uniquement si le plan actuel est inférieur
+							if (userPlan === 'decouverte' || userPlan === 'clarity') {
+								userPlan = 'decouverte_coach';
+							}
+						}
+						console.log(`✅ Plan final validé: ${userPlan}`);
 					}
+				} catch (error) {
+					console.warn('⚠️ Erreur vérification plan backend:', error.message);
 				}
 			}
 

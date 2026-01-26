@@ -197,9 +197,9 @@ async function generateRecommendationsWithClaude(answers, cvData, env, userPlan 
 		// Mapper le plan au pack level
 		const packLevelMap = {
 			'decouverte': 'CLARITY',
-			'decouverte_coach': 'CLARITY',
+			'decouverte_coach': 'TRANSFORMATION',
 			'essentiel': 'DIRECTION',
-			'essentiel_coach': 'DIRECTION',
+			'essentiel_coach': 'TRANSFORMATION',
 			'premium': 'TRANSFORMATION',
 			'premium_coach': 'TRANSFORMATION',
 			'elite_coach': 'TRANSFORMATION'
@@ -636,25 +636,37 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 		analysis.careerRecommendations.push({
 			title: `Créateur ${analysis.passions[0]}`,
 			description: `Exploitez votre passion pour ${analysis.passions[0].toLowerCase()} en créant des projets innovants qui vous inspirent.`,
-			matchScore: 92
+			matchScore: 92,
+			realism: '🟢',
+			realismLabel: 'Accessible',
+			keyRisk: 'Aucun'
 		});
 	} else if (dominant === 'mission' && analysis.mission[0]) {
 		analysis.careerRecommendations.push({
 			title: `Responsable ${analysis.mission[0]}`,
 			description: `Dirigez des initiatives dans ${analysis.mission[0].toLowerCase()} pour créer un impact durable.`,
-			matchScore: 90
+			matchScore: 90,
+			realism: '🟢',
+			realismLabel: 'Accessible', // Label absent dans le code d'origine pour cette entrée
+			keyRisk: 'Aucun'
 		});
 	} else if (dominant === 'profession' && analysis.talents[0]) {
 		analysis.careerRecommendations.push({
 			title: `Expert ${analysis.talents[0]}`,
 			description: `Devenez une référence en ${analysis.talents[0].toLowerCase()} grâce à votre expertise unique.`,
-			matchScore: 88
+			matchScore: 88,
+			realism: '🟢',
+			realismLabel: 'Accessible',
+			keyRisk: 'Aucun'
 		});
 	} else {
 		analysis.careerRecommendations.push({
 			title: `Consultant Stratégique`,
 			description: `Conseillez des organisations en combinant vos compétences et votre vision.`,
-			matchScore: 85
+			matchScore: 85,
+			realism: '🟠',
+			realismLabel: 'Intéressant',
+			keyRisk: 'Aucun'
 		});
 	}
 
@@ -664,7 +676,10 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 		analysis.careerRecommendations.push({
 			title: `Lead ${mainSkill}`,
 			description: `Dirigez des équipes et projets en ${mainSkill.toLowerCase()}${expText} pour maximiser votre impact.`,
-			matchScore: 87
+			matchScore: 87,
+			realism: '🟢',
+			realismLabel: 'Excellente opportunité',
+			keyRisk: 'Aucun'
 		});
 	}
 
@@ -672,7 +687,10 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 		analysis.careerRecommendations.push({
 			title: `Manager ${analysis.passions[0]} & ${analysis.mission[0]}`,
 			description: `Combinez ${analysis.passions[0].toLowerCase()} et ${analysis.mission[0].toLowerCase()} dans un rôle de management.`,
-			matchScore: 84
+			matchScore: 84,
+			realism: '🟠',
+			realismLabel: 'Potentiel',
+			keyRisk: 'Aucun'
 		});
 	}
 
@@ -681,7 +699,10 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 		analysis.careerRecommendations.push({
 			title: `Consultant ${analysis.vocation[0] || 'Indépendant'}`,
 			description: 'Développez votre activité de conseil en exploitant votre expertise unique.',
-			matchScore: 75 - analysis.careerRecommendations.length
+			matchScore: 75 - analysis.careerRecommendations.length,
+			realism: '🟢',
+			realismLabel: 'Accessible',
+			keyRisk: 'Aucun'
 		});
 	}
 
@@ -971,151 +992,155 @@ async function handleRequest(request, env) {
 		// ============ INVITATION ENDPOINT ============
 
 		// POST /api/send-invitation
-	if (path === '/api/send-invitation' && method === 'POST') {
-		try {
-			const { to, clientName, personalMessage, coachId } = await request.json();
+		if (path === '/api/send-invitation' && method === 'POST') {
+			try {
+				const { to, clientName, personalMessage, coachId, inviteBaseUrl } = await request.json();
 
-			if (!to || !clientName || !coachId) {
-				return errorResponse('Champs requis manquants: to, clientName, coachId', 400);
-			}
+				if (!to || !clientName || !coachId) {
+					return errorResponse('Champs requis manquants: to, clientName, coachId', 400);
+				}
 
-			if (!env.RESEND_API_KEY) {
-				console.error('❌ RESEND_API_KEY non configurée');
-				return errorResponse('Service d\'envoi d\'email non configuré', 500);
-			}
+				if (!env.RESEND_API_KEY) {
+					console.error('❌ RESEND_API_KEY non configurée');
+					return errorResponse('Service d\'envoi d\'email non configuré', 500);
+				}
 
-			const supabase = getSupabaseClient(env);
+				const supabase = getSupabaseClient(env);
 
-			// Récupérer les infos du coach
-			const { data: coach, error: coachError } = await supabase
-				.from('profiles')
-				.select('id, name, email')
-				.eq('id', coachId)
-				.single();
+				// Récupérer les infos du coach
+				const { data: coach, error: coachError } = await supabase
+					.from('profiles')
+					.select('id, name, email')
+					.eq('id', coachId)
+					.single();
 
-			if (coachError || !coach) {
-				return errorResponse('Coach non trouvé', 404);
-			}
+				if (coachError || !coach) {
+					return errorResponse('Coach non trouvé', 404);
+				}
 
-			const coachName = coach.name || coach.email.split('@')[0];
+				const coachName = coach.name || coach.email.split('@')[0];
 
-			// Vérifier si un compte existe déjà pour cet email
-			const { data: existingProfile } = await supabase
-				.from('profiles')
-				.select('id')
-				.eq('email', to.toLowerCase())
-				.single();
-
-			let clientId = null;
-			if (existingProfile) {
-				clientId = existingProfile.id;
-				console.log('👤 Client existe déjà:', to);
-
-				// Vérifier si la relation existe déjà
-				const { data: existingRelation } = await supabase
-					.from('coach_clients')
+				// Vérifier si un compte existe déjà pour cet email
+				const { data: existingProfile } = await supabase
+					.from('profiles')
 					.select('id')
-					.eq('coach_id', coachId)
-					.eq('client_id', clientId)
+					.eq('email', to.toLowerCase())
 					.single();
 
-				if (existingRelation) {
-					return errorResponse('Ce client est déjà invité', 400);
-				}
-			}
+				let clientId = null;
+				if (existingProfile) {
+					clientId = existingProfile.id;
+					console.log('👤 Client existe déjà:', to);
 
-			// Créer une invitation en attente
-			let invitationId = null;
-			if (clientId) {
-				// Client existe → créer la relation directement
-				const { data: relation, error: relationError } = await supabase
-					.from('coach_clients')
-					.insert({
-						coach_id: coachId,
-						client_id: clientId,
-						status: 'active',
-						invitation_email: to.toLowerCase()
-					})
-					.select()
-					.single();
+					// Vérifier si la relation existe déjà
+					const { data: existingRelation } = await supabase
+						.from('coach_clients')
+						.select('id')
+						.eq('coach_id', coachId)
+						.eq('client_id', clientId)
+						.single();
 
-				if (relationError) {
-					console.error('❌ Erreur création relation:', relationError);
-					return errorResponse('Erreur création relation: ' + relationError.message);
+					if (existingRelation) {
+						return errorResponse('Ce client est déjà invité', 400);
+					}
 				}
 
-				invitationId = relation.id;
-				console.log('✅ Relation créée pour client existant');
-			} else {
-				// Client n'existe pas encore → créer invitation en attente
-				const { data: invitation, error: inviteError } = await supabase
-					.from('coach_clients')
-					.insert({
-						coach_id: coachId,
-						client_id: null,
-						status: 'pending',
-						invitation_email: to.toLowerCase()
-					})
-					.select()
-					.single();
+				// Créer une invitation en attente
+				let invitationId = null;
+				if (clientId) {
+					// Client existe → créer la relation directement
+					const { data: relation, error: relationError } = await supabase
+						.from('coach_clients')
+						.insert({
+							coach_id: coachId,
+							client_id: clientId,
+							status: 'active',
+							invitation_email: to.toLowerCase()
+						})
+						.select()
+						.single();
 
-				if (inviteError) {
-					console.error('❌ Erreur création invitation:', inviteError);
-					return errorResponse('Erreur création invitation: ' + inviteError.message);
+					if (relationError) {
+						console.error('❌ Erreur création relation:', relationError);
+						return errorResponse('Erreur création relation: ' + relationError.message);
+					}
+
+					invitationId = relation.id;
+					console.log('✅ Relation créée pour client existant');
+				} else {
+					// Client n'existe pas encore → créer invitation en attente
+					const { data: invitation, error: inviteError } = await supabase
+						.from('coach_clients')
+						.insert({
+							coach_id: coachId,
+							client_id: null,
+							status: 'pending',
+							invitation_email: to.toLowerCase()
+						})
+						.select()
+						.single();
+
+					if (inviteError) {
+						console.error('❌ Erreur création invitation:', inviteError);
+						return errorResponse('Erreur création invitation: ' + inviteError.message);
+					}
+
+					invitationId = invitation.id;
+					console.log('✅ Invitation créée en attente:', invitationId);
 				}
 
-				invitationId = invitation.id;
-				console.log('✅ Invitation créée en attente:', invitationId);
+				// Générer le lien d'invitation avec l'ID du coach
+				// Utiliser inviteBaseUrl si fourni (pour support local/prod), sinon fallback
+				const baseUrl = inviteBaseUrl || 'https://ai-ikigai.com/auth.html';
+				const inviteLink = `${baseUrl}?role=client&coach_id=${coachId}&invitation_id=${invitationId}`;
+
+				const emailHTML = generateInvitationEmailHTML(to, clientName, coachName, personalMessage, inviteLink);
+
+				const emailFrom = env.EMAIL_FROM || 'onboarding@resend.dev';
+
+				const resendPayload = {
+					from: `${coachName} via AI-Ikigai <${emailFrom}>`,
+					to: [to],
+					reply_to: 'contact@ai-ikigai.com',
+					subject: `${coachName} vous invite à découvrir votre Ikigai ✨`,
+					html: emailHTML
+				};
+
+				console.log('📧 Envoi email invitation via Resend:', to);
+
+				const response = await fetch('https://api.resend.com/emails', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${env.RESEND_API_KEY}`
+					},
+					body: JSON.stringify(resendPayload)
+				});
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					console.error('❌ Erreur Resend:', result);
+					const errorMessage = result.message || result.error || 'Échec envoi email';
+					return errorResponse(`Erreur Resend: ${errorMessage}`, 500);
+				}
+
+				console.log('✅ Email envoyé via Resend:', result.id);
+
+				return jsonResponse({
+					success: true,
+					message: 'Invitation envoyée avec succès',
+					emailId: result.id,
+					invitationId: invitationId
+				});
+
+			} catch (error) {
+				console.error('❌ Erreur endpoint send-invitation:', error);
+				return errorResponse(error.message, 500);
 			}
-
-			// Générer le lien d'invitation avec l'ID du coach
-			const inviteLink = `https://ai-ikigai.com/auth.html?role=client&coach_id=${coachId}&invitation_id=${invitationId}`;
-
-			const emailHTML = generateInvitationEmailHTML(to, clientName, coachName, personalMessage, inviteLink);
-
-			const resendPayload = {
-				from: `${coachName} via AI-Ikigai <noreply@ai-ikigai.com>`,
-				to: [to],
-				reply_to: 'contact@ai-ikigai.com',
-				subject: `${coachName} vous invite à découvrir votre Ikigai ✨`,
-				html: emailHTML
-			};
-
-			console.log('📧 Envoi email invitation via Resend:', to);
-
-			const response = await fetch('https://api.resend.com/emails', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${env.RESEND_API_KEY}`
-				},
-				body: JSON.stringify(resendPayload)
-			});
-
-			const result = await response.json();
-
-			if (!response.ok) {
-				console.error('❌ Erreur Resend:', result);
-				const errorMessage = result.message || result.error || 'Échec envoi email';
-				return errorResponse(`Erreur Resend: ${errorMessage}`, 500);
-			}
-
-			console.log('✅ Email envoyé via Resend:', result.id);
-
-			return jsonResponse({
-				success: true,
-				message: 'Invitation envoyée avec succès',
-				emailId: result.id,
-				invitationId: invitationId
-			});
-
-		} catch (error) {
-			console.error('❌ Erreur endpoint send-invitation:', error);
-			return errorResponse(error.message, 500);
 		}
-	}
 
-			// ============ PDF GENERATION ENDPOINT ============
+		// ============ PDF GENERATION ENDPOINT ============
 
 		// POST /api/generate-pdf
 		if (path === '/api/generate-pdf' && method === 'POST') {
@@ -1458,6 +1483,53 @@ async function handleRequest(request, env) {
 
 		// ============ ENDPOINTS EXISTANTS (modifiés pour Supabase) ============
 
+		// POST /api/invitation/accept
+		if (path === '/api/invitation/accept' && method === 'POST') {
+			try {
+				const { invitationId, coachId } = await request.json();
+				const authHeader = request.headers.get('Authorization');
+
+				if (!authHeader) return errorResponse('Non authentifié', 401);
+				if (!invitationId || !coachId) return errorResponse('Paramètres manquants', 400);
+
+				const token = authHeader.replace('Bearer ', '');
+				const supabase = getSupabaseClient(env);
+				const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+				if (authError || !user) return errorResponse('Token invalide', 401);
+
+				console.log(`🔗 Linking user ${user.id} to invitation ${invitationId} (coach: ${coachId})`);
+
+				// 1. Update the invitation with the real user ID
+				// Using service role key bypasses RLS for this specific operation if needed,
+				// but here we use the user's token. If RLS fails, we might need admin client.
+				// Let's try regular client first.
+				const { data, error } = await supabase
+					.from('coach_clients')
+					.update({
+						client_id: user.id,
+						status: 'active'
+					})
+					.eq('id', invitationId)
+					.eq('coach_id', coachId)
+					.eq('status', 'pending')
+					.select()
+					.single();
+
+				if (error) {
+					console.error('❌ Failed to link invitation:', error);
+					// Fallback: If RLS blocked it, maybe try to insert a NEW active row?
+					// Or just return error.
+					return errorResponse('Erreur activation: ' + error.message, 500);
+				}
+
+				return jsonResponse({ success: true, relation: data });
+
+			} catch (error) {
+				return errorResponse(error.message, 500);
+			}
+		}
+
 		// Submit questionnaire + Analyse immédiate (SANS CV)
 		if (path === '/api/questionnaire/submit' && method === 'POST') {
 			console.log('📝 POST /api/questionnaire/submit');
@@ -1499,6 +1571,7 @@ async function handleRequest(request, env) {
 						console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
 
 						if (user) {
+							// 1. Récupérer le profil et son plan de base
 							const { data: profile, error: profileError } = await supabase
 								.from('profiles')
 								.select('subscription_plan')
@@ -1506,8 +1579,22 @@ async function handleRequest(request, env) {
 								.single();
 
 							console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
-							userPlan = profile?.subscription_plan || 'decouverte';
-							console.log(`✅ Plan récupéré: ${userPlan}`);
+							let basePlan = profile?.subscription_plan || 'decouverte';
+
+							// 2. Vérifier si l'utilisateur a un coach (si oui, upgrade implicite)
+							const { data: coachRelation } = await supabase
+								.from('coach_clients')
+								.select('id')
+								.eq('client_id', user.id)
+								.maybeSingle();
+
+							if (coachRelation) {
+								console.log('👨‍🏫 User has a coach -> Upgrading plan to decouverte_coach');
+								basePlan = 'decouverte_coach';
+							}
+
+							userPlan = basePlan;
+							console.log(`✅ Plan final (après check coach): ${userPlan}`);
 						}
 					} catch (error) {
 						console.warn('⚠️ Erreur récupération plan utilisateur:', error.message);
@@ -1920,6 +2007,19 @@ async function sendBrevoEmail(env, templateId, toEmail, params) {
 
 export default {
 	async fetch(request, env, ctx) {
-		return handleRequest(request, env);
+		try {
+			return await handleRequest(request, env);
+		} catch (e) {
+			console.error('🔥 Critical Worker Error:', e);
+			return new Response(JSON.stringify({ error: e.message, stack: e.stack }), {
+				status: 500,
+				headers: {
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+					'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+				}
+			});
+		}
 	},
 };

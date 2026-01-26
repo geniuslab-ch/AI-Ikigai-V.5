@@ -466,19 +466,25 @@
                         if (newUser) {
                             console.log('🔗 Activation relation coach-client...', { coachId, invitationId, clientId: newUser.id });
 
-                            // Activer la relation coach-client pendante
-                            const { error: updateError } = await supabaseClient
-                                .from('coach_clients')
-                                .update({
-                                    client_id: newUser.id,
-                                    status: 'active'
-                                })
-                                .eq('id', invitationId)
-                                .eq('coach_id', coachId)
-                                .eq('status', 'pending');
+                            // Utiliser l'API Backend pour lier l'invitation (plus sûr via Service Role)
+                            const token = (await supabaseClient.auth.getSession()).data.session?.access_token;
 
-                            if (updateError) {
-                                console.error('❌ Erreur activation relation:', updateError);
+                            const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/invitation/accept', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    invitationId,
+                                    coachId
+                                })
+                            });
+
+                            if (!response.ok) {
+                                const err = await response.json();
+                                console.error('❌ Erreur activation relation:', err);
+                                // Ne pas bloquer, le support pourra activer manuellement si besoin
                             } else {
                                 console.log('✅ Relation coach-client activée');
                                 showSuccess('✅ Compte créé et lié à votre coach ! Redirection...');

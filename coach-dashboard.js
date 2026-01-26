@@ -96,8 +96,14 @@ async function loadClients() {
             return []; // Retourner tableau vide au lieu de données mockées
         }
 
-        // Récupérer IDs clients
-        const clientIds = relations.map(r => r.client_id);
+        // Récupérer IDs clients (filtrer les nulls)
+        const clientIds = relations
+            .map(r => r.client_id)
+            .filter(id => id !== null && id !== undefined);
+
+        if (clientIds.length === 0) {
+            return [];
+        }
 
         // Charger profils clients
         const { data: clientProfiles } = await supabaseClient

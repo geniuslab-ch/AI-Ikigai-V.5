@@ -2929,46 +2929,8 @@
                     const finalAnalysis = backendResult?.analysis;
                     console.log('🎯 Analyse finale envoyée à showResults:', finalAnalysis);
 
-                    // NOUVEAU: Sauvegarder immédiatement dans Supabase si user connecté (ASYNC IIFE)
-                    (async () => {
-                        if (window.supabaseClient && finalAnalysis) {
-                            try {
-                                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                                if (session?.user) {
-                                    console.log('💾 Sauvegarde immédiate analyse user:', session.user.email);
-
-                                    const { error: saveError } = await window.supabaseClient
-                                        .from('analyses')
-                                        .insert({
-                                            user_id: session.user.id,
-                                            answers: answers || {},
-                                            passions: finalAnalysis.passions || [],
-                                            talents: finalAnalysis.talents || [],
-                                            mission: finalAnalysis.mission || [],
-                                            vocation: finalAnalysis.vocation || [],
-                                            score: finalAnalysis.score || {},
-                                            profile_summary: finalAnalysis.profileSummary || null,
-                                            ikigai_summary: finalAnalysis.ikigaiSummary || null,
-                                            career_recommendations: finalAnalysis.careerRecommendations || [],
-                                            business_ideas: finalAnalysis.businessIdeas || [],
-                                            trajectories: finalAnalysis.trajectories || null,
-                                            coherence_diagnosis: finalAnalysis.coherenceDiagnosis || null,
-                                            final_trajectory: finalAnalysis.finalTrajectory || null,
-                                            positioning: finalAnalysis.positioning || null,
-                                            coaching_prep: finalAnalysis.coachingPrep || null
-                                        });
-
-                                    if (saveError) {
-                                        console.error('❌ Erreur sauvegarde:', saveError);
-                                    } else {
-                                        console.log('✅ ANALYSE SAUVEGARDÉE DANS SUPABASE !');
-                                    }
-                                }
-                            } catch (e) {
-                                console.error('❌ Erreur sauvegarde analyse:', e);
-                            }
-                        }
-                    })();
+                    // 🗑️ SUPPRIMÉ: Sauvegarder immédiatement dans Supabase (le Backend Worker le fait déjà)
+                    // (async () => { ... })();
 
                     // NOUVEAU: Vérifier session avant affichage
                     setTimeout(async () => {

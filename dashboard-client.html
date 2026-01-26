@@ -1123,6 +1123,31 @@
                     if (profile && !error) {
                         userPlan = profile.plan || 'decouverte';
                         console.log('📋 User plan from profiles:', userPlan);
+
+                        // ✨ NOUVEAU: Vérifier si invité par un coach pour upgrade visuel
+                        try {
+                            console.log('🔍 Checking coach relation for:', currentUser.id);
+                            const { data: coachRel, error: coachError } = await window.supabaseClient
+                                .from('coach_clients')
+                                .select('id, coach_id')
+                                .eq('client_id', currentUser.id)
+                                .maybeSingle();
+
+                            if (coachError) {
+                                console.error('❌ Error checking coach:', coachError);
+                            } else {
+                                console.log('🔍 Coach relation result:', coachRel);
+                            }
+                            
+                            if (coachRel) {
+                                console.log('👨‍🏫 Coach found for client -> Upgrading visualization to decouverte_coach');
+                                userPlan = 'decouverte_coach';
+                            } else {
+                                console.log('ℹ️ No coach relation found in DB.');
+                            }
+                        } catch (err) {
+                            console.warn('⚠️ Error checking coach relation:', err);
+                        }
                     }
                 } catch (e) {
                     console.warn('⚠️ Could not fetch user plan, using default:', e);
@@ -1143,9 +1168,9 @@
             // Déterminer le pack level
             const packLevelMap = {
                 'decouverte': 'CLARITY',
-                'decouverte_coach': 'CLARITY',
+                'decouverte_coach': 'TRANSFORMATION',
                 'essentiel': 'DIRECTION',
-                'essentiel_coach': 'DIRECTION',
+                'essentiel_coach': 'TRANSFORMATION',
                 'premium': 'TRANSFORMATION',
                 'premium_coach': 'TRANSFORMATION',
                 'elite_coach': 'TRANSFORMATION'

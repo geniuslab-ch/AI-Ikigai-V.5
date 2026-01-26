@@ -36,33 +36,16 @@ async function handleAddNewClient(event) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="loading" style="display: inline-block;"></div> Envoi...';
 
-        // Générer token d'invitation
-        const invitationToken = generateInvitationToken();
+        // 🔧 FIX: Utiliser directement l'API backend pour tout gérer (création + email)
+        // On passe l'URL actuelle pour que le lien d'invitation soit correct (local ou prod)
+        const currentUrl = window.location.href;
+        const authUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/auth.html';
 
-        // Créer l'invitation dans Supabase
-        const { data: invitation, error } = await supabaseClient
-            .from('client_invitations')
-            .insert({
-                coach_id: CoachDashboard.coachData.id,
-                client_email: email,
-                client_name: name,
-                personal_message: message || null,
-                invitation_token: invitationToken,
-                status: 'pending'
-            })
-            .select()
-            .single();
+        console.log('🔗 Base auth URL:', authUrl);
 
-        if (error) throw error;
+        await sendClientInvitation(email, name, message, null, CoachDashboard.coachData.id, null, authUrl);
 
-        // Envoyer l'email d'invitation au client
-        // IMPORTANT: Using GitHub Pages URL because custom domain DNS is not configured
-        const inviteLink = `https://geniuslab-ch.github.io/AI-Ikigai-V.5/auth.html?role=client&coach_id=${CoachDashboard.coachData.id}&invitation_id=${invitation.id}&invite=${invitationToken}`;
-        await sendClientInvitation(email, name, message, inviteLink, CoachDashboard.coachData.id, invitationToken);
-
-
-
-        // ✨ NOUVEAU: Envoyer notification Brevo au coach
+        // ✨ NOUVEAU: Envoyer notification Brevo au coach (optionnel si pas géré par le backend principal)
         try {
             await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/notify/new-client', {
                 method: 'POST',
@@ -73,10 +56,8 @@ async function handleAddNewClient(event) {
                     clientEmail: email
                 })
             });
-            console.log('✅ Notification Brevo envoyée au coach');
         } catch (notifError) {
             console.warn('⚠️ Notification Brevo échouée (non bloquant):', notifError);
-            // Ne pas bloquer le flow si la notification échoue
         }
 
         alert(`✅ Invitation envoyée à ${email} !`);
@@ -96,14 +77,9 @@ async function handleAddNewClient(event) {
         submitBtn.innerHTML = originalText;
     }
 }
+// generateInvitationToken removed as it is handled by backend now
 
-function generateInvitationToken() {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-async function sendClientInvitation(email, clientName, personalMessage, inviteLink, coachId, invitationToken) {
+async function sendClientInvitation(email, clientName, personalMessage, inviteLink, coachId, invitationToken, inviteBaseUrl) {
     try {
         const response = await fetch('https://ai-ikigai.ai-ikigai.workers.dev/api/send-invitation', {
             method: 'POST',
@@ -113,9 +89,10 @@ async function sendClientInvitation(email, clientName, personalMessage, inviteLi
                 clientName,
                 coachName: CoachDashboard.coachData?.name || 'Votre Coach',
                 personalMessage,
-                inviteLink,
+                inviteLink, // Peut être null maintenant
                 coachId,
-                invitationToken
+                invitationToken, // Peut être null
+                inviteBaseUrl // ✨ Nouvelle URL de base
             })
         });
 

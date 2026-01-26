@@ -1,0 +1,9 @@
+name = "ai-ikigai"
+main = "index-supabase.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+SUPABASE_URL = "https://wgmtujvvfnsbhudshmkh.supabase.co"
+ENVIRONMENT = "production"
+EMAIL_FROM = "noreply@ai-ikigai.com"
+

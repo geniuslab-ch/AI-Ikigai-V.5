@@ -2937,7 +2937,8 @@
 
                     // NOUVEAU: Vérifier session avant affichage
                     setTimeout(async () => {
-                        const canShow = await checkSessionBeforeResults(finalAnalysis);
+                        // Passer l'ID de l'analyse pour l'association ultérieure
+                        const canShow = await checkSessionBeforeResults(finalAnalysis, backendResult.questionnaireId);
                         if (canShow) {
                             showResults(finalAnalysis);
                         }
@@ -3354,41 +3355,29 @@
 
                 console.log('✅ Compte créé:', data.user.email);
 
-                // 🔧 FIX: Sauvegarder l'analyse dans Supabase avec le user_id
+                // 🔧 FIX: Associer l'analyse existante au nouvel utilisateur (UPDATE au lieu de INSERT)
                 if (window.pendingAnalysis && data.user) {
-                    console.log('💾 Sauvegarde de l\'analyse dans Supabase pour user:', data.user.id);
+                    console.log('💾 Association de l\'analyse existante à l\'utilisateur:', data.user.id);
 
-                    try {
-                        const { data: insertData, error: insertError } = await window.supabaseClient
-                            .from('analyses')
-                            .insert({
-                                user_id: data.user.id,
-                                answers: window.pendingAnalysis.answers || {},
-                                passions: window.pendingAnalysis.passions || [],
-                                talents: window.pendingAnalysis.talents || [],
-                                mission: window.pendingAnalysis.mission || [],
-                                vocation: window.pendingAnalysis.vocation || [],
-                                career_recommendations: window.pendingAnalysis.careerRecommendations || [],
-                                business_ideas: window.pendingAnalysis.businessIdeas || [],
-                                score: window.pendingAnalysis.score || {},
-                                trajectories: window.pendingAnalysis.trajectories || null,
-                                coherence_diagnosis: window.pendingAnalysis.coherenceDiagnosis || null,
-                                final_trajectory: window.pendingAnalysis.finalTrajectory || null,
-                                positioning: window.pendingAnalysis.positioning || null,
-                                coaching_prep: window.pendingAnalysis.coachingPrep || null,
-                                profile_summary: window.pendingAnalysis.profileSummary || null,
-                                ikigai_summary: window.pendingAnalysis.ikigaiSummary || null
-                            })
-                            .select();
+                    // Si on a l'ID de l'analyse (stocké dans submitToBackend)
+                    if (window.pendingAnalysisId) {
+                        try {
+                            const { data: updateData, error: updateError } = await window.supabaseClient
+                                .from('analyses')
+                                .update({ user_id: data.user.id })
+                                .eq('id', window.pendingAnalysisId); // Utiliser l'ID généré par le worker
 
-                        if (insertError) {
-                            console.error('❌ Erreur sauvegarde analyse:', insertError);
-                        } else {
-                            console.log('✅ Analyse sauvegardée avec succès:', insertData);
+                            if (updateError) {
+                                console.error('❌ Erreur update analyse:', updateError);
+                            } else {
+                                console.log('✅ Analyse associée avec succès:', updateData);
+                            }
+                        } catch (saveError) {
+                            console.error('❌ Erreur lors de la mise à jour:', saveError);
                         }
-                    } catch (saveError) {
-                        console.error('❌ Erreur lors de la sauvegarde:', saveError);
-                        // Ne pas bloquer l'affichage des résultats même si la sauvegarde échoue
+                    } else {
+                        // Fallback: Si pas d'ID (ne devrait pas arriver), on insert (mais c'est un doublon potentiel)
+                        console.warn('⚠️ Pas de pendingAnalysisId, insertion manuelle annulée pour éviter doublon.');
                     }
                 }
 
@@ -3414,7 +3403,7 @@
         });
 
         // Fonction pour vérifier session et afficher modal si besoin
-        async function checkSessionBeforeResults(analysis) {
+        async function checkSessionBeforeResults(analysis, analysisId) {
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
 
@@ -3439,6 +3428,8 @@
 
                     // Stocker et afficher modal
                     window.pendingAnalysis = analysis;
+                    window.pendingAnalysisId = analysisId; // Stocker l'ID pour l'update
+
                     const modal = document.getElementById('signup-modal');
                     console.log('🔍 Modal trouvé:', modal);
 

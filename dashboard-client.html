@@ -1714,7 +1714,8 @@
             };
         }
 
-        function navigateToSection(sectionName) {
+        // Expose function globally
+        window.navigateToSection = function navigateToSection(sectionName) {
             console.log('Navigating to:', sectionName);
 
             // Update active nav item
@@ -1942,7 +1943,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadQuestionnaireHistory();
         });
-        }
+
 
         // Settings functions
         function loadSettingsData() {
@@ -2144,7 +2145,7 @@
         // PDF DOWNLOAD
         // =================================
 
-        async function downloadPDF() {
+        window.downloadPDF = async function downloadPDF() {
             if (!dashboardData || !dashboardData.latestAnalysis) {
                 alert('Aucune analyse disponible');
                 return;

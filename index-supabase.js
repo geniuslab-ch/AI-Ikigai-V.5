@@ -1566,12 +1566,12 @@ async function handleRequest(request, env) {
 							// 1. Récupérer le profil et son plan de base
 							const { data: profile, error: profileError } = await supabase
 								.from('profiles')
-								.select('subscription_plan')
+								.select('plan')
 								.eq('id', user.id)
 								.single();
 
 							console.log('📊 Profile data:', profile, 'Error:', profileError?.message || 'none');
-							let basePlan = profile?.subscription_plan || 'decouverte';
+							let basePlan = profile?.plan || 'decouverte';
 
 							// 2. Vérifier si l'utilisateur a un coach (si oui, upgrade implicite)
 							const { data: coachRelation } = await supabase

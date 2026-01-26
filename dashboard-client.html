@@ -1797,7 +1797,28 @@
                         <div class="recommendation-title">${rec.title}</div>
                         ${rec.matchScore ? `<div class="match-score">${rec.matchScore}%</div>` : ''}
                     </div>
+                    
+                    ${rec.realismLabel ? `
+                    <div class="recommendation-meta" style="display:flex; gap:10px; margin: 5px 0; font-size:0.9em;">
+                        <span class="realism-badge" style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">
+                            ${rec.realism || '🟢'} ${rec.realismLabel}
+                        </span>
+                    </div>` : ''}
+
                     <div class="recommendation-desc">${rec.description}</div>
+
+                    ${rec.keyRisk && rec.keyRisk !== 'Aucun' ? `
+                    <div class="recommendation-risk" style="margin-top:10px; color:#ff6b6b; font-size:0.9em;">
+                        <strong>⚠️ Vigilance :</strong> ${rec.keyRisk}
+                    </div>` : ''}
+
+                    ${rec.attentionPoints && rec.attentionPoints.length > 0 ? `
+                    <div class="recommendation-points" style="margin-top:10px; font-size:0.9em; color:#a0aec0;">
+                        <strong>💡 Points d'attention :</strong>
+                        <ul style="padding-left:20px; margin-top:5px;">
+                            ${rec.attentionPoints.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    </div>` : ''}
                 </div>
             `).join('');
             // ========================================

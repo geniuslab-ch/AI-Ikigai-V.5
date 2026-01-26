@@ -1580,15 +1580,20 @@ async function handleRequest(request, env) {
 							if (profile?.plan) userPlan = profile.plan;
 						}
 
-						// 2. CRITIQUE: Vérifier si l'utilisateur a un coach (FORCE UPGRADE)
-						const { data: coachRelation } = await supabase
+						// 2. CRITIQUE: Vérifier si l'utilisateur a un coach (FORCE UPGRADE - Method Count)
+						const { count, error: coachError } = await supabase
 							.from('coach_clients')
-							.select('id')
-							.eq('client_id', user.id)
-							.maybeSingle();
+							.select('id', { count: 'exact', head: true })
+							.eq('client_id', user.id);
 
-						if (coachRelation) {
-							console.log('👨‍🏫 User has a coach -> Forcing plan upgrade to decouverte_coach');
+						if (coachError) {
+							console.warn('⚠️ Erreur check coach:', coachError.message);
+						} else {
+							console.log(`🔍 Check coach pour ${user.id} -> Count: ${count}`);
+						}
+
+						if (count && count > 0) {
+							console.log('👨‍🏫 Coach found (count > 0) -> Forcing plan upgrade to decouverte_coach');
 							// Upgrade uniquement si le plan actuel est inférieur
 							if (userPlan === 'decouverte' || userPlan === 'clarity') {
 								userPlan = 'decouverte_coach';

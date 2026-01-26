@@ -1557,8 +1557,11 @@ async function handleRequest(request, env) {
 				if (authHeader && env.SUPABASE_URL) {
 					try {
 						const token = authHeader.replace('Bearer ', '');
-						const supabase = getSupabaseClient(env);
-						const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+						// FIX: Create authenticated client to pass RLS
+						const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
+							global: { headers: { Authorization: `Bearer ${token}` } }
+						});
+						const { data: { user }, error: userError } = await supabase.auth.getUser();
 
 						console.log('👤 User from token:', user ? user.email : 'null', 'Error:', userError?.message || 'none');
 

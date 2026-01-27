@@ -380,8 +380,57 @@ RULES: 3 trajectories, 5 business ideas, careerRecommendations EMPTY.` : `Genera
   "mission": [...],
   "vocation": [...],
   "score": {...},
-  "trajectories": [same as DIRECTION],
-  "businessIdeas": [same as DIRECTION],
+  "trajectories": [
+    {
+      "rank": 1,
+      "label": "Trajectoire principale",
+      "title": "Nom parcours",
+      "description": "2-3 lignes",
+      "realism": "🟢",
+      "realismLabel": "Accessible",
+      "keyRisk": "Point d'attention majeur",
+      "jobTitles": ["Poste 1", "Poste 2", "Poste 3"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1", "skill2"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    },
+    {
+      "rank": 2,
+      "label": "Alternative crédible",
+      "title": "Alternative",
+      "description": "2-3 lignes",
+      "jobTitles": ["Poste A", "Poste B"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    },
+    {
+      "rank": 3,
+      "label": "Ambitieux (12-24 mois)",
+      "title": "Ambitieux",
+      "description": "2-3 lignes",
+      "jobTitles": ["Poste X", "Poste Y"],
+      "whyIkigai": "Bref",
+      "whyCV": "Bref",
+      "whyMarket": "Bref",
+      "existingSkills": ["skill1"],
+      "skillsToDevelop": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+      "actionPlan30Days": ["Action 1", "Action 2", "Action 3"]
+    }
+  ],
+  "businessIdeas": [
+    {"title": "Idée 1", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 75},
+    {"title": "Idée 2", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 70},
+    {"title": "Idée 3", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 68},
+    {"title": "Idée 4", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 65},
+    {"title": "Idée 5", "description": "2-3 lignes", "problem": "Problème", "target": "Cible", "whyFits": "Correspond", "viabilityScore": 63}
+  ],
   "coherenceDiagnosis": {
     "strengths": ["Force 1", "Force 2"],
     "misalignments": ["Écart 1", "Écart 2"],

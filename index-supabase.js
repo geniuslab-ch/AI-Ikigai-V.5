@@ -184,8 +184,13 @@ async function generateRecommendationsWithClaude(answers, cvData, env, userPlan 
 	// Déterminer le nombre de recommandations selon le plan
 	const recommendationCounts = {
 		'decouverte': { career: 3, business: 0 },
+		'decouverte_coach': { career: 3, business: 5 }, // Coach clients need business ideas
 		'essentiel': { career: 10, business: 5 },
-		'premium': { career: 10, business: 5 }
+		'essentiel_coach': { career: 10, business: 5 },
+		'premium': { career: 10, business: 5 },
+		'premium_coach': { career: 10, business: 5 },
+		'elite_coach': { career: 10, business: 10 },
+		'transformation': { career: 10, business: 10 }
 	};
 
 	const counts = recommendationCounts[userPlan] || recommendationCounts['decouverte'];

@@ -1147,8 +1147,10 @@
                             if (coachRel) {
                                 console.log('👨‍🏫 Coach found for client -> Upgrading visualization to decouverte_coach');
                                 userPlan = 'decouverte_coach';
+                                localStorage.setItem('ai-ikigai-has-coach', 'true');
                             } else {
                                 console.log('ℹ️ No coach relation found in DB.');
+                                localStorage.removeItem('ai-ikigai-has-coach');
                             }
                         } catch (err) {
                             console.warn('⚠️ Error checking coach relation:', err);

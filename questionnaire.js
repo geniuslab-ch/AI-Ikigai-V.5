@@ -755,11 +755,12 @@ async function submitToBackend() {
                         .eq('client_id', user.id)
                         .maybeSingle();
 
-                    // Check localStorage as backup
+                    // Check localStorage as backup (invitation ID OR cached status from dashboard)
                     const localCoachId = localStorage.getItem('ai-ikigai-coach-id');
+                    const dashboardCoachFound = localStorage.getItem('ai-ikigai-has-coach');
 
-                    if (coachRel || localCoachId) {
-                        console.log('👨‍🏫 User has a coach (DB or Local) -> Upgrading plan to decouverte_coach');
+                    if (coachRel || localCoachId || dashboardCoachFound) {
+                        console.log('👨‍🏫 User has a coach (DB/Link/Cache) -> Upgrading plan to decouverte_coach');
                         userPlan = 'decouverte_coach';
                     }
                     console.log('📋 Final User Plan:', userPlan);

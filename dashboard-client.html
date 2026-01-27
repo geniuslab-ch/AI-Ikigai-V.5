@@ -978,6 +978,11 @@
                 }
 
                 console.log('✅ Dashboard data loaded successfully');
+                if (latestAnalysis) {
+                    console.log('🔍 FULL ANALYSIS OBJECT:', JSON.stringify(latestAnalysis, null, 2));
+                    console.log(`📊 Trajectories count: ${latestAnalysis.trajectories ? latestAnalysis.trajectories.length : 0}`);
+                    console.log(`📊 Recos count: ${latestAnalysis.careerRecommendations ? latestAnalysis.careerRecommendations.length : 0}`);
+                }
 
                 // Now, populate dashboardData for other functions that rely on it
                 dashboardData = {

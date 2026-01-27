@@ -521,12 +521,13 @@ function showCVUpload() {
     const urlParams = new URLSearchParams(window.location.search);
     const userPlan = urlParams.get('plan') || localStorage.getItem('ai-ikigai-plan') || 'decouverte';
     const coachId = urlParams.get('coach_id') || localStorage.getItem('ai-ikigai-coach-id');
+    const dashboardCoachFound = localStorage.getItem('ai-ikigai-has-coach');
 
     // Plans that allow CV upload
     const premiumPlans = ['essentiel', 'essentiel_coach', 'direction', 'premium', 'premium_coach', 'elite_coach', 'transformation', 'decouverte_coach'];
 
     // Coach clients always get premium features
-    const isPremium = premiumPlans.includes(userPlan) || !!coachId;
+    const isPremium = premiumPlans.includes(userPlan) || !!coachId || dashboardCoachFound === 'true';
 
     const upgradeMessage = document.getElementById('cv-upgrade-message');
     const optionalMessage = document.getElementById('cv-optional-message');

@@ -1671,10 +1671,7 @@ async function handleRequest(request, env) {
 						vocation_score: analysis.score?.vocation || 0,
 						profile_summary: analysis.profileSummary || null,
 						ikigai_summary: analysis.ikigaiSummary || null,
-						career_recommendations: analysis.careerRecommendations || [],
-						business_ideas: analysis.businessIdeas || [],
 						trajectories: analysis.trajectories || null,
-						coherence_diagnosis: analysis.coherenceDiagnosis || null,
 						final_trajectory: analysis.finalTrajectory || null,
 						positioning: analysis.positioning || null,
 						coaching_prep: analysis.coachingPrep || null

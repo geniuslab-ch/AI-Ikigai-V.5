@@ -12,7 +12,8 @@
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-    <title>Questionnaire Ikigai | AI-Ikigai</title>
+    <title>Questionnaire Ikigai | AI-Ikigai v5.2.1</title>
+    <meta name="version" content="5.2.1-locked-fix">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,71 +23,7 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <script>
-        // ==============================================
-        // Check User Plan and Restrict CV Upload
-        // ==============================================
-        async function checkUserPlanAndRestrictCV() {
-            try {
-                // Check if Supabase client is available
-                if (!window.supabaseClient) {
-                    console.log('No Supabase client - CV upload enabled by default');
-                    return;
-                }
-
-                // Get current user
-                const { data: { user }, error } = await window.supabaseClient.auth.getUser();
-
-                if (error || !user) {
-                    console.log('No authenticated user - CV upload enabled');
-                    return;
-                }
-
-                // Get user profile to check plan
-                const { data: profile, error: profileError } = await window.supabaseClient
-                    .from('profiles')
-                    .select('plan')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profileError || !profile) {
-                    console.log('Could not fetch profile - CV upload enabled');
-                    return;
-                }
-
-                const userPlan = profile.plan || 'decouverte';
-                console.log('User plan:', userPlan);
-
-                // If plan is "découverte", disable CV upload
-                if (userPlan === 'decouverte') {
-                    const uploadZone = document.getElementById('upload-zone');
-                    const cvInput = document.getElementById('cv-input');
-                    const cvOptionalMessage = document.getElementById('cv-optional-message');
-                    const cvUpgradeMessage = document.getElementById('cv-upgrade-message');
-
-                    if (uploadZone) {
-                        uploadZone.style.display = 'none';
-                    }
-                    if (cvInput) {
-                        cvInput.disabled = true;
-                    }
-                    if (cvOptionalMessage) {
-                        cvOptionalMessage.style.display = 'none';
-                    }
-                    if (cvUpgradeMessage) {
-                        cvUpgradeMessage.style.display = 'flex';
-                    }
-
-                    console.log('✅ CV upload disabled for découverte plan');
-                }
-            } catch (error) {
-                console.error('Error checking user plan:', error);
-            }
-        }
-
-        // Run on page load
-        window.addEventListener('DOMContentLoaded', checkUserPlanAndRestrictCV);
-    </script>
+    <!-- Styles -->
     <style>
         /* =============================================
    AI-IKIGAI - Questionnaire Styles
@@ -1569,15 +1506,16 @@
                 <p class="question-hint">Notre IA analysera votre parcours pour enrichir votre profil Ikigai avec des
                     données factuelles.</p>
 
-                <div class="upload-zone" id="upload-zone">
-                    <div class="upload-icon">📄</div>
-                    <h3 class="upload-title">Glissez-déposez votre CV ici</h3>
-                    <p class="upload-subtitle">ou cliquez pour parcourir vos fichiers</p>
-                    <button class="upload-btn" type="button">
-                        <span>📁</span>
-                        Choisir un fichier
-                    </button>
-                    <p class="upload-formats">Formats acceptés : PDF, DOCX, DOC • Max 10 Mo</p>
+                <div class="upload-zone" id="upload-zone"
+                    style="pointer-events: none; background: rgba(255, 255, 255, 0.05); border: 2px dashed #4b5563;">
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                        <h3 style="color: var(--gray); margin-bottom: 0.5rem;">Analyse CV verrouillée</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem;">Réservé aux plans Essentiel & Premium</p>
+                        <div style="margin-top: 1rem; color: var(--purple); font-size: 0.85rem;">
+                            L'analyse de votre Ikigai sera générée sans le CV.
+                        </div>
+                    </div>
                 </div>
 
                 <input type="file" id="cv-input" accept=".pdf,.doc,.docx">
@@ -2075,7 +2013,8 @@
                         body: JSON.stringify({
                             answers: answers,
                             email: user.email,
-                            user_plan: userPlan
+                            // Send null/undefined if 'decouverte' to force backend re-check
+                            user_plan: userPlan === 'decouverte' ? null : userPlan
                         })
                     });
 
@@ -2777,7 +2716,8 @@
         }
 
         // Show CV Upload
-        function showCVUpload() {
+        // Show CV Upload
+        async function showCVUpload() {
             questionsContainer.style.display = 'none';
             cvUploadSection.classList.add('active');
             progressFill.style.width = '100%';
@@ -2788,6 +2728,108 @@
                 pill.classList.remove('active');
                 pill.classList.add('completed');
             });
+
+            // 🔓 CHECK PLAN FOR CV UNLOCK
+            try {
+                console.log('🔍 Checking session...');
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                let userPlan = 'decouverte';
+                let hasCoach = false;
+
+                if (session?.user) {
+                    // Check coach first
+                    const { data: coachRel } = await window.supabaseClient
+                        .from('coach_clients')
+                        .select('id')
+                        .eq('client_id', session.user.id)
+                        .maybeSingle();
+
+                    if (coachRel) {
+                        userPlan = 'decouverte_coach';
+                        hasCoach = true;
+                        console.log('👨‍🏫 Coach found, plan upgraded to:', userPlan);
+                    } else {
+                        const { data: profile } = await window.supabaseClient
+                            .from('profiles')
+                            .select('plan')
+                            .eq('id', session.user.id)
+                            .single();
+                        userPlan = profile?.plan || 'decouverte';
+                    }
+                }
+
+                console.log('🔓 CV Check - User Plan:', userPlan);
+
+                // UNLOCK ONLY IF PAID PLAN
+                console.log('🔓 CV Check Final Decision - Plan:', userPlan);
+
+                // UNLOCK ONLY IF PAID PLAN
+                const optionalMessage = document.getElementById('cv-optional-message');
+                const upgradeMessage = document.getElementById('cv-upgrade-message');
+
+                if (userPlan === 'essentiel' || userPlan === 'premium' || userPlan === 'decouverte_coach') {
+                    console.log('✅ Unlocking CV Zone');
+                    // RESTORE UPLOAD ZONE
+                    const uploadZone = document.getElementById('upload-zone');
+                    if (uploadZone) {
+                        uploadZone.style.pointerEvents = 'auto';
+                        uploadZone.style.background = '';
+                        uploadZone.style.border = '';
+                        uploadZone.innerHTML = `
+                            <div class="upload-icon">📄</div>
+                            <h3 class="upload-title">Glissez-déposez votre CV ici</h3>
+                            <p class="upload-subtitle">ou cliquez pour parcourir vos fichiers</p>
+                            <button class="upload-btn" type="button">
+                                <span>📁</span>
+                                Choisir un fichier
+                            </button>
+                            <p class="upload-formats">Formats acceptés : PDF, DOCX, DOC • Max 10 Mo</p>
+                        `;
+
+                        // Re-attach event listeners since we replaced innerHTML
+                        // We need to call setupCVUpload again or re-attach listeners specifically for the new elements
+                        // Actually setupCVUpload attaches to #upload-zone which we didn't destroy, just changed content.
+                        // BUT the inner elements (like .upload-btn) might need listeners if setupCVUpload used them.
+                        // Looking at setupCVUpload:
+                        // uploadZone.addEventListener('click'... -> this works (delegation or direct on zone)
+                        // It uses cvInput.click() so it expects cvInput to exist.
+                        // cvInput is OUTSIDE upload-zone in the HTML, so it is safe.
+                        // BUT fileRemove listener? fileRemove is also outside.
+                        // So simple HTML replacement is likely fine.
+                    }
+                    if (cvInput) cvInput.disabled = false;
+                } else {
+                    console.log('🔒 Locking CV Zone (Free Plan)');
+                    // FORCE LOCK (in case it wasn't)
+                    const uploadZone = document.getElementById('upload-zone');
+                    if (uploadZone) {
+                        uploadZone.style.pointerEvents = 'none';
+                        uploadZone.style.background = 'rgba(255, 255, 255, 0.05)';
+                        uploadZone.style.border = '2px dashed #4b5563';
+                        // Ensure lock icon is present
+                        uploadZone.innerHTML = `
+                            <div style="text-align: center; padding: 2rem;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                                <h3 style="color: var(--gray); margin-bottom: 0.5rem;">Analyse CV verrouillée</h3>
+                                <p style="color: var(--gray); font-size: 0.9rem;">Réservé aux plans Essentiel & Premium</p>
+                                <div style="margin-top: 1rem; color: var(--purple); font-size: 0.85rem;">
+                                    L'analyse de votre Ikigai sera générée sans le CV.
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Ensure input is disabled
+                    if (cvInput) cvInput.disabled = true;
+
+                    // Hide "Optional" message, Show "Upgrade" message
+                    if (optionalMessage) optionalMessage.style.display = 'none';
+                    if (upgradeMessage) upgradeMessage.style.display = 'flex';
+                }
+
+            } catch (e) {
+                console.warn('Error checking plan for CV unlock:', e);
+            }
         }
 
         // Setup CV Upload
@@ -3095,104 +3137,46 @@
                     if (recommendationsList) {
                         const careerHTML = backendAnalysis.careerRecommendations.map((rec, i) => `
                     <div class="recommendation-item">
-                        <div class="recommendation-header">
-                            <div class="recommendation-number">${i + 1}</div>
-                            <div class="recommendation-content">
-                                <h4>${rec.title || rec.name || `Carrière ${i + 1}`} ${rec.matchScore ? `<span class="score-badge">${rec.matchScore}%</span>` : ''}</h4>
-                                
-                                ${rec.realismLabel ? `
-                                <div class="recommendation-meta" style="margin-bottom: 8px;">
-                                    <span class="realism-badge" style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px; font-size: 0.9em;">
-                                        ${rec.realism || '🟢'} ${rec.realismLabel}
-                                    </span>
-                                </div>` : ''}
-
-                                <p>${rec.description}</p>
-
-                                ${rec.keyRisk && rec.keyRisk !== 'Aucun' ? `
-                                <div class="recommendation-risk" style="margin-top:10px; color:#ff6b6b; font-size:0.9em; background: rgba(255, 107, 107, 0.1); padding: 8px; border-radius: 6px;">
-                                    <strong>⚠️ Vigilance :</strong> ${rec.keyRisk}
-                                </div>` : ''}
-
-                                ${rec.attentionPoints && rec.attentionPoints.length > 0 ? `
-                                <div class="recommendation-points" style="margin-top:10px; font-size:0.9em; color:#e2e8f0; background: rgba(255, 255, 255, 0.05); padding: 8px; border-radius: 6px;">
-                                    <strong>💡 Points d'attention :</strong>
-                                    <ul style="padding-left:20px; margin-top:5px; margin-bottom: 0;">
-                                        ${rec.attentionPoints.map(p => `<li>${p}</li>`).join('')}
-                                    </ul>
-                                </div>` : ''}
-                            </div>
+                        <div class="recommendation-number">${i + 1}</div>
+                        <div class="recommendation-content">
+                            <h4>${rec.title || rec.name || `Carrière ${i + 1}`}</h4>
+                            <p>${rec.description}</p>
                         </div>
                     </div>
                 `).join('');
 
                         const businessHTML = backendAnalysis.businessIdeas && backendAnalysis.businessIdeas.length > 0
-                            ? backendAnalysis.businessIdeas.map((idea, i) => {
-                                // Handle both string and object formats
-                                const isString = typeof idea === 'string';
-                                const title = isString ? idea : (idea.title || idea.name || `Idée ${i + 1}`);
-                                const description = isString ? '' : (idea.description || '');
+                            ? (() => {
+                                console.log('🔍 DEBUG businessIdeas:', backendAnalysis.businessIdeas);
+                                console.log('🔍 DEBUG first idea:', backendAnalysis.businessIdeas[0]);
+                                return backendAnalysis.businessIdeas.map((idea, i) => {
+                                    // Handle both string and object formats
+                                    const isString = typeof idea === 'string';
+                                    const title = isString ? idea : (idea.title || idea.name || `Idée ${i + 1}`);
+                                    const description = isString ? '' : (idea.description || '');
 
-                                return `
-                    <div class="recommendation-item business-idea">
-                        <div class="recommendation-number" style="background: var(--gradient-secondary);">🚀 ${i + 1}</div>
+                                    console.log(`🔍 Idea ${i}: isString=${isString}, title="${title}"`);
+
+                                    return `
+                    <div class="recommendation-item">
+                        <div class="recommendation-number">💼 ${i + 1}</div>
                         <div class="recommendation-content">
                             <h4>${title}</h4>
                             ${description ? `<p>${description}</p>` : ''}
                         </div>
                     </div>
                 `;
-                            }).join('')
-                            : '';
-
-                        const diagnosticHTML = backendAnalysis.coherenceDiagnosis
-                            ? `
-                            <div class="recommendation-item diagnostic" style="border: 2px solid var(--purple);">
-                                <div class="recommendation-number">🎯</div>
-                                <div class="recommendation-content">
-                                    <h4>Diagnostic de Cohérence (${backendAnalysis.coherenceDiagnosis.score || 85}%)</h4>
-                                    
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 10px;">
-                                        <div>
-                                            <strong style="color: #4ade80;">Forces :</strong>
-                                            <ul style="padding-left: 20px;">
-                                                ${(backendAnalysis.coherenceDiagnosis.strengths || []).map(s => `<li>${s}</li>`).join('')}
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <strong style="color: #f87171;">Faiblesses :</strong>
-                                            <ul style="padding-left: 20px;">
-                                                ${(backendAnalysis.coherenceDiagnosis.weaknesses || []).map(w => `<li>${w}</li>`).join('')}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style="margin-top: 10px;">
-                                        <strong style="color: var(--purple);">Recommandations :</strong>
-                                        <ul style="padding-left: 20px;">
-                                            ${(backendAnalysis.coherenceDiagnosis.recommendations || []).map(r => `<li>${r}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>`
-                            : '';
-
+                                }).join('');
+                            })()
+                            : '<div class="empty-state"><p>Débloquez les idées business avec le plan Essentiel</p></div>';
 
                         recommendationsList.innerHTML = `
-                            <h3>🎯 Recommandations de carrière</h3>
+                            <h3>🎯 Recommandations de carrière(${backendAnalysis.careerRecommendations.length})</h3>
                             ${careerHTML}
-                            
                             ${businessHTML ? `
                                 <div style="clear: both; margin-top: 2rem;">
-                                    <h3>💼 Idées de business</h3>
+                                    <h3>💼 Idées de business (${backendAnalysis.businessIdeas.length})</h3>
                                     ${businessHTML}
-                                </div>
-                            ` : ''}
-
-                            ${diagnosticHTML ? `
-                                <div style="clear: both; margin-top: 2rem;">
-                                    <h3>🔍 Diagnostic de cohérence</h3>
-                                    ${diagnosticHTML}
                                 </div>
                             ` : ''}
                         `;

@@ -120,20 +120,27 @@ function renderClients(clients) {
     defaultView.innerHTML = html;
 }
 
+// Update stats calculation
 function updateStats(clients) {
     const total = clients.length;
     const active = clients.filter(c => c.status === 'active').length;
     const pending = clients.filter(c => c.status === 'pending').length;
 
+    // MOCKED For now (Sessions & Revenue not yet in API)
+    // TODO: Connect to real API endpoint for sessions/revenue
+    const sessionsToday = 0;
+    const estimatedRevenue = clients.length * 50; // Example calculation
+
     if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = total;
     if (document.getElementById('stat-active')) document.getElementById('stat-active').textContent = active;
     if (document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = pending;
+
+    // New Stats
+    if (document.getElementById('stat-sessions')) document.getElementById('stat-sessions').textContent = sessionsToday;
+    if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = estimatedRevenue;
 }
 
-// ==========================================
 // INVITATION LOGIC
-// ==========================================
-
 function setupEventListeners(user) {
     // Modal Logic
     const modal = document.getElementById('invite-modal');
@@ -165,15 +172,14 @@ function setupEventListeners(user) {
             btn.textContent = 'Envoi...';
             btn.disabled = true;
 
-            const formData = new FormData(inviteForm);
-            const clientEmail = formData.get('email');
-            const clientName = formData.get('name');
-            const message = formData.get('message');
-
             try {
-                // Prepare Payload for /api/send-invitation
-                // We need to generate a link. For now, points to index.html with a param or just signup.
-                // The backend creates the relation logic.
+                const formData = new FormData(inviteForm);
+                const clientEmail = formData.get('email');
+                const clientName = formData.get('name');
+                const message = formData.get('message');
+
+                // DEBUG: Check for weird characters
+                console.log('Invite Payload:', { clientEmail, clientName, message });
 
                 const inviteLink = `${window.location.origin}/auth.html?coach=${user.id}&email=${encodeURIComponent(clientEmail)}`;
 
@@ -181,14 +187,21 @@ function setupEventListeners(user) {
                     to: clientEmail,
                     clientName: clientName,
                     coachName: user.name || user.email,
-                    personalMessage: message,
+                    personalMessage: message || '',
                     inviteLink: inviteLink,
-                    coachId: user.id,
-                    invitationToken: 'temp-' + Date.now() // Simple token for tracking
+                    coachId: user.id
                 };
 
-                // Call the Worker API directly
-                const token = await window.AuthAPI.getToken();
+                // Use try/catch specifically for token retrieval
+                let token;
+                try {
+                    token = await window.AuthAPI.getToken();
+                    if (!token) throw new Error("Session invalide - Veuillez vous reconnecter (Token absent)");
+                } catch (tokenErr) {
+                    console.error('Token Error:', tokenErr);
+                    throw new Error("Erreur d'authentification: " + tokenErr.message);
+                }
+
                 const response = await fetch('/api/send-invitation', {
                     method: 'POST',
                     headers: {
@@ -204,11 +217,19 @@ function setupEventListeners(user) {
 
                 showSuccess(`Invitation envoyée à ${clientName} !`);
                 closeModal();
-                loadDashboard(user); // Reload list
+                loadDashboard(user);
 
             } catch (error) {
-                console.error('Invite Error:', error);
-                showError(error.message || "Erreur lors de l'envoi de l'invitation");
+                console.error('Invite Error Detail:', error);
+
+                let msg = error.message || "Erreur lors de l'envoi";
+
+                // Specific help for the encoding error
+                if (msg.includes('string did not match the expected pattern') || msg.includes('DOMException')) {
+                    msg = "Erreur de session (encodage). Veuillez vous déconnecter et vider le cache.";
+                }
+
+                showError(msg);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;

@@ -31,18 +31,43 @@ async function loadDashboard(user) {
         // OR fetching directly if DashboardAPI is restricted
 
         // Try getting clients from Supabase directly first (safer given corrupted files)
-        const { data: clients, error } = await window.supabaseClient
+        // 1. Fetch relations
+        const { data: relations, error } = await window.supabaseClient
             .from('coach_clients')
-            .select(`
-                *,
-                client:client_id (id, email, name, avatar_url)
-            `)
+            .select('*')
             .eq('coach_id', user.id);
 
         if (error) throw error;
 
-        renderClients(clients || []);
-        updateStats(clients || []);
+        // 2. Manually fetch client profiles
+        const clients = [];
+        if (relations && relations.length > 0) {
+            const clientIds = relations.map(r => r.client_id).filter(id => id); // Filter nulls
+
+            // Fetch profiles
+            let profilesMap = {};
+            if (clientIds.length > 0) {
+                const { data: profiles } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id, name, email')
+                    .in('id', clientIds);
+
+                if (profiles) {
+                    profiles.forEach(p => profilesMap[p.id] = p);
+                }
+            }
+
+            // Merge
+            relations.forEach(rel => {
+                clients.push({
+                    ...rel,
+                    client: rel.client_id ? profilesMap[rel.client_id] : null
+                });
+            });
+        }
+
+        renderClients(clients);
+        updateStats(clients);
 
     } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -202,7 +227,10 @@ function setupEventListeners(user) {
                     throw new Error("Erreur d'authentification: " + tokenErr.message);
                 }
 
-                const response = await fetch('/api/send-invitation', {
+                // FIX: Use Absolute URL for the Worker, relative path fails on static host
+                const WORKER_URL = 'https://ai-ikigai.ai-ikigai.workers.dev';
+
+                const response = await fetch(`${WORKER_URL}/api/send-invitation`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

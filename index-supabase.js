@@ -177,8 +177,8 @@ function analyzeSimpleCV(cvText) {
 
 async function generateRecommendationsWithClaude(answers, cvData, env, userPlan = 'decouverte') {
 	if (!env.ANTHROPIC_API_KEY) {
-		console.warn('⚠️ Pas de clé API Claude, utilisation génération simple');
-		return generateSimpleRecommendations(answers, cvData, userPlan);
+		console.warn('⚠️ Pas de clé API Claude, tentative avec OpenAI...');
+		return generateRecommendationsWithOpenAI(answers, cvData, env, userPlan);
 	}
 
 	// Déterminer le nombre de recommandations selon le plan
@@ -471,6 +471,12 @@ CRITICAL: Return ONLY valid JSON. No text before/after. ALL in FRENCH.`
 
 		if (jsonMatch) {
 			const analysis = JSON.parse(jsonMatch[0]);
+			analysis._debug = {
+				method: 'claude',
+				plan: userPlan,
+				pack: packLevel,
+				counts: counts
+			};
 
 			// POST-PROCESSING: Convertir trajectories strings en objets si nécessaire
 			if (analysis.trajectories && Array.isArray(analysis.trajectories)) {
@@ -561,6 +567,12 @@ function generateSimpleRecommendations(answers, cvData, userPlan = 'decouverte')
 	const counts = recommendationCounts[normalizedPlan] || recommendationCounts['decouverte'];
 
 	const analysis = {
+		_debug: {
+			method: 'simple',
+			reason: 'Fallback or API key missing',
+			plan: userPlan,
+			normalizedPlan: normalizedPlan
+		},
 		passions: [],
 		talents: [],
 		mission: [],
@@ -2192,6 +2204,11 @@ ${packLevel === 'CLARITY' ? `
 
 		const content = data.choices[0].message.content;
 		const analysis = JSON.parse(content);
+		analysis._debug = {
+			method: 'openai',
+			plan: userPlan,
+			pack: packLevel
+		};
 
 		console.log('✅ Recommandations générées par OpenAI (GPT-4o)');
 

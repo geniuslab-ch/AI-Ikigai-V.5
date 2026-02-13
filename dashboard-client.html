@@ -7,6 +7,13 @@
     <title>Mon Dashboard | AI-Ikigai</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
+    <script>
+        window.onerror = function (msg, url, line, col, error) {
+            alert("Erreur critique : " + msg + "\nLigne : " + line + "\nFichier : " + url);
+            return false;
+        };
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -1,15 +1,12 @@
-# Redirects for AI-Ikigai Dashboards
+# Redirects for AI-Ikigai
 
-# Clean URLs
+# Clean URLs (convenience shortcuts)
 /admin              /admin-dashboard.html           301
-/coach              /coach-dashboard.html           301
-/client             /dashboard.html                 301
-/dashboard          /dashboard.html                 301
+/coach-dashboard    /dashboard-coach.html           301
+/client-dashboard   /dashboard-client.html          301
+/dashboard          /dashboard-client.html          301
 
-# Legacy URLs (if any)
-/app                /dashboard.html                 301
+# Legacy URLs
+/app                /dashboard-client.html          301
 /app/admin          /admin-dashboard.html           301
-/app/coach          /coach-dashboard.html           301
-
-# 404 handling
-/*                  /404.html                       404
+/app/coach          /dashboard-coach.html           301
